@@ -38,15 +38,15 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
-    options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
-    popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
-    background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
+    newtab: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Newtab', 'index.jsx'),
+    options: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Options', 'index.jsx'),
+    popup: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Popup', 'index.jsx'),
+    background: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Background', 'index.js'),
     // contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
     // contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.ts'),
-    contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.jsx'),
-    devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.js'),
-    panel: path.join(__dirname, 'src', 'pages', 'Panel', 'index.jsx'),
+    contentScript: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Content', 'index.jsx'),
+    devtools: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Devtools', 'index.js'),
+    panel: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Panel', 'index.jsx'),
   },
   chromeExtensionBoilerplate: {
     notHotReload: ['background', 'contentScript', 'devtools'],
@@ -143,7 +143,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/manifest.json',
+          from: 'src/chrome-extension/manifest.json',
           to: path.join(__dirname, 'build'),
           force: true,
           transform: function (content, path) {
@@ -162,7 +162,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/pages/Content/content.styles.css',
+          from: 'src/chrome-extension/pages/Content/content.styles.css',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -171,7 +171,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-128.png',
+          from: 'src/chrome-extension/assets/img/icon-128.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -180,7 +180,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/form-render-inject.html',
+          from: 'src/chrome-extension/form-render-inject.html',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -189,38 +189,38 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-34.png',
+          from: 'src/chrome-extension/assets/img/icon-34.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
       ],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
+      template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Newtab', 'index.html'),
       filename: 'newtab.html',
       chunks: ['newtab'],
       cache: false,
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),
+      template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Options', 'index.html'),
       filename: 'options.html',
       chunks: ['options'],
       cache: false,
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
+      template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Popup', 'index.html'),
       filename: 'popup.html',
       chunks: ['popup'],
       cache: false,
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.html'),
+      template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Devtools', 'index.html'),
       filename: 'devtools.html',
       chunks: ['devtools'],
       cache: false,
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Panel', 'index.html'),
+      template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Panel', 'index.html'),
       filename: 'panel.html',
       chunks: ['panel'],
       cache: false,
