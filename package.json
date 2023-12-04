@@ -9,6 +9,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "predicate-tree-advanced-poc": "file:predicate-tree-advanced-poc-2.0.2-beta.0.tgz",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

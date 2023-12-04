@@ -5,7 +5,7 @@ console.log('Put the background scripts here.');
 
 console.log("hello from formstackApi.js");
 import { TreeManager } from "../../common/TreeManager";
-// import { SubmissionManager } from "../common/SubmissionManager";
+import { SubmissionManager } from "../../common/SubmissionManager";
 
 // import { ApiSubmissionCacheManager } from "../common/ApiSubmissionCacheManager";
 // @ts-ignore 'oninstall' not on Window
@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (
   senderResponse
 ) {
   const { apiKey, fetchFormId } = message;
-
+  console.log({background:true, message})
   switch (message.type) {
     case "GetFormAsJson":
       TreeManager.getInstance()
@@ -34,14 +34,15 @@ chrome.runtime.onMessage.addListener(function (
           senderResponse(e);
         });
       break;
-    // case "GetSubmissionFromApiRequest":
-    //   const { submissionId } = message;
-    //   SubmissionManager.getInstance()
-    //     .getSubmission(apiKey, submissionId)
-    //     .then((submissionJson) => {
-    //       senderResponse(submissionJson);
-    //     });
-    //   break;
+    case "GetSubmissionFromApiRequest":
+      const { submissionId } = message;
+      console.log({submissionId}); 
+      SubmissionManager.getInstance()
+        .getSubmission(apiKey, submissionId)
+        .then((submissionJson) => {
+          senderResponse(submissionJson);
+        });
+      break;
   }
   return true;
 });

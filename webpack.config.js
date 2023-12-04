@@ -186,6 +186,15 @@ var options = {
         },
       ],
     }),
+    // new CopyWebpackPlugin({
+    //   patterns: [
+    //     {
+    //       from: 'src/chrome-extension/form-render-inject.css',
+    //       to: path.join(__dirname, 'build'),
+    //       force: true,
+    //     },
+    //   ],
+    // }),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -225,6 +234,22 @@ var options = {
       chunks: ['panel'],
       cache: false,
     }),
+// ----------------------
+  // new HtmlWebpackPlugin({
+  //   template: path.join(__dirname, 'src', 'chrome-extension', 'form-render-inject.html'),
+  //   filename: 'form-render-inject.html',
+  //   chunks: ['form-render-inject'],
+  //   cache: false,
+  // }),
+  // new HtmlWebpackPlugin({
+  //   template: path.join(__dirname, 'src', 'chrome-extension', 'form-render-inject.css'),
+  //   filename: 'form-render-inject.css',
+  //   chunks: ['form-render-inject-css'],
+  //   cache: false,
+  // }),
+// ----------------------
+
+
   ].filter(Boolean),
   infrastructureLogging: {
     level: 'info',

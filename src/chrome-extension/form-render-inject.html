@@ -1,179 +1,185 @@
 <html>
 	<head>
+    <!-- 
+      the html gets goofed quote &qt; etc. 
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> 
+    -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <style>
-      circle {
-        fill: steelblue;
-        stroke: none;
-      }
 
-      line {
-        fill: none;
-        /* stroke: red; */
-        stroke: #ccc;
-        stroke-width: 1px;
-      }
+<style>
+    circle {
+    fill: steelblue;
+    stroke: none;
+  }
 
-      text {
-        font-size: 12px;
-        text-anchor: middle;
-      }
+  line {
+    fill: none;
+    /* stroke: red; */
+    stroke: #ccc;
+    stroke-width: 1px;
+  }
 
-      .linkCircular {
-        fill: none;
-        stroke: red;
-        /* stroke-opacity: 0.4; */
-        stroke-width: 3px;
-      }
+  text {
+    font-size: 12px;
+    text-anchor: middle;
+  }
 
-      .count-label {
-        background-color: blue;
-        text-wrap: wrap;
-      }
-      text.count-label {
-        background-color: blue;
-        text-wrap: wrap;
-      }
+  .linkCircular {
+    fill: none;
+    stroke: red;
+    /* stroke-opacity: 0.4; */
+    stroke-width: 3px;
+  }
 
-      .fsBuddy_obscure_field {
-          opacity: 0.7;
-          border: lightgray 1px solid;
-      }
- 
-      .fsBuddy_obscure_section {
-          border: lightgray 3px dashed;
-          margin-bottom: 5px;
-          margin-bottom: 5px;
-      }
+  .count-label {
+    background-color: blue;
+    text-wrap: wrap;
+  }
+  text.count-label {
+    background-color: blue;
+    text-wrap: wrap;
+  }
 
-      .fsBuddy_obscure_section .fsSectionHeader .fsSectionHeading {
-        color: lightgray !important;
-      }
+  .fsBuddy_obscure_field {
+      opacity: 0.7;
+      border: lightgray 1px solid;
+  }
 
-      .fsBuddy_obscure_section .fsSectionHeader .fsSectionText {
-        color: lightgray !important;
-      }
+  .fsBuddy_obscure_section {
+      border: lightgray 3px dashed;
+      margin-bottom: 5px;
+      margin-bottom: 5px;
+  }
 
-      .fsBuddy_logic_focus {
-          border: rgb(139, 75, 157) 3px dashed;
-          margin-bottom: 5px;
-          margin-bottom: 5px;
-      }
+  .fsBuddy_obscure_section .fsSectionHeader .fsSectionHeading {
+    color: lightgray !important;
+  }
 
-      .fsBuddy_lightblue {
-          /* opacity: 0.5; */
-          background-color: lightblue;
-      }
+  .fsBuddy_obscure_section .fsSectionHeader .fsSectionText {
+    color: lightgray !important;
+  }
 
-      .fsBuddy_dependant_logic_field {
-        background-color: lightgray;
-      }
+  .fsBuddy_logic_focus {
+      border: rgb(139, 75, 157) 3px dashed;
+      margin-bottom: 5px;
+      margin-bottom: 5px;
+  }
 
-      .fsBuddy_lightgreen {
-          /* opacity: 0.5; */
-          background-color: lightgreen;
-      }
-      /* ----------------------------------------------------- */
-      #fsBuddy_filterStatusMessageContainer label {
-        display: inline;
-        padding-left: 15px;
-      }
+  .fsBuddy_lightblue {
+      /* opacity: 0.5; */
+      background-color: lightblue;
+  }
 
-      #fsBuddy_filterStatusMessageContainer ul {
-        list-style-type: none;
-        display:inline;
-      }
+  .fsBuddy_dependant_logic_field {
+    background-color: lightgray;
+  }
 
-      #fsBuddy_filterStatusMessageContainer li {
-        float: left;
-      }
+  .fsBuddy_lightgreen {
+      /* opacity: 0.5; */
+      background-color: lightgreen;
+  }
+  /* ----------------------------------------------------- */
+  #fsBuddy_filterStatusMessageContainer label {
+    display: inline;
+    padding-left: 15px;
+  }
 
-      .fsBuddy_statusContainer {
-          opacity: 0.5;
-      }
+  #fsBuddy_filterStatusMessageContainer ul {
+    list-style-type: none;
+    display:inline;
+  }
 
-      .fsBuddy_statusRowHeader
-      {
-          /*padding-left: 2em;*/
-      }
-  
-      .fsBuddy_statusRow
-      {
-        margin: 3px;
-        padding: 0.5em;
-        overflow-wrap: break-word;
-        border-radius: 10px;
-        border: 1px solid black;
-        background-color: white;
-      }
-  
-      .fsBuddy_statusRow_hidden
-      {
-          display: none;
-      }
-  
-      .fsBuddy_statusMessageCell_
-      {}
+  #fsBuddy_filterStatusMessageContainer li {
+    float: left;
+  }
 
-      .fsBuddy_statusMessageCell_severity,
-      .fsBuddy_statusMessageCell_message {
-          display: inline
-      }
-  
-      .fsBuddy_statusMessageCell_fieldId, 
-      .fsBuddy_statusMessageCell_relatedFieldIds {
-          display: none;
-      }
+  .fsBuddy_statusContainer {
+      opacity: 0.5;
+  }
 
-      .fsBuddy_statusMessages{
-        margin: 3px;
-        padding: 0.5em;
-        overflow-wrap: break-word;
-        border-radius: 10px;
-        border: 1px solid black;
-      }
-  
-      .fsBuddy_statusMessages > .fsBuddyDebug {
-          background-color: pink;
-      }
-  
-      .fsBuddy_statusMessages > .fsBuddyInfo{
-          background-color: lightblue;
-      }
-  
-      .fsBuddy_statusMessages > .fsBuddyWarn{
-          background-color: yellow;
-      }
-  
-      .fsBuddy_statusMessages > .fsBuddyError {
-          background-color: red;
-          color: black !important;
-      }
+  .fsBuddy_statusRowHeader
+  {
+      /*padding-left: 2em;*/
+  }
 
-      .fsBuddy_statusMessages > .fsBuddyLogicInfo {
-          background-color: lightblue;
-      }
+  .fsBuddy_statusRow
+  {
+    margin: 3px;
+    padding: 0.5em;
+    overflow-wrap: break-word;
+    border-radius: 10px;
+    border: 1px solid black;
+    background-color: white;
+  }
 
-      .fsBuddyError {
-          background-color: red;
-      }
+  .fsBuddy_statusRow_hidden
+  {
+      display: none;
+  }
+
+  .fsBuddy_statusMessageCell_
+  {}
+
+  .fsBuddy_statusMessageCell_severity,
+  .fsBuddy_statusMessageCell_message {
+      display: inline
+  }
+
+  .fsBuddy_statusMessageCell_fieldId, 
+  .fsBuddy_statusMessageCell_relatedFieldIds {
+      display: none;
+  }
+
+  .fsBuddy_statusMessages{
+    margin: 3px;
+    padding: 0.5em;
+    overflow-wrap: break-word;
+    border-radius: 10px;
+    border: 1px solid black;
+  }
+
+  .fsBuddy_statusMessages > .fsBuddyDebug {
+      background-color: pink;
+  }
+
+  .fsBuddy_statusMessages > .fsBuddyInfo{
+      background-color: lightblue;
+  }
+
+  .fsBuddy_statusMessages > .fsBuddyWarn{
+      background-color: yellow;
+  }
+
+  .fsBuddy_statusMessages > .fsBuddyError {
+      background-color: red;
+      color: black !important;
+  }
+
+  .fsBuddy_statusMessages > .fsBuddyLogicInfo {
+      background-color: lightblue;
+  }
+
+  .fsBuddyError {
+      background-color: red;
+  }
 
 
-      .fsBuddyLogicError {
-          border: 3px dotted red;
-      }
+  .fsBuddyLogicError {
+      border: 3px dotted red;
+  }
 
-      .fsBuddy_statusMessage_link {
-          color: blue;
-          /*background-color: red;*/
-          text-decoration: underline;
-      }
-  
-      .fsControlPanelSubsection {
-        border: 1px black solid;
-        margin: 5px;
-      }
-    </style>
+  .fsBuddy_statusMessage_link {
+      color: blue;
+      /*background-color: red;*/
+      text-decoration: underline;
+  }
+
+  .fsControlPanelSubsection {
+    border: 1px black solid;
+    margin: 5px;
+  }
+
+</style>
   <script>
       console.log('Hello from form-render-inject.html')
       const cssClassBySeverity = {
@@ -185,7 +191,11 @@
           logic: 'fsBuddyLogicInfo'
         }
 
-     window.onmessage = function(e) {
+        // window.onmessage = function(e) {
+        window.addEventListener('message',
+        
+         function(e) {
+      console.log({eData:e.data})
       switch(e.data.messageType) {
         case 'addCssClassToFieldIdList':
           addCssClassToFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
@@ -196,7 +206,7 @@
 
         case 'fetchSubmissionResponse': 
           handelFetchSubmissionResponse(e.data.payload)
-        break;
+          break;
  
         case 'pong':
           console.log({ping:'pong', message: e.data.payload});
@@ -204,6 +214,11 @@
 
         case 'removeAllClassName':
           removeAllCssName(e.data.payload.cssClassName)
+          break;
+  
+        case 'clearAllStatusMessages':
+          clearAllStatusMessages();
+          clearAllFieldStatusMessages();
           break;
           
         case 'getFieldsWithCircularLogicResponse':
@@ -221,7 +236,7 @@
           break;  // <-- never stops being funny.
       }
       
-    };
+    });
 
     function sendMessageToParent(messageType, payload){
       let message;
@@ -269,7 +284,6 @@
     const handleFetchSubmissionClick = ()=>{
       const submissionIdContainer = document.getElementById("fsBuddyFetchSubmissionIdInput");
       sendMessageToParent('fetchSubmissionRequest', {submissionId: submissionIdContainer.value})
-      
     }
 
     const handleLogicFieldIdSelected = (selectElementId, selectedValue)=>{
@@ -309,6 +323,7 @@
 
     const handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{
       fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
+      console.log({fieldInfoResponse})
 
       const {fieldIdsWithLogic} = fieldInfoResponse;
 
@@ -714,7 +729,6 @@
       setCheckboxChecked('statusMessageInclude_info', false); 
       setCheckboxChecked('statusMessageInclude_warn', true); 
       setCheckboxChecked('statusMessageInclude_debug', false);
-
     }
 
     function setPresetCheckboxesFieldAnalysis() {
@@ -913,13 +927,13 @@
       <table>
             <tr>
                 <td>
-                  <button onclick="showOnly('fsBuddyControlPanelSubmission')">Submission Tool</button>
+                  <button onclick="showOnly('fsBuddyControlPanelSubmission')">x Submission Tool</button>
                 </td>
                 <td>
-                    <button onclick="showOnly('fsBuddyControlPanelLogic'); setPresetCheckboxesLogic(); sendMessageToParent('getAllFieldInfoRequest');">Logic Tool</button>
+                    <button onclick="showOnly('fsBuddyControlPanelLogic'); setPresetCheckboxesLogic(); sendMessageToParent('getAllFieldInfoRequest');">x Logic Tool</button>
                 </td>
                 <td>
-                    <button onclick="showOnly('fsBuddyControlPanelFieldStatus'); setPresetCheckboxesFieldAnalysis(); sendMessageToParent('getAllFieldInfoRequest')">Field Analysis</button>
+                    <button onclick="showOnly('fsBuddyControlPanelFieldStatus'); setPresetCheckboxesFieldAnalysis(); sendMessageToParent('getAllFieldInfoRequest')">x Field Analysis</button>
                 </td>
             </tr>
             <tr>
@@ -987,13 +1001,16 @@
               </tr>
         </table>
       </div>
-      
+      <div  id="graphContainer">
+        <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
+        </div>
+      </div>      
       <div id='fsBuddyControlPanelLogic' class="fsControlPanelSubsection">
         <h3>Logic Tool</h3>
-        <div  id="graphContainer">
+        <!-- <div  id="graphContainer">
           <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
           </div>
-        </div>
+        </div> -->
       </div>
       <div id='fsBuddyControlPanelFieldStatus' class="fsControlPanelSubsection">
         <h4>Field Analysis</h4>
