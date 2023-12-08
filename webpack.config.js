@@ -186,6 +186,15 @@ var options = {
         },
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/chrome-extension/form-view-helper.html',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
     // new CopyWebpackPlugin({
     //   patterns: [
     //     {

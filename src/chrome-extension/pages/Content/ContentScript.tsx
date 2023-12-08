@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ApiKeyContainer } from './ApiKeyContainer';
 import { LogicFieldSelect } from './LogicFieldSelect';
-// import { FsFormModel, TFsFieldAnyJson } from '../formstack';
-// import type { TStatusRecord } from "./type";
-// import { FormAnalytics } from '../FormstackBuddy/FormAnalytics';
 import { FormstackBuddy } from '../../../FormstackBuddy/FormstackBuddy';
 import { FsFormModel, TFsFieldAnyJson } from '../../../formstack';
 import { FieldLogicService } from '../../../FormstackBuddy/FieldLogicService';
@@ -11,12 +8,16 @@ import { transformers } from '../../../formstack/transformers';
 
 import { FormAnalytics } from '../../../FormstackBuddy/FormAnalytics';
 import { StatusMessageContainer } from '../../containers/StatusMessages';
+import { TStatusRecord } from '../../../formstack/classes/Evaluator/type';
+import { FormView } from './FormView/FormView';
+import { CheckboxArray } from '../../common/CheckboxArray';
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
 let currentFieldCollection: FsFormModel;
+const formView = new FormView();
 
-// const fetchTreeFormId = '5375703';
-const fetchTreeFormId = '5358471'; // has submissions
+const fetchTreeFormId = '5375703';
+// const fetchTreeFormId = '5358471'; // has submissions
 const fetchSubmissionId = '1129952515';
 // 1129952515 submission id
 
@@ -25,8 +26,12 @@ interface Props {
 }
 
 const ContentScript: React.FC<Props> = ({ title }: Props) => {
+  const [formHtml, setFormHtml] = useState('No Form HTML found.');
   const [fieldStatusPayload, setFieldStatusPayload] = useState(
-    null as null | { fieldIdsWithLogic: [] }
+    null as null | {
+      fieldIdsWithLogic: [];
+      formStatusMessages: TStatusRecord[];
+    }
   );
 
   const handleFetchSubmissionClick = () => {
@@ -83,6 +88,7 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
         // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiFormJson) => {
+        await formView.initialize();
         currentFieldCollection = FsFormModel.fromApiFormJson(
           transformers.formJson(apiFormJson)
         );
@@ -115,6 +121,11 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
         //const payload = { formAnalytic, fieldLogicService };
         // @ts-ignore payload wrong shape (need gto work-out typing)
         payload && setFieldStatusPayload(payload);
+        setFormHtml(apiFormJson.html);
+        const fieldMessages = payload.formStatusMessages.filter(
+          (statusMessage) => statusMessage.fieldId
+        );
+        formView.applyFieldStatusMessages(fieldMessages);
 
         console.log({
           useEffect: true,
@@ -123,6 +134,10 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
       }
     );
   }, []);
+
+  const handleClearFsHidden = () => {
+    formView.clearFsHidden();
+  };
 
   const handleLogicFieldSelected = (fieldId: string) => {
     console.log('handleLogicFieldSelected');
@@ -195,15 +210,36 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
     document.getElementById('theFrame').contentWindow.postMessage(message);
   };
 
+  const checkboxOptions = [
+    {
+      labelText: 'One',
+      value: '1',
+      checkboxId: 'checkboxOne',
+      isChecked: false,
+    },
+    {
+      labelText: 'Two',
+      value: '2',
+      checkboxId: 'checkboxTwo',
+      isChecked: true,
+    },
+  ];
+
   return (
     <div className="ContentContainer">
-      <button onClick={handleApiGetFormRequestClick}>API Request Form </button>{' '}
+      <CheckboxArray checkboxProps={checkboxOptions} />
+      <button onClick={handleApiGetFormRequestClick}>
+        API Request Form{' '}
+      </button>{' '}
       <br />
       <button onClick={handleClearAllStatusMessage}>
         Clear All Status Messages
       </button>
       <br />
       <button onClick={handleWorkWithLogic}>Work With Logic</button>
+      <br />
+      <button onClick={handleClearFsHidden}>Clear fsHidden</button>
+      <br />
       <LogicFieldSelect
         options={fieldStatusPayload?.fieldIdsWithLogic || []}
         onFieldIdSelected={handleLogicFieldSelected}
@@ -214,7 +250,10 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
       </button>
       {title} Page
       <ApiKeyContainer title="The Title" />
-      <StatusMessageContainer />
+      <StatusMessageContainer
+        statusMessages={fieldStatusPayload?.formStatusMessages || []}
+      />
+      <formView.component formHtml={formHtml} />
     </div>
   );
 };
@@ -314,6 +353,13 @@ function handleGetAllFieldInfoRequest(
   });
 }
 
+function removeFormHtml() {
+  const theIFrame = document.getElementById('theFrame');
+  if (theIFrame) {
+    theIFrame.remove();
+  }
+}
+
 window.onmessage = function (e) {
   switch (e.data.messageType) {
     // case "getFieldLogicDependentsRequest":
@@ -325,9 +371,9 @@ window.onmessage = function (e) {
       e.source && handleGetAllFieldInfoRequest(e.source, e.data.payload);
       !e.source && console.log('No Source of message received.');
       break;
-    // case "removeFsBuddyRequest":
-    //   removeFormHtml();
-    //   break;
+    case 'removeFsBuddyRequest':
+      removeFormHtml();
+      break;
     // case "fetchSubmissionRequest":
     //   console.log("receive message fetch submission");
     //   console.log({ payload: e.data.payload });
@@ -358,10 +404,10 @@ function getFormAsJson() {
           console.log('Failed to get API');
           console.log({ e });
         });
-        const iframe = buildIframe('theFrame');
-        iframe.srcdoc = childFrameHtml + apiFormJson.html;
-        const theBody = document.querySelector('body');
-        theBody?.prepend(iframe);
+        // const iframe = buildIframe('theFrame');
+        // iframe.srcdoc = childFrameHtml + apiFormJson.html;
+        // const theBody = document.querySelector('body');
+        // theBody?.prepend(iframe);
 
         if (!apiFormJson.id) {
           // if there is no formId, then we probably didn't get real 200

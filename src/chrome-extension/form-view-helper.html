@@ -204,6 +204,13 @@
           removeCssClassFromFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
           break;
 
+        case 'removeFsHiddenRequest':
+          removeAllCssName('fsHidden');
+          removeAllCssName('fsHiddenPage');
+          removeAllCssName('fsWorkflowHidden');
+          // removeCssClassFromFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
+          break;
+
         case 'fetchSubmissionResponse': 
           handelFetchSubmissionResponse(e.data.payload)
           break;
@@ -228,6 +235,9 @@
           handleGetFieldLogicDependentsResponse(e.data.payload)
           break;
         case 'getAllFieldInfoResponse':
+          handleGetAllFieldInfoResponse(e.data.payload)
+          break;
+        case 'applyFieldStatusMessages':
           handleGetAllFieldInfoResponse(e.data.payload)
           break;
           
@@ -322,6 +332,34 @@
     }
 
     const handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{
+      fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
+      console.log({fieldInfoResponse})
+
+      const {fieldIdsWithLogic} = fieldInfoResponse;
+
+      fsBuddyHelper.getAllFieldIds = ()=>{
+        return Object.keys(fsBuddyHelper['fieldSummary'])
+      }
+      const {formStatusMessages} = fieldInfoResponse;
+
+      clearAllStatusMessages();
+      clearAllFieldStatusMessages();
+
+      if(formStatusMessages) {
+        const statusMessageFilter = buildFilterList();
+        const filteredStatusMessages = formStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
+        prependFormAnalysisMessages(...filteredStatusMessages);
+        (filteredStatusMessages ||[]).forEach(statusMessage=>{
+          const {relatedFieldIds} = statusMessage;
+          relatedFieldIds.forEach(fieldId=>{
+            appendFieldStatusMessages(fieldId, [statusMessage])
+          })
+        })
+      }
+
+      populateLogicSelectBox(fieldIdsWithLogic);
+    }
+    const handleApplyFieldStatusMessages = (fieldInfoResponse)=>{
       fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
       console.log({fieldInfoResponse})
 
@@ -503,13 +541,19 @@
             } 
             Array.isArray(message?.relatedFieldIds) && message?.relatedFieldIds.length>0 &&  messageParts.push(`related fields: ${message?.relatedFieldIds?.join(', ')}`);
             const decoratedMessage = `<div class='fsBuddy_statusMessages ${cssClassBySeverity[message.severity]}'>` + messageParts.join(', ') + "</div>";
-            userMessageDiv.innerHTML = decoratedMessage + userMessageDiv.innerHTML;
+            if(userMessageDiv){
+              userMessageDiv.innerHTML = decoratedMessage + userMessageDiv.innerHTML;
+            }
 
         } else if(typeof message  === 'object') {
-          userMessageDiv.innerHTML = JSON.stringify(message) + `message type: ${typeof message}` + '<br />' + userMessageDiv.innerHTML;
+          if(userMessageDiv){
+            userMessageDiv.innerHTML = JSON.stringify(message) + `message type: ${typeof message}` + '<br />' + userMessageDiv.innerHTML;
+          }
 
         } else {
-          userMessageDiv.innerHTML = message + '<br />' + userMessageDiv.innerHTML;
+          if(userMessageDiv){
+            userMessageDiv.innerHTML = message + '<br />' + userMessageDiv.innerHTML;
+          }
         }
 
       })
@@ -703,24 +747,37 @@
     }
 
     function removeFsBuddy(){
-      sendMessageToParent('removeFsBuddyRequest');
+      sendMessageToParent('removeFsBuddyRequest')
     }
 
     function hideAllPanels(){
       [
       'fsBuddyControlPanelSubmission',
       'fsBuddyControlPanelLogic', 
-      'fsBuddyControlPanelFieldStatus',
+      // 'fsBuddyControlPanelFieldStatus',
       // 'fsBuddyControlPanelUserMessages'
       ].forEach(panelId=>{
-        document.getElementById(panelId).style.display = "none";
+        const panel = document.getElementById(panelId);
+        if(panel) {
+          panel.style.display = "none";
+        } else {
+          console.log(`'${panelId}' is not panel. (hideAllPanels())`)
+        }
+
+
       })
           
     }    
 
     function showOnly(showPanelId){
       hideAllPanels();
-      document.getElementById(showPanelId).style.display = "block";
+      const panel = document.getElementById(showPanelId);
+        if(panel) {
+          panel.style.display = "block";
+        } else {
+          console.log(`'${showPanelId}' is not panel. (showOnly())`)
+        }
+
     }
 
     function setPresetCheckboxesLogic(){
@@ -925,7 +982,7 @@
       <h3 style='text-align: center'>FS Buddy Control Panel</h3>
  
       <table>
-            <tr>
+            <!-- <tr>
                 <td>
                   <button onclick="showOnly('fsBuddyControlPanelSubmission')">x Submission Tool</button>
                 </td>
@@ -935,7 +992,7 @@
                 <td>
                     <button onclick="showOnly('fsBuddyControlPanelFieldStatus'); setPresetCheckboxesFieldAnalysis(); sendMessageToParent('getAllFieldInfoRequest')">x Field Analysis</button>
                 </td>
-            </tr>
+            </tr> -->
             <tr>
               <td colspan="3">
                 <div id="fsBuddy_filterStatusMessageContainer">
@@ -1012,11 +1069,11 @@
           </div>
         </div> -->
       </div>
-      <div id='fsBuddyControlPanelFieldStatus' class="fsControlPanelSubsection">
+      <!-- <div id='fsBuddyControlPanelFieldStatus' class="fsControlPanelSubsection">
         <h4>Field Analysis</h4>
         <div class="fsBuddy_statusMessages" style="background-color: white;height: 300px; overflow-y: auto;" id="fsBuddyUserMessagesDiv"></div>
         </div>
-      </div>
+      </div> -->
     </div>
 	</body>
 </html>
