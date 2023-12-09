@@ -18,7 +18,11 @@
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
       "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"]
+      "css": ["ContentScript.css"]
+    },
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["newtab.bundle.js"]
     }
   ],
   "devtools_page": "devtools.html",

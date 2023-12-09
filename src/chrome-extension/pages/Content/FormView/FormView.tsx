@@ -23,12 +23,44 @@ const fetchSubmissionId = '1129952515';
 interface Props {
   formHtml?: string;
   context?: any;
+  statusMessage: TStatusRecord[];
 }
 class FormView {
   _helperHtml!: string;
 
   async initialize(): Promise<void> {
-    this._helperHtml = await getChildFrameHtml();
+    try {
+      this._helperHtml = await getChildFrameHtml();
+    } catch (e) {
+      console.log({
+        message: 'failed to get form iframe html',
+        e,
+      });
+    }
+    // addEventListener[Symbol]('announceAwake');
+    window.onmessage = function (e) {
+      switch (e.data.messageType) {
+        // case "getFieldLogicDependentsRequest":
+        //   e.source &&
+        //     handleGetFieldLogicDependentsRequest(e.source, e.data.payload);
+        //   !e.source && console.log("No Source of message received.");
+        //   break;
+        case 'announceAwake':
+          console.log({ announceAwake: 'received' });
+          break;
+        // case 'removeFsBuddyRequest':
+        //   removeFormHtml();
+        //   break;
+        // case "fetchSubmissionRequest":
+        //   console.log("receive message fetch submission");
+        //   console.log({ payload: e.data.payload });
+
+        //   e.source && handleFetchSubmissionRequest(e.source, e.data.payload);
+        //   break;
+        default:
+        // console.log(`message type not understood. ( '${e.data.messageType}')`);
+      }
+    };
   }
   // const FormView: React.FC<Props> = ({ formHtml }: Props) => {
   // const [fieldStatusPayload, setFieldStatusPayload] = useState(
@@ -67,34 +99,89 @@ class FormView {
 
     // @ts-ignore - doesn't like typing
     document.getElementById('theFrame2').contentWindow.postMessage(message);
-
-    // console.log('clearFsHidden');
-    // this._removeAllCssName('fsHidden');
-    // this._removeAllCssName('fsHiddenPage');
-    // this._removeAllCssName('fsWorkflowHidden');
   }
 
   applyFieldStatusMessages(statusMessages: TStatusRecord[]) {
     const message = {
       messageType: 'applyFieldStatusMessages',
-      payload: { statusMessages },
+      payload: { fieldStatusMessages: statusMessages },
     };
+    // @ts-ignore - doesn't like typing
+    document.getElementById('theFrame2').contentWindow.postMessage(message);
   }
 
-  public component = ({ formHtml, context: any }: Props): ReactElement => {
-    return (
+  applyLogicStatusMessages(
+    rootFieldId: string,
+    statusMessages: TStatusRecord[],
+    allFieldSummary: {
+      [fieldId: string]: { fieldType: string; fieldId: string; label: string };
+    }
+  ) {
+    // fieldId, {dependentFieldIds, interdependentFieldIds, statusMessages}
+    // const { dependentsByFieldId, allFieldIds } = payload;
+
+    const message = {
+      messageType: 'applyLogicStatusMessages',
+      payload: {
+        dependentsByFieldId: {
+          [rootFieldId]: {
+            dependentFieldIds: [],
+            interdependentFieldIds: [],
+            statusMessages: statusMessages,
+          },
+        },
+        allFieldSummary,
+        // fieldStatusMessages:
+        // statusMessages
+      },
+    };
+    // @ts-ignore - doesn't like typing
+    document.getElementById('theFrame2').contentWindow.postMessage(message);
+  }
+
+  public component = ({
+    // statusMessage,
+    formHtml,
+    context: any,
+  }: Props): ReactElement => {
+    const iFrame = (
       <iframe
         id="theFrame2"
         name="theFrame2"
+        // <meta https-equiv="Content-Security-Policy" content="default-src *;" />
         style={{
           width: '100%',
           height: '1000px',
           top: '150px',
           position: 'absolute',
+          left: '100%',
         }}
+        // sandbox="allow-forms allow-same-origin allow-scripts allow-top-navigation"
+        // sandbox="allow-same-origin"
+        // srcDoc={this._helperHtml}
         srcDoc={this._helperHtml + formHtml}
       ></iframe>
     );
+    // this.applyFieldStatusMessages(statusMessage);
+    return iFrame;
+    // return (
+    //   <iframe
+    //     id="theFrame2"
+    //     name="theFrame2"
+    //     // <meta https-equiv="Content-Security-Policy" content="default-src *;" />
+    //     style={{
+    //       width: '100%',
+    //       height: '1000px',
+    //       top: '150px',
+    //       position: 'absolute',
+    //       left: '100%',
+    //     }}
+    //     // sandbox="allow-forms allow-same-origin allow-scripts allow-top-navigation"
+    //     // sandbox="allow-same-origin"
+    //     // srcDoc={this._helperHtml}
+    //     srcDoc={this._helperHtml + formHtml}
+    //   ></iframe>
+    // );
   };
   // return iFrame;
   // return (

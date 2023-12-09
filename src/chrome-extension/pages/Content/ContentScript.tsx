@@ -11,6 +11,9 @@ import { StatusMessageContainer } from '../../containers/StatusMessages';
 import { TStatusRecord } from '../../../formstack/classes/Evaluator/type';
 import { FormView } from './FormView/FormView';
 import { CheckboxArray } from '../../common/CheckboxArray';
+import { MessageFilter } from '../../../components/MessageFilter';
+import './ContentScript.css';
+
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
 let currentFieldCollection: FsFormModel;
@@ -31,6 +34,7 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
     null as null | {
       fieldIdsWithLogic: [];
       formStatusMessages: TStatusRecord[];
+      fieldStatusMessages: TStatusRecord[];
     }
   );
 
@@ -115,17 +119,20 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
             ...formLogicStatusMessages,
           ],
           fieldIdsWithLogic,
+          fieldStatusMessages: [] as TStatusRecord[],
         };
         // -----------------
-
-        //const payload = { formAnalytic, fieldLogicService };
-        // @ts-ignore payload wrong shape (need gto work-out typing)
-        payload && setFieldStatusPayload(payload);
-        setFormHtml(apiFormJson.html);
         const fieldMessages = payload.formStatusMessages.filter(
           (statusMessage) => statusMessage.fieldId
         );
-        formView.applyFieldStatusMessages(fieldMessages);
+        payload.fieldStatusMessages = fieldMessages;
+        // formView.applyFieldStatusMessages(fieldMessages);
+        //const payload = { formAnalytic, fieldLogicService };
+        // @ts-ignore payload wrong shape (need gto work-out typing)
+        payload && setFieldStatusPayload(payload);
+
+        setFormHtml(apiFormJson.html);
+        // formView.applyFieldStatusMessages(fieldMessages);
 
         console.log({
           useEffect: true,
@@ -160,14 +167,24 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
       },
       logicalNodeGraphMap,
     };
+    const allFieldIds = fieldLogicService?.getFieldIdsAll() || [];
+    const allFieldSummary = fieldLogicService?.getAllFieldSummary();
+    formView.applyLogicStatusMessages(
+      fieldId,
+      statusMessages || [],
+      allFieldSummary
+    );
 
-    const message = {
-      messageType: 'getFieldLogicDependentsResponse',
-      payload,
-    };
+    console.log({
+      applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
+    });
 
-    // @ts-ignore
-    document.getElementById('theFrame').contentWindow.postMessage(message);
+    // const message = {
+    //   messageType: 'getFieldLogicDependentsResponse',
+    //   payload,
+    // };
+    // // @ts-ignore
+    // document.getElementById('theFrame').contentWindow.postMessage(message);
   };
 
   const handleWorkWithLogic = async () => {
@@ -192,68 +209,85 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
     document.getElementById('theFrame').contentWindow.postMessage(message);
   };
 
-  const handleApiGetFormRequestClick = async () => {
-    console.log('handleApiGetFormRequestClick');
-    const payload = getAllFieldInfoRequest();
-    console.log({ payload });
-    const message = {
-      messageType: 'getAllFieldInfoResponse',
-      payload,
-      // payload: {
-      //   fieldSummary: [],
-      //   // formStatusMessages: [...formStatusMessages, ...formLogicStatusMessages],
-      //   // fieldIdsWithLogic,
-      // },
-    };
-
-    // @ts-ignore
-    document.getElementById('theFrame').contentWindow.postMessage(message);
+  const handleOnFilteredStatusMessages = (
+    filteredStatusMessage: TStatusRecord[]
+  ): void => {
+    console.log({ filteredStatusMessage });
+    formView.applyFieldStatusMessages(filteredStatusMessage || []);
   };
 
-  const checkboxOptions = [
-    {
-      labelText: 'One',
-      value: '1',
-      checkboxId: 'checkboxOne',
-      isChecked: false,
-    },
-    {
-      labelText: 'Two',
-      value: '2',
-      checkboxId: 'checkboxTwo',
-      isChecked: true,
-    },
-  ];
+  const handleApiGetFormRequestClick = async () => {
+    formView.applyFieldStatusMessages(
+      fieldStatusPayload?.fieldStatusMessages || []
+    );
+    console.log({
+      applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
+    });
+  };
 
   return (
     <div className="ContentContainer">
-      <CheckboxArray checkboxProps={checkboxOptions} />
-      <button onClick={handleApiGetFormRequestClick}>
-        API Request Form{' '}
-      </button>{' '}
-      <br />
-      <button onClick={handleClearAllStatusMessage}>
-        Clear All Status Messages
-      </button>
-      <br />
-      <button onClick={handleWorkWithLogic}>Work With Logic</button>
-      <br />
-      <button onClick={handleClearFsHidden}>Clear fsHidden</button>
-      <br />
+      <h2 style={{ textAlign: 'center' }}>{title} Page</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td colSpan={2}>
+              {' '}
+              <ApiKeyContainer title="The Title" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <button onClick={handleApiGetFormRequestClick}>
+                API Request Form{' '}
+              </button>
+            </td>
+            <td>
+              <button onClick={handleClearAllStatusMessage}>
+                Clear All Status Messages
+              </button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <button onClick={handleWorkWithLogic}>Work With Logic</button>
+            </td>
+            <td>
+              <button onClick={handleClearFsHidden}>Clear fsHidden</button>
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={2}>
+              <button onClick={handleFetchSubmissionClick}>
+                Fetch Submission (id:1129952515)
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <LogicFieldSelect
         options={fieldStatusPayload?.fieldIdsWithLogic || []}
         onFieldIdSelected={handleLogicFieldSelected}
       />
-      <br />
-      <button onClick={handleFetchSubmissionClick}>
-        Fetch Submission (id:1129952515)
-      </button>
-      {title} Page
-      <ApiKeyContainer title="The Title" />
-      <StatusMessageContainer
+      <div style={{ maxWidth: '500px' }}>
+        {fieldStatusPayload?.formStatusMessages && (
+          <MessageFilter
+            onFiltered={handleOnFilteredStatusMessages}
+            statusMessages={fieldStatusPayload?.formStatusMessages}
+          />
+        )}
+      </div>
+      {/* <StatusMessageContainer
         statusMessages={fieldStatusPayload?.formStatusMessages || []}
-      />
-      <formView.component formHtml={formHtml} />
+      /> */}
+      {fieldStatusPayload?.fieldStatusMessages && (
+        <formView.component
+          statusMessage={fieldStatusPayload.fieldStatusMessages || []}
+          formHtml={formHtml}
+        />
+      )}
     </div>
   );
 };

@@ -4,7 +4,8 @@
       the html gets goofed quote &qt; etc. 
         <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> 
     -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> -->
+    <script src="./d3.v7.min.js"></script>
 
 <style>
     circle {
@@ -79,7 +80,7 @@
       background-color: lightgreen;
   }
   /* ----------------------------------------------------- */
-  #fsBuddy_filterStatusMessageContainer label {
+  /* #fsBuddy_filterStatusMessageContainer label {
     display: inline;
     padding-left: 15px;
   }
@@ -91,7 +92,7 @@
 
   #fsBuddy_filterStatusMessageContainer li {
     float: left;
-  }
+  } */
 
   .fsBuddy_statusContainer {
       opacity: 0.5;
@@ -238,7 +239,10 @@
           handleGetAllFieldInfoResponse(e.data.payload)
           break;
         case 'applyFieldStatusMessages':
-          handleGetAllFieldInfoResponse(e.data.payload)
+          handleApplyFieldStatusMessages(e.data.payload)
+          break;
+        case 'applyLogicStatusMessages':
+          handleApplyLogicStatusMessages(e.data.payload)
           break;
           
         default:
@@ -281,6 +285,12 @@
               payload: payload || null
             }
           break;
+          case 'announceAwake':
+            message = {
+              messageType: "announceAwake",
+              payload: null
+            }
+          break;
         default:
           message = {
             messageType: "ping",
@@ -306,32 +316,13 @@
       }
     }
 
-    const isChecked = (elementId) => {
-      const e = document.getElementById(elementId);
-      return e && e.checked
-    }
+    // const isChecked = (elementId) => {
+    //   const e = document.getElementById(elementId);
+    //   return e && e.checked
+    // }
 
-    const buildFilterList = ()=>{
-      const filters = [];
-      if(isChecked('statusMessageInclude_debug')){
-        filters.push('debug')
-      }
-      if(isChecked('statusMessageInclude_info')){
-        filters.push('info')
-      }
-      if(isChecked('statusMessageInclude_warn')){
-        filters.push('warn')
-      }
-      if(isChecked('statusMessageInclude_error')){
-        filters.push('error')
-      }
-      if(isChecked('statusMessageInclude_logic')){
-        filters.push('logic')
-      }
-      return filters
-    }
-
-    const handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{
+    const handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{}
+    const x_handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{
       fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
       console.log({fieldInfoResponse})
 
@@ -346,7 +337,7 @@
       clearAllFieldStatusMessages();
 
       if(formStatusMessages) {
-        const statusMessageFilter = buildFilterList();
+        // const statusMessageFilter = buildFilterList();
         const filteredStatusMessages = formStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
         prependFormAnalysisMessages(...filteredStatusMessages);
         (filteredStatusMessages ||[]).forEach(statusMessage=>{
@@ -359,23 +350,95 @@
 
       populateLogicSelectBox(fieldIdsWithLogic);
     }
+
+    const handleApplyLogicStatusMessages = (payload)=>{
+      // fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
+      // console.log({fieldInfoResponse})
+
+      // // const {fieldIdsWithLogic} = fieldInfoResponse;
+
+      // fsBuddyHelper.getAllFieldIds = ()=>{
+      //   return Object.keys(fsBuddyHelper['fieldSummary'])
+      // }
+      // const {fieldStatusMessages} = fieldInfoResponse;
+
+      // clearAllStatusMessages();
+      // clearAllFieldStatusMessages();
+      // if(fieldStatusMessages) {
+      //   // const statusMessageFilter = buildFilterList();
+      //   // const filteredStatusMessages = fieldStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
+
+      //   const filteredStatusMessages = fieldStatusMessages;
+
+      //   prependFormAnalysisMessages(...filteredStatusMessages);
+      //   (filteredStatusMessages ||[]).forEach(statusMessage=>{
+      //     const {relatedFieldIds} = statusMessage;
+      //     relatedFieldIds.forEach(fieldId=>{
+      //       appendFieldStatusMessages(fieldId, [statusMessage])
+      //     })
+      //   })
+      // }
+
+      // ---------------------
+      const { dependentsByFieldId, allFieldSummary } = payload;
+      // const logicalNodeGraphMap = payload;
+      removeAllFsBuddyCss()
+      removeAllCssName('fsBuddy_statusMessages')
+
+      clearAllStatusMessages();
+      clearAllFieldStatusMessages();
+
+      console.log({dependentsByFieldId})
+      // const statusMessageFilter = buildFilterList();
+      
+      Object.entries(dependentsByFieldId).forEach(([fieldId, {dependentFieldIds, interdependentFieldIds, statusMessages}])=>{
+        const filteredStatusMessages = statusMessages; //.filter(sm=>statusMessageFilter.includes(sm.severity)) 
+        filteredStatusMessages.forEach(statusMessage => {
+          appendFieldStatusMessages(statusMessage.fieldId, [statusMessage])
+        });
+
+        const nonDependentFieldIds = Object.keys(allFieldSummary)
+            .filter( (childFieldId)=>{
+              return !dependentFieldIds.includes(childFieldId) && fieldId !== childFieldId && !interdependentFieldIds.includes(childFieldId)
+            }); 
+
+            // addCssClassToFields('fsBuddy_lightblue', dependentFieldIds)
+          addCssClassToFields('fsBuddy_dependant_logic_field', dependentFieldIds)
+          nonDependentFieldIdsNonPanel = nonDependentFieldIds.filter(fieldId=>allFieldSummary[fieldId].type !== 'section')
+          nonDependentFieldIdsPanel = nonDependentFieldIds.filter(fieldId=>allFieldSummary[fieldId].type === 'section')
+
+          addCssClassToFields('fsBuddy_obscure_field', nonDependentFieldIdsNonPanel)
+          addCssClassToFields('fsBuddy_obscure_section', nonDependentFieldIdsPanel)
+          addCssClassToFields('fsBuddyLogicError', interdependentFieldIds)
+      })
+
+      const logicFocusFieldIds = Object.keys(dependentsByFieldId);
+      addCssClassToFields('fsBuddy_logic_focus', logicFocusFieldIds);
+      // ----------------------
+
+
+
+    }
+
     const handleApplyFieldStatusMessages = (fieldInfoResponse)=>{
       fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
       console.log({fieldInfoResponse})
 
-      const {fieldIdsWithLogic} = fieldInfoResponse;
+      // const {fieldIdsWithLogic} = fieldInfoResponse;
 
       fsBuddyHelper.getAllFieldIds = ()=>{
         return Object.keys(fsBuddyHelper['fieldSummary'])
       }
-      const {formStatusMessages} = fieldInfoResponse;
+      const {fieldStatusMessages} = fieldInfoResponse;
 
       clearAllStatusMessages();
       clearAllFieldStatusMessages();
+      if(fieldStatusMessages) {
+        // const statusMessageFilter = buildFilterList();
+        // const filteredStatusMessages = fieldStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
 
-      if(formStatusMessages) {
-        const statusMessageFilter = buildFilterList();
-        const filteredStatusMessages = formStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
+        const filteredStatusMessages = fieldStatusMessages;
+
         prependFormAnalysisMessages(...filteredStatusMessages);
         (filteredStatusMessages ||[]).forEach(statusMessage=>{
           const {relatedFieldIds} = statusMessage;
@@ -385,15 +448,15 @@
         })
       }
 
-      populateLogicSelectBox(fieldIdsWithLogic);
+      // populateLogicSelectBox(fieldIdsWithLogic);
     }
  
     const populateLogicSelectBox = (fieldIds) => {
-      if (document.getElementById('selectFieldIdWithLogic') === null) {
-        const divWithSelect = optionListToSelectElement('selectFieldIdWithLogic', handleLogicFieldIdSelected, fieldIds)
-        const logicBuddyContainer = document.getElementById('fsBuddyControlPanelLogic');
-        logicBuddyContainer.prepend(divWithSelect);
-      }
+      // if (document.getElementById('selectFieldIdWithLogic') === null) {
+      //   const divWithSelect = optionListToSelectElement('selectFieldIdWithLogic', handleLogicFieldIdSelected, fieldIds)
+      //   const logicBuddyContainer = document.getElementById('fsBuddyControlPanelLogic');
+      //   logicBuddyContainer.prepend(divWithSelect);
+      // }
       removeAllCssName('fsHidden'); // show all fields
       removeAllCssName('fsHiddenPage'); // show all fields
       
@@ -405,7 +468,7 @@
       removeAllFsBuddyCss()
       removeAllCssName('fsBuddy_statusMessages')
       console.log({dependentsByFieldId})
-      const statusMessageFilter = buildFilterList();
+      // const statusMessageFilter = buildFilterList();
       
       Object.entries(dependentsByFieldId).forEach(([fieldId, {dependentFieldIds, interdependentFieldIds, statusMessages}])=>{
         const filteredStatusMessages = statusMessages.filter(sm=>statusMessageFilter.includes(sm.severity)) 
@@ -519,8 +582,8 @@
     const prependFormAnalysisMessages = (...messages)=>{
       const userMessageDiv = document.getElementById('fsBuddyUserMessagesDiv');
       
-      const statusMessageFilter = buildFilterList();
-      const filteredMessages = messages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)).sort((aMessage, bMessage)=>{
+      // const statusMessageFilter = buildFilterList();
+      const filteredMessages = messages.sort((aMessage, bMessage)=>{
         if(SEVERITIES[aMessage.severity] > SEVERITIES[bMessage.severity]){
           return -1;
         }
@@ -780,28 +843,28 @@
 
     }
 
-    function setPresetCheckboxesLogic(){
-      setCheckboxChecked('statusMessageInclude_error', true);
-      setCheckboxChecked('statusMessageInclude_logic', true);
-      setCheckboxChecked('statusMessageInclude_info', false); 
-      setCheckboxChecked('statusMessageInclude_warn', true); 
-      setCheckboxChecked('statusMessageInclude_debug', false);
-    }
+    // function setPresetCheckboxesLogic(){
+    //   setCheckboxChecked('statusMessageInclude_error', true);
+    //   setCheckboxChecked('statusMessageInclude_logic', true);
+    //   setCheckboxChecked('statusMessageInclude_info', false); 
+    //   setCheckboxChecked('statusMessageInclude_warn', true); 
+    //   setCheckboxChecked('statusMessageInclude_debug', false);
+    // }
 
-    function setPresetCheckboxesFieldAnalysis() {
-      setCheckboxChecked('statusMessageInclude_error', true);
-      setCheckboxChecked('statusMessageInclude_logic', false);
-      setCheckboxChecked('statusMessageInclude_info', true); 
-      setCheckboxChecked('statusMessageInclude_warn', true); 
-      setCheckboxChecked('statusMessageInclude_debug', false);
-    }
+    // function setPresetCheckboxesFieldAnalysis() {
+    //   setCheckboxChecked('statusMessageInclude_error', true);
+    //   setCheckboxChecked('statusMessageInclude_logic', false);
+    //   setCheckboxChecked('statusMessageInclude_info', true); 
+    //   setCheckboxChecked('statusMessageInclude_warn', true); 
+    //   setCheckboxChecked('statusMessageInclude_debug', false);
+    // }
 
-    function setCheckboxChecked(checkboxId, value){
-      const checkbox = document.getElementById(checkboxId);
-      if(checkbox){
-        checkbox.checked = !!value;
-      }
-    }
+    // function setCheckboxChecked(checkboxId, value){
+    //   const checkbox = document.getElementById(checkboxId);
+    //   if(checkbox){
+    //     checkbox.checked = !!value;
+    //   }
+    // }
  
     function removeAllFsBuddyCss(){
       removeAllCssName('fsBuddy_obscure_field'); 
@@ -969,8 +1032,9 @@
         buildFsBuddyControlPanel();
  
         showOnly('fsBuddyControlPanelFieldStatus');
-        setPresetCheckboxesFieldAnalysis();
-        sendMessageToParent('getAllFieldInfoRequest');
+        // setPresetCheckboxesFieldAnalysis();
+        // sendMessageToParent('getAllFieldInfoRequest');
+        sendMessageToParent('announceAwake')
     })
     const fsBuddyHelper = {}
 
@@ -993,35 +1057,6 @@
                     <button onclick="showOnly('fsBuddyControlPanelFieldStatus'); setPresetCheckboxesFieldAnalysis(); sendMessageToParent('getAllFieldInfoRequest')">x Field Analysis</button>
                 </td>
             </tr> -->
-            <tr>
-              <td colspan="3">
-                <div id="fsBuddy_filterStatusMessageContainer">
-                  <ul>
-                    <li><span>Include status messages: </span></li>
-                    <li>
-                      <label for="statusMessageInclude_debug">Debug</label>
-                      <input id="statusMessageInclude_debug" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_warn">Warn</label>
-                      <input id="statusMessageInclude_warn" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_info">Info</label>
-                      <input id="statusMessageInclude_info" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_logic">Logic</label>
-                      <input id="statusMessageInclude_logic" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_error">Error</label>
-                      <input id="statusMessageInclude_error" type="checkbox" checked="checked"  onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
             <tr>
               <td colspan="3">
                 <!-- here goes css controls-->
