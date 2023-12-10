@@ -21,7 +21,9 @@ const formView = new FormView();
 
 const fetchTreeFormId = '5375703';
 // const fetchTreeFormId = '5358471'; // has submissions
-const fetchSubmissionId = '1129952515';
+// const fetchSubmissionId = '1129952515';
+const fetchSubmissionId = '1172665940'; // from formId: '5375703', only a couple fields populated
+
 // 1129952515 submission id
 
 interface Props {
@@ -57,15 +59,22 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
         console.log({ apiSubmissionJson });
         const submissionUiDataItems =
           currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
-        const message = {
-          messageType: 'fetchSubmissionResponse',
-          payload: {
-            id: apiSubmissionJson.id,
-            submissionData: submissionUiDataItems,
-          },
-        };
+        // const message = {
+        //   messageType: 'fetchSubmissionResponse',
+        //   payload: {
+        //     id: apiSubmissionJson.id,
+        //     submissionData: submissionUiDataItems,
+        //     allFieldSummary,
+        //   },
+        // };
+
+        // formView.applySubmissionDataStatusMessages(message);
+        formView.applySubmissionDataStatusMessages(
+          apiSubmissionJson.id,
+          submissionUiDataItems
+        );
         // @ts-ignore
-        document.getElementById('theFrame').contentWindow.postMessage(message);
+        // document.getElementById('theFrame').contentWindow.postMessage(message);
         // caller.postMessage({
         //   messageType: 'fetchSubmissionResponse',
         //   payload: {
@@ -105,6 +114,7 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
         );
         // -----------------
         const fieldSummary = fieldLogicService?.getAllFieldSummary();
+        // formView.setAllFieldSummary(fieldSummary);
         const formLogicStatusMessages =
           fieldLogicService.getFormLogicStatusMessages();
         const formStatusMessages = formAnalytic.findKnownSetupIssues();

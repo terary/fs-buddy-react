@@ -27,7 +27,9 @@ interface Props {
 }
 class FormView {
   _helperHtml!: string;
-
+  _allFieldSummary!: {
+    [fieldId: string]: { fieldType: string; fieldId: string; label: string };
+  };
   async initialize(): Promise<void> {
     try {
       this._helperHtml = await getChildFrameHtml();
@@ -62,20 +64,7 @@ class FormView {
       }
     };
   }
-  // const FormView: React.FC<Props> = ({ formHtml }: Props) => {
-  // const [fieldStatusPayload, setFieldStatusPayload] = useState(
-  //   null as null | {
-  //     fieldIdsWithLogic: [];
-  //     formStatusMessages: TStatusRecord[];
-  //   }
-  // );
 
-  // useEffect(() => {
-  //   // const fetchTreeFormId = '5079339';
-  //   // const fetchTreeFormId = '5375703';
-  // }, []);
-
-  // const component: React.FC<Props> = ({ formHtml }: Props) => {
   _removeAllCssName(cssClassName: string): void {
     const iframe = document.getElementById('theFrame2');
     const x = iframe ? document.querySelectorAll(`.${cssClassName}`) : [];
@@ -101,6 +90,25 @@ class FormView {
     document.getElementById('theFrame2').contentWindow.postMessage(message);
   }
 
+  //  formView.applySubmissionDataStatusMessages(message);
+  // @ts-ignore
+  applySubmissionDataStatusMessages(
+    submissionId: string,
+    submissionUiDataItems: any
+  ) {
+    const message = {
+      messageType: 'fetchSubmissionResponse',
+      payload: {
+        id: submissionId,
+        submissionData: submissionUiDataItems,
+        // allFieldSummary: this._allFieldSummary,
+      },
+    };
+
+    // @ts-ignore - doesn't like typing
+    document.getElementById('theFrame2').contentWindow.postMessage(message);
+  }
+
   applyFieldStatusMessages(statusMessages: TStatusRecord[]) {
     const message = {
       messageType: 'applyFieldStatusMessages',
@@ -109,6 +117,12 @@ class FormView {
     // @ts-ignore - doesn't like typing
     document.getElementById('theFrame2').contentWindow.postMessage(message);
   }
+
+  // setAllFieldSummary(fieldSummary: {
+  //   [fieldId: string]: { fieldType: string; fieldId: string; label: string };
+  // }): void {
+  //   this._allFieldSummary = fieldSummary;
+  // }
 
   applyLogicStatusMessages(
     rootFieldId: string,

@@ -352,34 +352,6 @@
     }
 
     const handleApplyLogicStatusMessages = (payload)=>{
-      // fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
-      // console.log({fieldInfoResponse})
-
-      // // const {fieldIdsWithLogic} = fieldInfoResponse;
-
-      // fsBuddyHelper.getAllFieldIds = ()=>{
-      //   return Object.keys(fsBuddyHelper['fieldSummary'])
-      // }
-      // const {fieldStatusMessages} = fieldInfoResponse;
-
-      // clearAllStatusMessages();
-      // clearAllFieldStatusMessages();
-      // if(fieldStatusMessages) {
-      //   // const statusMessageFilter = buildFilterList();
-      //   // const filteredStatusMessages = fieldStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
-
-      //   const filteredStatusMessages = fieldStatusMessages;
-
-      //   prependFormAnalysisMessages(...filteredStatusMessages);
-      //   (filteredStatusMessages ||[]).forEach(statusMessage=>{
-      //     const {relatedFieldIds} = statusMessage;
-      //     relatedFieldIds.forEach(fieldId=>{
-      //       appendFieldStatusMessages(fieldId, [statusMessage])
-      //     })
-      //   })
-      // }
-
-      // ---------------------
       const { dependentsByFieldId, allFieldSummary } = payload;
       // const logicalNodeGraphMap = payload;
       removeAllFsBuddyCss()
@@ -414,10 +386,6 @@
 
       const logicFocusFieldIds = Object.keys(dependentsByFieldId);
       addCssClassToFields('fsBuddy_logic_focus', logicFocusFieldIds);
-      // ----------------------
-
-
-
     }
 
     const handleApplyFieldStatusMessages = (fieldInfoResponse)=>{
@@ -497,11 +465,17 @@
 
  
     const handelFetchSubmissionResponse = (payload)=>{
-      const {submissionData } = payload;
+      console.log({
+        handelFetchSubmissionResponse: payload
+      })
+      const { submissionData } = payload;
+
       submissionData.forEach((fieldData)=>{
         const {statusMessages = [], fieldType, uiid, fieldId} = fieldData;
         
         if(uiid === null ) {
+          // doesn't have UI associated with status Message
+          // are these panel? form specific?
           if(statusMessages.length>0) {
             appendFieldStatusMessages(fieldData.fieldId, statusMessages)
           }
@@ -538,12 +512,12 @@
             break; // <-- never stops being funny
         }
 
-        console.log({
-          fieldType: fsBuddyHelper.fieldSummary[fieldId].type,
-          fieldSummary: fsBuddyHelper.fieldSummary[fieldId],
-          fieldId,
-          uiid,
-        })
+        // console.log({
+        //   fieldType: allFieldSummary[fieldId].type,
+        //   fieldSummary: allFieldSummary[fieldId],
+        //   fieldId,
+        //   uiid,
+        // })
 
         if(`field${fieldId}` === uiid) {
           // for non subfields
@@ -1093,22 +1067,6 @@
               </tr>
         </table>
       </div>
-      <div  id="graphContainer">
-        <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
-        </div>
-      </div>      
-      <div id='fsBuddyControlPanelLogic' class="fsControlPanelSubsection">
-        <h3>Logic Tool</h3>
-        <!-- <div  id="graphContainer">
-          <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
-          </div>
-        </div> -->
-      </div>
-      <!-- <div id='fsBuddyControlPanelFieldStatus' class="fsControlPanelSubsection">
-        <h4>Field Analysis</h4>
-        <div class="fsBuddy_statusMessages" style="background-color: white;height: 300px; overflow-y: auto;" id="fsBuddyUserMessagesDiv"></div>
-        </div>
-      </div> -->
     </div>
 	</body>
 </html>
