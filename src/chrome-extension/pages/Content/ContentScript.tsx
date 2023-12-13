@@ -13,6 +13,8 @@ import { FormView } from './FormView/FormView';
 import { CheckboxArray } from '../../common/CheckboxArray';
 import { MessageFilter } from '../../../components/MessageFilter';
 import './ContentScript.css';
+import ExpandedExpressionTreeGraph from '../../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
+import { TGraphNode } from '../../../formstack/transformers/pojoToD3TableData';
 
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
@@ -32,6 +34,10 @@ interface Props {
 
 const ContentScript: React.FC<Props> = ({ title }: Props) => {
   const [formHtml, setFormHtml] = useState('No Form HTML found.');
+  const [currentLogicFieldGraphMap, setCurrentLogicFieldGraphMap] = useState(
+    [] as TGraphNode[]
+  );
+
   const [fieldStatusPayload, setFieldStatusPayload] = useState(
     null as null | {
       fieldIdsWithLogic: [];
@@ -184,17 +190,10 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
       statusMessages || [],
       allFieldSummary
     );
-
+    setCurrentLogicFieldGraphMap(logicalNodeGraphMap || []);
     console.log({
       applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
     });
-
-    // const message = {
-    //   messageType: 'getFieldLogicDependentsResponse',
-    //   payload,
-    // };
-    // // @ts-ignore
-    // document.getElementById('theFrame').contentWindow.postMessage(message);
   };
 
   const handleWorkWithLogic = async () => {
@@ -280,6 +279,11 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
       <LogicFieldSelect
         options={fieldStatusPayload?.fieldIdsWithLogic || []}
         onFieldIdSelected={handleLogicFieldSelected}
+      />
+      <ExpandedExpressionTreeGraph
+        height={500}
+        width={600}
+        data={currentLogicFieldGraphMap}
       />
       <div style={{ maxWidth: '500px' }}>
         {fieldStatusPayload?.formStatusMessages && (

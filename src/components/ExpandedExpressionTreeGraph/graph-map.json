@@ -1,0 +1,136 @@
+[
+  {
+    "nodeId": "148456734",
+    "parentId": "",
+    "nodeContent": {
+      "nodeId": "148456734",
+      "nodeType": "FsVirtualRootNode",
+      "fieldId": "148456734",
+      "label": ["vRoot", "(A) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0",
+    "parentId": "148456734",
+    "nodeContent": {
+      "nodeId": "148456734:0",
+      "nodeType": "FsLogicBranchNode",
+      "fieldId": "148456734",
+      "label": ["show", "(A) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:1",
+    "parentId": "148456734:0",
+    "nodeContent": {
+      "nodeId": "148456734:0:1",
+      "nodeType": "FsLogicLeafNode",
+      "fieldId": "148456742",
+      "label": ["(B) A->B->C-D->E->A (logi...", "equals", "OptionA"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2",
+    "parentId": "148456734:0",
+    "nodeContent": {
+      "nodeId": "148456734:0:2",
+      "nodeType": "FsLogicBranchNode",
+      "fieldId": "148456742",
+      "label": ["show", "(B) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:3",
+    "parentId": "148456734:0:2",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:3",
+      "nodeType": "FsLogicLeafNode",
+      "fieldId": "148456741",
+      "label": ["(C) A->B->C-D->E->A (logi...", "equals", "OptionA"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4",
+    "parentId": "148456734:0:2",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4",
+      "nodeType": "FsLogicBranchNode",
+      "fieldId": "148456741",
+      "label": ["show", "(C) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:5",
+    "parentId": "148456734:0:2:4",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:5",
+      "nodeType": "FsLogicLeafNode",
+      "fieldId": "148456740",
+      "label": ["(D) A->B->C-D->E->A (logi...", "equals", "OptionA"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:6",
+    "parentId": "148456734:0:2:4",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:6",
+      "nodeType": "FsLogicBranchNode",
+      "fieldId": "148456740",
+      "label": ["show", "(D) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:6:7",
+    "parentId": "148456734:0:2:4:6",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:6:7",
+      "nodeType": "FsLogicLeafNode",
+      "fieldId": "148456739",
+      "label": ["(E) A->B->C-D->E->A (logi...", "equals", "OptionA"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:6:8",
+    "parentId": "148456734:0:2:4:6",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:6:8",
+      "nodeType": "FsLogicBranchNode",
+      "fieldId": "148456739",
+      "label": ["show", "(E) A->B->C-D->E->A (logi...", " if all"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:6:8:9",
+    "parentId": "148456734:0:2:4:6:8",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:6:8:9",
+      "nodeType": "FsLogicLeafNode",
+      "fieldId": "148456734",
+      "label": ["(A) A->B->C-D->E->A (logi...", "equals", "OptionA"]
+    }
+  },
+  {
+    "nodeId": "148456734:0:2:4:6:8:10",
+    "parentId": "148456734:0:2:4:6:8",
+    "nodeContent": {
+      "nodeId": "148456734:0:2:4:6:8:10",
+      "nodeType": "FsCircularDependencyNode",
+      "fieldId": "148456739",
+      "ruleConflict": {
+        "conditionalA": {
+          "condition": "all",
+          "action": "show"
+        },
+        "conditionalB": {
+          "condition": "all",
+          "action": "show"
+        }
+      },
+      "sourceFieldId": "148456739",
+      "sourceNodeId": "148456734:0",
+      "targetFieldId": "148456734",
+      "targetNodeId": "148456734:0:2:4:6:8:10",
+      "label": ["(E) A->B->C-D->E->A (logi...", "all", "all"]
+    }
+  }
+]
