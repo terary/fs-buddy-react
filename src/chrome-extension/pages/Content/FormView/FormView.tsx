@@ -50,6 +50,15 @@ class FormView {
         case 'announceAwake':
           console.log({ announceAwake: 'received' });
           break;
+        case 'removeFsBuddyRequest':
+          console.log('Recv request remove');
+          const iframe = document.getElementById('theFrame2');
+          if (iframe) {
+            iframe.remove();
+          }
+          // removeFormHtml();
+          break;
+
         // case 'removeFsBuddyRequest':
         //   removeFormHtml();
         //   break;
@@ -224,7 +233,7 @@ function getChildFrameHtml() {
   });
 }
 
-function buildIframe(iframeId: string): HTMLIFrameElement {
+function x_buildIframe(iframeId: string): HTMLIFrameElement {
   const iframe = document.createElement('iframe');
   iframe.id = iframeId;
   iframe.style.width = '50%';
@@ -237,7 +246,7 @@ function buildIframe(iframeId: string): HTMLIFrameElement {
   return iframe;
 }
 
-function handleGetAllFieldInfoRequest(
+function x_handleGetAllFieldInfoRequest(
   caller: MessageEventSource,
   payload: any
 ) {

@@ -316,26 +316,25 @@ function getApiKey() {
   return apiKey;
 }
 
-function getChildFrameHtml() {
-  const url = chrome.runtime.getURL('form-render-inject.html');
+// function getChildFrameHtml() {
+//   const url = chrome.runtime.getURL('form-render-inject.html');
+//   return fetch(url).then((response) => {
+//     return response.text();
+//   });
+// }
 
-  return fetch(url).then((response) => {
-    return response.text();
-  });
-}
-
-function buildIframe(iframeId: string): HTMLIFrameElement {
-  const iframe = document.createElement('iframe');
-  iframe.id = iframeId;
-  iframe.style.width = '50%';
-  iframe.style.height = '100%';
-  iframe.style.zIndex = '1001';
-  iframe.style.top = '50px';
-  iframe.style.right = '0px';
-  iframe.style.position = 'absolute';
-  iframe.style.backgroundColor = 'green';
-  return iframe;
-}
+// function buildIframe(iframeId: string): HTMLIFrameElement {
+//   const iframe = document.createElement('iframe');
+//   iframe.id = iframeId;
+//   iframe.style.width = '50%';
+//   iframe.style.height = '100%';
+//   iframe.style.zIndex = '1001';
+//   iframe.style.top = '50px';
+//   iframe.style.right = '0px';
+//   iframe.style.position = 'absolute';
+//   iframe.style.backgroundColor = 'green';
+//   return iframe;
+// }
 function getAllFieldInfoRequest() {
   /// getFieldIdsExtendedLogicOf
   if (fieldLogicService === null) {
@@ -401,12 +400,13 @@ function handleGetAllFieldInfoRequest(
   });
 }
 
-function removeFormHtml() {
-  const theIFrame = document.getElementById('theFrame');
-  if (theIFrame) {
-    theIFrame.remove();
-  }
-}
+// function removeFormHtml() {
+//   const theIFrame = document.getElementById('theFrame2');
+//   console.log('remove iframe');
+//   if (theIFrame) {
+//     theIFrame.remove();
+//   }
+// }
 
 window.onmessage = function (e) {
   switch (e.data.messageType) {
@@ -419,9 +419,11 @@ window.onmessage = function (e) {
       e.source && handleGetAllFieldInfoRequest(e.source, e.data.payload);
       !e.source && console.log('No Source of message received.');
       break;
-    case 'removeFsBuddyRequest':
-      removeFormHtml();
-      break;
+    // case 'removeFsBuddyRequest':
+    //   console.log('Recv request remove');
+
+    //   removeFormHtml();
+    //   break;
     // case "fetchSubmissionRequest":
     //   console.log("receive message fetch submission");
     //   console.log({ payload: e.data.payload });
@@ -448,10 +450,10 @@ function getFormAsJson() {
         // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiFormJson) => {
-        const childFrameHtml = await getChildFrameHtml().catch((e) => {
-          console.log('Failed to get API');
-          console.log({ e });
-        });
+        // const childFrameHtml = await getChildFrameHtml().catch((e) => {
+        //   console.log('Failed to get API');
+        //   console.log({ e });
+        // });
         // const iframe = buildIframe('theFrame');
         // iframe.srcdoc = childFrameHtml + apiFormJson.html;
         // const theBody = document.querySelector('body');

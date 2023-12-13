@@ -32,10 +32,6 @@
       "matches": []
     },
     {
-      "resources": ["form-render-inject.html"],
-      "matches": ["*://*/*"]
-    },
-    {
       "resources": ["form-view-helper.html"],
       "matches": ["*://*/*"]
     }
