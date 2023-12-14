@@ -5,7 +5,6 @@ import { FormstackBuddy } from '../../../FormstackBuddy/FormstackBuddy';
 import { FsFormModel, TFsFieldAnyJson } from '../../../formstack';
 import { FieldLogicService } from '../../../FormstackBuddy/FieldLogicService';
 import { transformers } from '../../../formstack/transformers';
-
 import { FormAnalytics } from '../../../FormstackBuddy/FormAnalytics';
 import { StatusMessageContainer } from '../../containers/StatusMessages';
 import { TStatusRecord } from '../../../formstack/classes/Evaluator/type';
@@ -15,6 +14,14 @@ import { MessageFilter } from '../../../components/MessageFilter';
 import './ContentScript.css';
 import ExpandedExpressionTreeGraph from '../../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
 import { TGraphNode } from '../../../formstack/transformers/pojoToD3TableData';
+
+import { PrimeReactProvider } from 'primereact/api';
+import { Accordion, AccordionTab } from 'primereact/accordion';
+import { Button } from 'primereact/button';
+// import 'primereact/resources/themes/lara-light-cyan/theme.css';
+// import 'primereact/resources/themes/vela-blue/theme.css';
+// import 'primereact/resources/themes/md-light-indigo/theme.css';
+import 'primereact/resources/themes/md-light-deeppurple/theme.css';
 
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
@@ -215,7 +222,10 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
     };
 
     // @ts-ignore
-    document.getElementById('theFrame').contentWindow.postMessage(message);
+    document
+      .getElementById(FormView.IFRAME_ID)
+      // @ts-ignore
+      .contentWindow.postMessage(message);
   };
 
   const handleOnFilteredStatusMessages = (
@@ -234,75 +244,107 @@ const ContentScript: React.FC<Props> = ({ title }: Props) => {
     });
   };
 
+  const [activeIndex, setActiveIndex] = useState([0]);
   return (
-    <div className="ContentContainer">
-      <h2 style={{ textAlign: 'center' }}>{title} Page</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td colSpan={2}>
-              {' '}
-              <ApiKeyContainer title="The Title" />
-            </td>
-          </tr>
+    <PrimeReactProvider>
+      <Button>Prime Button</Button>
+      <div className="ContentContainer">
+        <h2 style={{ textAlign: 'center' }}>{title} Page</h2>
+        <table>
+          <tbody>
+            <tr>
+              <td colSpan={2}>
+                {' '}
+                <ApiKeyContainer title="The Title" />
+              </td>
+              <td>
+                <button onClick={handleApiGetFormRequestClick}>
+                  API Request Form{' '}
+                </button>
+              </td>
+            </tr>
 
-          <tr>
-            <td>
-              <button onClick={handleApiGetFormRequestClick}>
-                API Request Form{' '}
-              </button>
-            </td>
-            <td>
+            <tr>
+              {/* <td>
+                <button onClick={handleApiGetFormRequestClick}>
+                  API Request Form{' '}
+                </button>
+              </td> */}
+              {/* <td>
+                <button onClick={handleClearAllStatusMessage}>
+                  Clear All Status Messages
+                </button>
+              </td> */}
+            </tr>
+
+            <tr>
+              {/* <td>
+                <button onClick={handleWorkWithLogic}>Work With Logic</button>
+              </td> */}
+              <td>
+                <button onClick={handleClearFsHidden}>Clear fsHidden</button>
+              </td>
+            </tr>
+            {/* <tr>
+              <td colSpan={2}>
+                <button onClick={handleFetchSubmissionClick}>
+                  Fetch Submission (id:1129952515)
+                </button>
+              </td>
+            </tr> */}
+          </tbody>
+        </table>
+        <Accordion multiple activeIndex={[0]}>
+          <AccordionTab header="Logic">
+            <p className="m-0">
+              <h4>Logic </h4>
+              <LogicFieldSelect
+                options={fieldStatusPayload?.fieldIdsWithLogic || []}
+                onFieldIdSelected={handleLogicFieldSelected}
+              />
+              <ExpandedExpressionTreeGraph
+                height={500}
+                width={600}
+                data={currentLogicFieldGraphMap}
+              />
+            </p>
+          </AccordionTab>
+          <AccordionTab header="Status Messages">
+            <p className="m-0">
               <button onClick={handleClearAllStatusMessage}>
                 Clear All Status Messages
               </button>
-            </td>
-          </tr>
 
-          <tr>
-            <td>
-              <button onClick={handleWorkWithLogic}>Work With Logic</button>
-            </td>
-            <td>
-              <button onClick={handleClearFsHidden}>Clear fsHidden</button>
-            </td>
-          </tr>
-          <tr>
-            <td colSpan={2}>
+              <div style={{ maxWidth: '500px' }}>
+                {fieldStatusPayload?.formStatusMessages && (
+                  <MessageFilter
+                    onFiltered={handleOnFilteredStatusMessages}
+                    statusMessages={fieldStatusPayload?.formStatusMessages}
+                  />
+                )}
+              </div>
+            </p>
+          </AccordionTab>
+          <AccordionTab header="Submissions">
+            <p className="m-0">
               <button onClick={handleFetchSubmissionClick}>
                 Fetch Submission (id:1129952515)
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <LogicFieldSelect
-        options={fieldStatusPayload?.fieldIdsWithLogic || []}
-        onFieldIdSelected={handleLogicFieldSelected}
-      />
-      <ExpandedExpressionTreeGraph
-        height={500}
-        width={600}
-        data={currentLogicFieldGraphMap}
-      />
-      <div style={{ maxWidth: '500px' }}>
-        {fieldStatusPayload?.formStatusMessages && (
-          <MessageFilter
-            onFiltered={handleOnFilteredStatusMessages}
-            statusMessages={fieldStatusPayload?.formStatusMessages}
-          />
-        )}
+            </p>
+          </AccordionTab>
+          <AccordionTab header="Form View">
+            <p className="m-0">
+              {fieldStatusPayload?.fieldStatusMessages && (
+                <formView.component
+                  statusMessage={fieldStatusPayload.fieldStatusMessages || []}
+                  formHtml={formHtml}
+                />
+              )}{' '}
+            </p>
+          </AccordionTab>
+        </Accordion>
       </div>
-      {/* <StatusMessageContainer
-        statusMessages={fieldStatusPayload?.formStatusMessages || []}
-      /> */}
-      {fieldStatusPayload?.fieldStatusMessages && (
-        <formView.component
-          statusMessage={fieldStatusPayload.fieldStatusMessages || []}
-          formHtml={formHtml}
-        />
-      )}
-    </div>
+    </PrimeReactProvider>
   );
 };
 

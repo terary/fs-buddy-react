@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { TStatusRecord } from '../../../../formstack/classes/Evaluator/type';
-
+import './FormView.css';
 const fetchTreeFormId = '5375703';
 const fetchSubmissionId = '1129952515';
 interface Props {
@@ -131,13 +131,14 @@ class FormView {
       <iframe
         id={FormView.IFRAME_ID}
         name={FormView.IFRAME_ID}
-        style={{
-          width: '100%',
-          height: '1000px',
-          top: '150px',
-          position: 'absolute',
-          left: '100%',
-        }}
+        className="formViewIframeContainer"
+        // style={{
+        //   width: '100%',
+        //   height: '1000px',
+        //   top: '150px',
+        //   position: 'absolute',
+        //   left: '100%',
+        // }}
         srcDoc={this._helperHtml + formHtml}
       ></iframe>
     );

@@ -50,18 +50,14 @@ const initializeFsBuddyControlPanel = () => {
     fsBodyControlPanel.appendChild(document.createElement('hr'));
     fsBodyControlPanel.appendChild(passwordLabel);
     fsBodyControlPanel.id = "fsBodyControlPanel"
-    // fsBodyControlPanel.appendChild(passwordControl);
   
-    fsBodyControlPanel.style.backgroundColor = '#FFFFFF';
-    fsBodyControlPanel.style.border = '1px black solid';
-  
-    //   fsBodyControlPanel.style.height = '500px';
-    // fsBodyControlPanel.style.width = "50%";
-    // fsBodyControlPanel.style.width = "500px";
-    fsBodyControlPanel.style.zIndex = '1000';
-    fsBodyControlPanel.style.top = '0px';
-    fsBodyControlPanel.style.left = '0px';
-    fsBodyControlPanel.style.position = 'absolute';
+    // fsBodyControlPanel.style.backgroundColor = '#FFFFFF';
+    // fsBodyControlPanel.style.border = '1px black solid';
+    // fsBodyControlPanel.style.zIndex = '1000';
+    // fsBodyControlPanel.style.top = '0px';
+    // fsBodyControlPanel.style.left = '0px';
+    // fsBodyControlPanel.style.position = 'absolute';
+    fsBodyControlPanel.className = 'fsBodyControlPanel';
   
     theBody && theBody.appendChild(fsBodyControlPanel);
   };
