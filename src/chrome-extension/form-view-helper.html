@@ -195,7 +195,7 @@
 
     const handleApplyLogicStatusMessages = (payload)=>{
       const { dependentsByFieldId, allFieldSummary } = payload;
-      // const logicalNodeGraphMap = payload;
+      console.log('handleApplyLogicStatusMessages')
       removeAllFsBuddyCss()
       removeAllCssName('fsBuddy_statusMessages')
 
@@ -601,6 +601,12 @@
 
     }
 
+    function removeAllFsHidden(){
+      removeAllCssName('fsHidden');
+      removeAllCssName('fsHiddenPage');
+      removeAllCssName('fsWorkflowHidden');
+    }
+
     function removeAllFsBuddyCss(){
       removeAllCssName('fsBuddy_obscure_field'); 
       removeAllCssName('fsBuddy_obscure_section'); 
@@ -615,9 +621,9 @@
 
     document.addEventListener("DOMContentLoaded",()=>{
         buildFsBuddyControlPanel();
- 
         showOnly('fsBuddyControlPanelFieldStatus');
-        sendMessageToParent('announceAwake')
+        sendMessageToParent('announceAwake');
+        removeAllFsHidden()
     })
     const fsBuddyHelper = {}
 

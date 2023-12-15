@@ -1,14 +1,13 @@
-import { TNodePojo } from "predicate-tree-advanced-poc/dist/src";
-import { AbstractLogicNode } from "./AbstractLogicNode";
-import type { TStatusRecord } from "../../../../Evaluator/type";
-import { RuleConflictType } from "./type";
+import { AbstractLogicNode } from './AbstractLogicNode';
+import type { TStatusRecord } from '../../../../Evaluator/type';
+import { RuleConflictType } from './type';
 
 class FsCircularDependencyNode extends AbstractLogicNode {
   _sourceFieldId: string;
   _sourceNodeId: string | null;
   _targetFieldId: string;
   _targetNodeId: string | null;
-  protected _nodeType = "FsCircularDependencyNode";
+  protected _nodeType = 'FsCircularDependencyNode';
 
   private _ruleConflict: RuleConflictType | null = null;
   private _dependentChainFieldIds: string[];
@@ -78,7 +77,7 @@ class FsCircularDependencyNode extends AbstractLogicNode {
     return this._targetNodeId;
   }
 
-  set targetNodeId(nodeId: string) {
+  set targetNodeId(nodeId: string | null) {
     this._targetNodeId = nodeId;
   }
 
@@ -102,13 +101,13 @@ class FsCircularDependencyNode extends AbstractLogicNode {
     const message = `circular reference. root field: '${rootFieldId}', logic of source field '${this.targetFieldId}' attempted to add logic for fieldId: '${this.targetFieldId}' which is already in the dependency chain. dependency chain: "${dependentsAsString}".`;
     return [
       {
-        severity: "logic",
+        severity: 'logic',
         fieldId: this.targetFieldId,
         message,
         relatedFieldIds: dependentChainFieldIds,
       },
       {
-        severity: "error", // duplicate message is intentional
+        severity: 'error', // duplicate message is intentional
         fieldId: this.targetFieldId,
         message,
         relatedFieldIds: dependentChainFieldIds,

@@ -12,29 +12,30 @@
 import {
   TFsFieldLogicJunction,
   TFsJunctionOperators,
-} from "./classes/subtrees/types";
+} from '../../formstack/classes/subtrees/types';
+// from "./classes/subtrees/types";
 
 type TFsFieldType =
-  | "address"
-  | "checkbox"
-  | "creditcard"
-  | "datetime"
-  | "email"
-  | "embed"
-  | "file"
-  | "matrix"
-  | "section"
-  | "select"
-  | "signature"
-  | "text"
-  | "textarea"
-  | "name"
-  | "number"
-  | "phone"
-  | "product"
-  | "radio"
-  | "rating"
-  | "richtext";
+  | 'address'
+  | 'checkbox'
+  | 'creditcard'
+  | 'datetime'
+  | 'email'
+  | 'embed'
+  | 'file'
+  | 'matrix'
+  | 'section'
+  | 'select'
+  | 'signature'
+  | 'text'
+  | 'textarea'
+  | 'name'
+  | 'number'
+  | 'phone'
+  | 'product'
+  | 'radio'
+  | 'rating'
+  | 'richtext';
 
 type TFsSelectOption = {
   value: string;
@@ -67,14 +68,14 @@ type TFsBaseFieldType = {
 
   calculation: null | string; // ?  probably never an object
   // calculation: null | object; // ?  not sure of the shape
-  workflow_access: "write"; //  what other possibilities
+  workflow_access: 'write'; //  what other possibilities
   default: string | object; // matrix use options array
 };
 type TFsFieldAddress = TFsBaseFieldType & {
   text_size: number;
   visible_subfields: string[]; // example ["address", ..., "zip"]
   show_country: boolean; // exampe: 0 | 1
-  format: "US"; // probably some others
+  format: 'US'; // probably some others
   hide_address: boolean; // exampe: 0 | 1
   hide_address2: boolean; // exampe: 0 | 1
   hide_city: boolean; // exampe: 0 | 1
@@ -84,18 +85,18 @@ type TFsFieldAddress = TFsBaseFieldType & {
 
 type TFsFieldCheckbox = TFsBaseFieldType & {
   options: TFsSelectOption[];
-  option_layout: "vertical"; // probably others
+  option_layout: 'vertical'; // probably others
   option_other: boolean; // example 0 | 1;
   randomize_options: boolean; // example 0 | 1;
-  option_store: "value"; // probably others
+  option_store: 'value'; // probably others
   option_show_values: boolean; // example 0 | 1;
   use_images: boolean; // example 0 | 1;
-  image_dimensions: "customDimensions"; // probably others
+  image_dimensions: 'customDimensions'; // probably others
   image_height: number;
   image_width: number;
   lock_image_ratio: boolean;
-  lock_image_ratio_option: "fitProportionally"; // probably others
-  image_label_alignment: "bottom"; // probably others
+  lock_image_ratio_option: 'fitProportionally'; // probably others
+  image_label_alignment: 'bottom'; // probably others
   option_checkall: boolean; // example 0 | 1;
   hide_option_button: boolean; // example 0 | 1;
 };
@@ -174,27 +175,27 @@ type TFsFieldPhone = TFsBaseFieldType & {
   phone_format: string;
 };
 type TFsFieldProduct = TFsBaseFieldType & {
-  charge_type: "fixed_amount"; //probably has other options
+  charge_type: 'fixed_amount'; //probably has other options
   image: string;
-  inventory: ""; // probaby has wonky time, string -> empty, number non empty?
-  inventory_mode: "unlimited";
+  inventory: ''; // probaby has wonky time, string -> empty, number non empty?
+  inventory_mode: 'unlimited';
   unit_price: number | string; // string representing a number, or empty?
   min_quantity: number;
   max_quantity: number;
-  soldout_action: "message"; // probably other actions
+  soldout_action: 'message'; // probably other actions
   is_soldout: boolean;
-  display: "default"; // probably others
+  display: 'default'; // probably others
   currency: string; // maybe currency symbol?
 };
 type TFsFieldRating = TFsBaseFieldType & {
   add_na: boolean;
   allow_half_ratings: boolean;
   count: number;
-  icon: "star";
+  icon: 'star';
 }; // icon probable has other values
 type TFsFieldRichText = TFsBaseFieldType & {
   section_text: string;
-  text_editor: "wysiwyg"; // probably other options
+  text_editor: 'wysiwyg'; // probably other options
 };
 type TFsFieldSelect = TFsBaseFieldType & {
   // drop down list
@@ -208,11 +209,11 @@ type TFsFieldRadio = TFsBaseFieldType & {
 
 type TFsFieldSection = TFsBaseFieldType & {
   num_columns: number;
-  label_position: "default";
+  label_position: 'default';
   section_heading: string;
   section_break: number;
   section_text: string;
-  text_editor: "wysiwyg"; // probably other options
+  text_editor: 'wysiwyg'; // probably other options
 }; // label_position probably has other values, section_break not sure it's purpose
 type TFsFieldTextArea = TFsBaseFieldType & {
   // what should the properties by

@@ -1,0 +1,25 @@
+.ContentContainer {
+    text-align: left;
+    height: 100%
+}
+
+.p-accordion-header{
+    background-color: lightgrey;
+    /* padding: 10px; */
+}
+
+.p-accordion-header > a{
+    background-color: lightgrey;
+    font-weight: bold;
+    color: black;
+}
+
+
+.fsBodyControlPanel {
+    background-color: #ffffff;
+    z-index: 1000;
+    top:0px;
+    left: 0px;
+    height: 100%;
+    position: absolute;
+}

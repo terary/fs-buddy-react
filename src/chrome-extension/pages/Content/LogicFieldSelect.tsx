@@ -1,4 +1,5 @@
 import React, { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 
 interface Props {
   options: {
@@ -9,6 +10,15 @@ interface Props {
 }
 
 const LogicFieldSelect = ({ options, onFieldIdSelected }: Props) => {
+  const [selectedValue, setSelectedValue] = useState(options[0]?.value || '');
+  const handleOptionSelected2 = (e: DropdownChangeEvent) => {
+    const fieldId = e.target.value;
+    console.log({ changeEvent: e, fieldId });
+
+    setSelectedValue(fieldId);
+    onFieldIdSelected(fieldId);
+  };
+
   const handleOptionSelected = (e: SyntheticEvent) => {
     // @ts-ignore
     const fieldId = e.target.value;
@@ -18,15 +28,17 @@ const LogicFieldSelect = ({ options, onFieldIdSelected }: Props) => {
   };
 
   return (
-    <select onChange={handleOptionSelected}>
-      {(options || []).map((option) => {
-        return (
-          <option value={option.value} key={option.value}>
-            {option.label}
-          </option>
-        );
-      })}
-    </select>
+    <>
+      <Dropdown
+        value={selectedValue}
+        onChange={handleOptionSelected2}
+        options={options || []}
+        optionValue="value"
+        optionLabel="label"
+        placeholder="Select field"
+        className="w-full md:w-14rem"
+      />
+    </>
   );
 };
 
