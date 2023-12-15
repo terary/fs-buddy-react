@@ -5,4 +5,5 @@
     background-color: #eee;         
     border: 1px solid #666666;         
     border-spacing: 5px; /* cellspacing:poor IE support for  this */
+    margin-top: 20px;
 }

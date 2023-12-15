@@ -1,6 +1,5 @@
-import React from "react";
-import { Checkbox } from "../Checkbox/Checkbox";
-import styles from "./CheckboxArray.module.css";
+import React, { useState } from 'react';
+import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 interface CheckboxProps {
   label: string;
   value: boolean;
@@ -30,26 +29,48 @@ const CheckboxArray = ({ props, onChange }: Props) => {
     setStateProps(newStateProps);
   };
 
+  // '(props: CheckboxProps | Readonly<CheckboxProps>): Checkbox', gave the following error.
+  // Type '(props: CheckboxProps | Readonly<CheckboxProps>) => void' is not assignable to type '(event: CheckboxChangeEvent) => void'.
+  const handleCheckboxChangeChange2 = (event: CheckboxChangeEvent) => {
+    console.log({ checkboxEvent: event });
+    const newStateProps = {
+      ...stateProps,
+    };
+    const { value: valueKey, checked: isChecked } = event;
+    const newValue = {
+      ...stateProps[valueKey],
+      ...{ value: isChecked || false },
+    };
+    newStateProps[valueKey] = newValue;
+
+    // @ts-ignore - ignore type
+    onChange && onChange(newStateProps);
+    setStateProps(newStateProps);
+  };
+
+  const [checked, setChecked] = useState(true);
   return (
-    <div
-      className={styles.checkboxArrayContainer}
-      data-testid="checkbox-array-container"
-    >
+    <div className="justify-content-end">
       {Object.entries(stateProps).map(([logType, checkboxProps]) => {
         return (
-          <Checkbox
+          <div
             key={logType}
-            valueKey={logType}
-            label={checkboxProps.label}
-            onChange={handleCheckboxChangeChange}
-            value={checkboxProps.value}
-            initialValue={checkboxProps.value}
-          />
+            style={{ display: 'inline' }}
+            className="flex align-items-center"
+          >
+            <Checkbox
+              inputId={logType}
+              name="category"
+              value={logType}
+              onChange={handleCheckboxChangeChange2}
+              checked={checkboxProps.value}
+            />
+            <label htmlFor={logType} className="ml-2">
+              {checkboxProps.label}
+            </label>
+          </div>
         );
       })}
-      {/* <code>
-        <pre>{JSON.stringify(stateProps, null, 2)}</pre>
-      </code> */}
     </div>
   );
 };

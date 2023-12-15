@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
-
-// import styles from './MessageFilter.module.css';
+import { InputText } from 'primereact/inputtext';
+// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
+// import 'primereact/resources/themes/mdc-light-indigo/theme.css';
 import './MessageFilter.module.css';
 import { TStatusRecord } from '../StatusMessageListContainer/type';
 import { StatusMessageContainer } from '../StatusMessageListContainer/StatusMessageContainer';
 import { StatusMessageListContainer } from '../StatusMessageListContainer';
 import { CheckboxArray } from '../CheckboxArray';
-// interface CheckboxProps {
-//   label: string;
-//   value: boolean;
-// }
-// interface Props {
-//   props: { [checkboxKey: string]: CheckboxProps };
-//   onChange?: (currentValues: { [valueKey: string]: boolean }) => void;
-// }
+
 type LogFilterType = {
   label: string;
   value: boolean;
@@ -91,8 +85,6 @@ const MessageFilter = ({
   const handleSearchTextChange = (evt: React.FormEvent<HTMLInputElement>) => {
     const searchText = evt.currentTarget.value || '';
     const newState = { ...controlState, ...{ searchText } };
-    // setControlState(newState);
-    // setSearchText(searchText);
     finalizeAndSetControlStatue(newState);
   };
 
@@ -124,34 +116,19 @@ const MessageFilter = ({
       className="MessageFilterContainer"
       data-testid="message-filter-container"
     >
-      <label>
-        <span style={{ marginRight: '1em' }}>Search:</span>
-        <input
-          id="searchTextInput"
-          name="searchTextInput"
-          onChange={handleSearchTextChange}
-        />
-      </label>
-      <br />
+      <span className="p-input-icon-left">
+        <i className="pi pi-search" />
+        <InputText placeholder="Search" onChange={handleSearchTextChange} />
+      </span>
       <CheckboxArray
         props={loggingFilters}
         onChange={handleLoggingFilterChange}
       />
-      {/*
-      // debug 
-      <div style={{ border: '1px solid black' }}>
-        <br />
-        Search Text: {controlState.searchText}
-        <br />
-        applied filters xx: {JSON.stringify(controlState.appliedFilters)}
-        <br />
-        displayedStatusMessages count:{' '}
-        {controlState.displayedStatusMessages.length}
+      <div style={{ overflowY: 'scroll', maxHeight: '500px' }}>
+        <StatusMessageListContainer
+          statusMessages={controlState.displayedStatusMessages}
+        />
       </div>
-  */}
-      <StatusMessageListContainer
-        statusMessages={controlState.displayedStatusMessages}
-      />
     </div>
   );
 };

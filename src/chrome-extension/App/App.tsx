@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import 'primereact/resources/themes/mira/theme.css';
+
 import './App.css';
 import { TStatusRecord } from '../../components/StatusMessageListContainer/type';
 // import { FsFormModel } from '../../../../formstack';
@@ -14,7 +16,6 @@ import { TGraphNode } from '../../formstack/transformers/pojoToD3TableData';
 import { PrimeReactProvider } from 'primereact/api';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
-import 'primereact/resources/themes/md-light-deeppurple/theme.css';
 import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
 import { FormView } from '../pages/Content/FormView/FormView';
 import { FsFormModel } from '../../formstack';
@@ -235,7 +236,6 @@ const App: React.FC = () => {
     });
   };
 
-  const [activeIndex, setActiveIndex] = useState([0]);
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
@@ -246,7 +246,7 @@ const App: React.FC = () => {
           <AccordionTab header="API">
             <p className="m-0">
               <h4>API</h4>
-              <ApiKeyContainer title="The Title" />
+              <ApiKeyContainer />
               <Button onClick={handleApiGetFormRequestClick}>
                 API Request Form{' '}
               </Button>
@@ -275,7 +275,7 @@ const App: React.FC = () => {
                 Clear All Status Messages
               </Button>
 
-              <div style={{ maxWidth: '500px' }}>
+              <div style={{ maxWidth: '500px', paddingTop: 20 }}>
                 {fieldStatusPayload?.formStatusMessages && (
                   <MessageFilter
                     onFiltered={handleOnFilteredStatusMessages}

@@ -21,7 +21,7 @@ import { Button } from 'primereact/button';
 // import 'primereact/resources/themes/lara-light-cyan/theme.css';
 // import 'primereact/resources/themes/vela-blue/theme.css';
 // import 'primereact/resources/themes/md-light-indigo/theme.css';
-import 'primereact/resources/themes/md-light-deeppurple/theme.css';
+// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
 
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
@@ -35,7 +35,7 @@ const fetchSubmissionId = '1172665940'; // from formId: '5375703', only a couple
 
 // 1129952515 submission id
 
-import 'primereact/resources/themes/md-light-deeppurple/theme.css';
+// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
 import { App } from '../../App';
 
 const ContentScript: React.FC = () => {
