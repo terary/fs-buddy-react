@@ -39,8 +39,8 @@ type apiParametersType = {
 const App: React.FC = () => {
   const [formHtml, setFormHtml] = useState('No Form HTML found.');
   const [apiParameters, setApiParameters] = useState({
-    apiKey: null,
-    formId: null,
+    apiKey: 'cc17435f8800943cc1abd3063a8fe44f',
+    formId: '5375703',
   } as apiParametersType);
 
   const [currentLogicFieldGraphMap, setCurrentLogicFieldGraphMap] = useState(
@@ -55,10 +55,9 @@ const App: React.FC = () => {
   );
 
   const handleFetchSubmissionClick = () => {
-    const apiKey = getApiKey();
     console.log({
       handleFetchSubmissionClick: true,
-      apiKey,
+      apiKey: apiParameters.apiKey,
       submissionId: fetchSubmissionId,
     });
 
@@ -66,7 +65,7 @@ const App: React.FC = () => {
       {
         type: 'GetSubmissionFromApiRequest',
         submissionId: fetchSubmissionId,
-        apiKey,
+        apiKey: apiParameters.apiKey,
         // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiSubmissionJson) => {
@@ -100,21 +99,27 @@ const App: React.FC = () => {
       }
     );
   };
-  const sendApiRequest = () => {};
-  useEffect(() => {
-    // const fetchTreeFormId = '5079339';
-    // const fetchTreeFormId = '5375703';
 
-    const apiKey = getApiKey();
-
+  const sendApiRequest = (parameters: apiParametersType) => {
+    //   const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';
+    console.log({ sendApiRequest: { parameters } });
     chrome.runtime.sendMessage(
       {
         type: 'GetFormAsJson',
-        fetchFormId: fetchTreeFormId,
-        apiKey,
+        fetchFormId: parameters.formId,
+        apiKey: parameters.apiKey,
         // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiFormJson) => {
+        if (apiFormJson.status == 'error') {
+          console.log({
+            errorMessage: 'Error response from API.',
+            apiFormJson,
+          });
+          return;
+        }
+
+        console.log({ sendApiRequestResponse: { apiFormJson } });
         await formView.initialize();
         currentFieldCollection = FsFormModel.fromApiFormJson(
           transformers.formJson(apiFormJson)
@@ -164,6 +169,12 @@ const App: React.FC = () => {
         });
       }
     );
+  };
+
+  useEffect(() => {
+    // const fetchTreeFormId = '5079339';
+    // const fetchTreeFormId = '5375703';
+    // sendApiRequest(apiParameters);
   }, []);
 
   const handleClearFsHidden = () => {
@@ -237,12 +248,13 @@ const App: React.FC = () => {
   };
 
   const handleApiGetFormRequestClick = async () => {
-    formView.applyFieldStatusMessages(
-      fieldStatusPayload?.fieldStatusMessages || []
-    );
-    console.log({
-      applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
-    });
+    sendApiRequest(apiParameters);
+    // formView.applyFieldStatusMessages(
+    //   fieldStatusPayload?.fieldStatusMessages || []
+    // );
+    // console.log({
+    //   applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
+    // });
   };
 
   const handleApiParameterChange = (apiParameters: apiParametersType) => {
@@ -336,15 +348,5 @@ const App: React.FC = () => {
     </PrimeReactProvider>
   );
 };
-
-function getApiKey() {
-  const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';
-  // const apiKey = passwordControl.value;
-  if (apiKey.length != 32) {
-    alert('API Key does not look correct. Aborting Get Form');
-    return;
-  }
-  return apiKey;
-}
 
 export { App };

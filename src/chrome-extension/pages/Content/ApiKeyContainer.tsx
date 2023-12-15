@@ -14,7 +14,6 @@ const ApiKeyContainer: React.FC<Props> = ({
   formId,
   onChange,
 }: Props) => {
-  const [value, setValue] = useState(' API_KEY_GOES_HERE_ ');
   const handleTextChange = (
     input: 'apiKey' | 'formId',
     evt: React.ChangeEvent<HTMLInputElement>
