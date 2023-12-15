@@ -39,7 +39,11 @@ const fetchSubmissionId = '1172665940'; // from formId: '5375703', only a couple
 import { App } from '../../App';
 
 const ContentScript: React.FC = () => {
-  return <App />;
+  return (
+    <div style={{ border: '1px solid black' }}>
+      <App />
+    </div>
+  );
 };
 
 function getApiKey() {

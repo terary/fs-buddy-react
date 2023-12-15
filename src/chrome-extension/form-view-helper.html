@@ -198,6 +198,7 @@
       console.log('handleApplyLogicStatusMessages')
       removeAllFsBuddyCss()
       removeAllCssName('fsBuddy_statusMessages')
+      removeAllFsHidden();
 
       clearAllStatusMessages();
       clearAllFieldStatusMessages();
@@ -236,6 +237,7 @@
       }
       const { fieldStatusMessages } = fieldInfoResponse;
 
+      removeAllFsHidden();
       clearAllStatusMessages();
       clearAllFieldStatusMessages();
       if(fieldStatusMessages) {
@@ -623,7 +625,6 @@
         buildFsBuddyControlPanel();
         showOnly('fsBuddyControlPanelFieldStatus');
         sendMessageToParent('announceAwake');
-        removeAllFsHidden()
     })
     const fsBuddyHelper = {}
 
@@ -631,7 +632,7 @@
 	</head>
 	<body>
     <div id="fsBuddyControllPannel">
-      <button style='float: right' onclick="removeFsBuddy()">X</button>
+      <!-- <button style='float: right' onclick="removeFsBuddy()">X</button> -->
       <h3 style='text-align: center'>FS Buddy Control Panel</h3>
  
       <table>

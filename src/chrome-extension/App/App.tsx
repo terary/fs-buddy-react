@@ -31,12 +31,21 @@ let currentFieldCollection: FsFormModel;
 // interface Props {
 //   title: string;
 // }
+type apiParametersType = {
+  apiKey: string | null;
+  formId: string | null;
+};
+
 const App: React.FC = () => {
   const [formHtml, setFormHtml] = useState('No Form HTML found.');
+  const [apiParameters, setApiParameters] = useState({
+    apiKey: null,
+    formId: null,
+  } as apiParametersType);
+
   const [currentLogicFieldGraphMap, setCurrentLogicFieldGraphMap] = useState(
     [] as TGraphNode[]
   );
-
   const [fieldStatusPayload, setFieldStatusPayload] = useState(
     null as null | {
       fieldIdsWithLogic: [];
@@ -91,7 +100,7 @@ const App: React.FC = () => {
       }
     );
   };
-
+  const sendApiRequest = () => {};
   useEffect(() => {
     // const fetchTreeFormId = '5079339';
     // const fetchTreeFormId = '5375703';
@@ -236,70 +245,90 @@ const App: React.FC = () => {
     });
   };
 
+  const handleApiParameterChange = (apiParameters: apiParametersType) => {
+    console.log({ handleApiParameterChange: { apiParameters } });
+    setApiParameters(apiParameters);
+  };
+
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
-        <h2 style={{ textAlign: 'center' }}>FsBuddy</h2>
-        <Button onClick={handleClearFsHidden}>Clear fsHidden</Button>
+        <Accordion multiple activeIndex={[0]}>
+          <AccordionTab header="FS Buddy">
+            <p className="m-0">
+              <Accordion multiple activeIndex={[0, 4]}>
+                <AccordionTab header="API">
+                  <p className="m-0">
+                    <ApiKeyContainer
+                      {...apiParameters}
+                      onChange={handleApiParameterChange}
+                    />
+                    <Button onClick={handleApiGetFormRequestClick}>
+                      API Request Form{' '}
+                    </Button>
+                  </p>
+                </AccordionTab>
+                <AccordionTab header="Logic">
+                  <p className="m-0">
+                    <h4>
+                      Logic (root field count:{' '}
+                      {(fieldStatusPayload?.fieldIdsWithLogic || []).length}){' '}
+                    </h4>
+                    <LogicFieldSelect
+                      options={fieldStatusPayload?.fieldIdsWithLogic || []}
+                      onFieldIdSelected={handleLogicFieldSelected}
+                    />
+                    <ExpandedExpressionTreeGraph
+                      height={500}
+                      width={600}
+                      data={currentLogicFieldGraphMap}
+                    />
+                  </p>
+                </AccordionTab>
+                <AccordionTab header="Status Messages">
+                  <p className="m-0">
+                    <Button onClick={handleClearAllStatusMessage}>
+                      Clear All Status Messages
+                    </Button>
+                    <Button
+                      style={{ marginLeft: '10px' }}
+                      onClick={handleClearFsHidden}
+                    >
+                      Clear fsHidden
+                    </Button>
 
-        <Accordion multiple activeIndex={[0, 4]}>
-          <AccordionTab header="API">
-            <p className="m-0">
-              <h4>API</h4>
-              <ApiKeyContainer />
-              <Button onClick={handleApiGetFormRequestClick}>
-                API Request Form{' '}
-              </Button>
-            </p>
-          </AccordionTab>
-          <AccordionTab header="Logic">
-            <p className="m-0">
-              <h4>
-                Logic (root field count:{' '}
-                {(fieldStatusPayload?.fieldIdsWithLogic || []).length}){' '}
-              </h4>
-              <LogicFieldSelect
-                options={fieldStatusPayload?.fieldIdsWithLogic || []}
-                onFieldIdSelected={handleLogicFieldSelected}
-              />
-              <ExpandedExpressionTreeGraph
-                height={500}
-                width={600}
-                data={currentLogicFieldGraphMap}
-              />
-            </p>
-          </AccordionTab>
-          <AccordionTab header="Status Messages">
-            <p className="m-0">
-              <Button onClick={handleClearAllStatusMessage}>
-                Clear All Status Messages
-              </Button>
-
-              <div style={{ maxWidth: '500px', paddingTop: 20 }}>
-                {fieldStatusPayload?.formStatusMessages && (
-                  <MessageFilter
-                    onFiltered={handleOnFilteredStatusMessages}
-                    statusMessages={fieldStatusPayload?.formStatusMessages}
-                  />
-                )}
-              </div>
-            </p>
-          </AccordionTab>
-          <AccordionTab header="Submissions">
-            <p className="m-0">
-              <Button onClick={handleFetchSubmissionClick}>
-                Fetch Submission (id:1129952515)
-              </Button>
-            </p>
-          </AccordionTab>
-          <AccordionTab header="Form View">
-            <p className="m-0">
-              {fieldStatusPayload?.fieldStatusMessages && (
-                <formView.component
-                  statusMessage={fieldStatusPayload.fieldStatusMessages || []}
-                  formHtml={formHtml}
-                />
-              )}{' '}
+                    <div style={{ maxWidth: '500px', paddingTop: 20 }}>
+                      {fieldStatusPayload?.formStatusMessages && (
+                        <MessageFilter
+                          onFiltered={handleOnFilteredStatusMessages}
+                          statusMessages={
+                            fieldStatusPayload?.formStatusMessages
+                          }
+                        />
+                      )}
+                    </div>
+                  </p>
+                </AccordionTab>
+                <AccordionTab header="Submissions">
+                  <p className="m-0">
+                    <Button onClick={handleFetchSubmissionClick}>
+                      Fetch Submission (id:1129952515)
+                    </Button>
+                  </p>
+                </AccordionTab>
+                <AccordionTab header="Form View">
+                  <p className="m-0">
+                    {fieldStatusPayload?.fieldStatusMessages && (
+                      <formView.component
+                        statusMessage={
+                          fieldStatusPayload.fieldStatusMessages || []
+                        }
+                        formHtml={formHtml}
+                      />
+                    )}{' '}
+                  </p>
+                </AccordionTab>
+              </Accordion>
             </p>
           </AccordionTab>
         </Accordion>
