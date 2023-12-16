@@ -174,7 +174,7 @@ const App: React.FC = () => {
   useEffect(() => {
     // const fetchTreeFormId = '5079339';
     // const fetchTreeFormId = '5375703';
-    // sendApiRequest(apiParameters);
+    sendApiRequest(apiParameters);
   }, []);
 
   const handleClearFsHidden = () => {
@@ -185,24 +185,13 @@ const App: React.FC = () => {
     console.log('handleLogicFieldSelected');
     // const payload = { fieldId };
     // console.log({ payload });
-    const fieldIds = fieldLogicService?.getFieldIdsExtendedLogicOf(fieldId);
     const statusMessages = fieldLogicService?.getStatusMessagesFieldId(fieldId);
-    const interdependentFieldIds =
-      fieldLogicService?.getCircularReferenceFieldIds(fieldId);
+    fieldLogicService?.getCircularReferenceFieldIds(fieldId);
     const logicalNodeGraphMap =
       fieldLogicService?.getLogicNodeGraphMap(fieldId);
 
-    const payload = {
-      dependentsByFieldId: {
-        [fieldId]: {
-          statusMessages: statusMessages,
-          dependentFieldIds: fieldIds,
-          interdependentFieldIds: interdependentFieldIds,
-        },
-      },
-      logicalNodeGraphMap,
-    };
-    const allFieldIds = fieldLogicService?.getFieldIdsAll() || [];
+    // Want to be able to filter these ? or create/add a differnt filter component?
+
     const allFieldSummary = fieldLogicService?.getAllFieldSummary();
     formView.applyLogicStatusMessages(
       fieldId,
@@ -213,17 +202,6 @@ const App: React.FC = () => {
     console.log({
       applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
     });
-  };
-
-  const handleWorkWithLogic = async () => {
-    console.log('handleWorkWithLogic');
-    // const message = {
-    //   messageType: 'clearAllStatusMessages',
-    //   payload: null,
-    // };
-
-    // // @ts-ignore
-    // document.getElementById('theFrame').contentWindow.postMessage(message);
   };
 
   const handleClearAllStatusMessage = async () => {
@@ -249,12 +227,6 @@ const App: React.FC = () => {
 
   const handleApiGetFormRequestClick = async () => {
     sendApiRequest(apiParameters);
-    // formView.applyFieldStatusMessages(
-    //   fieldStatusPayload?.fieldStatusMessages || []
-    // );
-    // console.log({
-    //   applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
-    // });
   };
 
   const handleApiParameterChange = (apiParameters: apiParametersType) => {
@@ -268,7 +240,7 @@ const App: React.FC = () => {
         <Accordion multiple activeIndex={[0]}>
           <AccordionTab header="FS Buddy">
             <p className="m-0">
-              <Accordion multiple activeIndex={[0, 4]}>
+              <Accordion multiple activeIndex={[0, 2, 4]}>
                 <AccordionTab header="API">
                   <p className="m-0">
                     <ApiKeyContainer
@@ -280,12 +252,12 @@ const App: React.FC = () => {
                     </Button>
                   </p>
                 </AccordionTab>
-                <AccordionTab header="Logic">
+                <AccordionTab
+                  header={`Logic (root field count: ${
+                    (fieldStatusPayload?.fieldIdsWithLogic || []).length
+                  })`}
+                >
                   <p className="m-0">
-                    <h4>
-                      Logic (root field count:{' '}
-                      {(fieldStatusPayload?.fieldIdsWithLogic || []).length}){' '}
-                    </h4>
                     <LogicFieldSelect
                       options={fieldStatusPayload?.fieldIdsWithLogic || []}
                       onFieldIdSelected={handleLogicFieldSelected}

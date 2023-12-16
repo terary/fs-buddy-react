@@ -18,7 +18,7 @@ type LogFilterCollectionType = {
 const logFilterCheckboxesProps: LogFilterCollectionType = {
   debug: {
     label: 'Debug',
-    value: true,
+    value: false,
   },
   info: {
     label: 'Info',
@@ -30,7 +30,7 @@ const logFilterCheckboxesProps: LogFilterCollectionType = {
   },
   error: {
     label: 'Error',
-    value: false,
+    value: true,
   },
   logic: {
     label: 'Logic',
@@ -49,6 +49,22 @@ const getApplicableFilters = (
     });
 };
 
+const getFilteredMessages = (
+  appliedFilters: any,
+  searchText: string,
+  statusMessages: TStatusRecord[]
+) => {
+  const searchRegExp = new RegExp(searchText, 'i');
+  const filteredMessages = statusMessages
+    .filter((statusMessage) => appliedFilters.includes(statusMessage.severity))
+    .filter((statusMessage) => {
+      const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
+      return isMatch;
+    });
+
+  return filteredMessages;
+};
+
 const MessageFilter = ({
   statusMessages = [],
   onFiltered,
@@ -57,10 +73,15 @@ const MessageFilter = ({
   onFiltered: (statusMessages: TStatusRecord[]) => void;
 }) => {
   const _statusMessages = statusMessages;
+
   const [controlState, setControlState] = useState({
     appliedFilters: getApplicableFilters(logFilterCheckboxesProps),
     statusMessages,
-    displayedStatusMessages: statusMessages,
+    displayedStatusMessages: getFilteredMessages(
+      getApplicableFilters(logFilterCheckboxesProps),
+      '',
+      statusMessages
+    ),
     searchText: '',
   });
 
@@ -68,8 +89,8 @@ const MessageFilter = ({
   const [loggingFilters, setLoggingFilters] = useState(
     logFilterCheckboxesProps
   );
-  const [displayedStatusMessages, setDisplayedStatusMessages] =
-    useState(_statusMessages);
+  // const [displayedStatusMessages, setDisplayedStatusMessages] =
+  //   useState(_statusMessages);
 
   // ----------
   const handleLoggingFilterChange = (updatedLoggingFilter: any) => {
@@ -92,15 +113,19 @@ const MessageFilter = ({
     const searchRegExp = new RegExp(state.searchText, 'i');
     const { appliedFilters } = state;
     console.log('Pre loop');
-
-    const filteredMessages = controlState.statusMessages
-      .filter((statusMessage) =>
-        appliedFilters.includes(statusMessage.severity)
-      )
-      .filter((statusMessage) => {
-        const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
-        return isMatch;
-      });
+    const filteredMessages = getFilteredMessages(
+      appliedFilters,
+      state.searchText,
+      controlState.statusMessages
+    );
+    // const filteredMessages = controlState.statusMessages
+    //   .filter((statusMessage) =>
+    //     appliedFilters.includes(statusMessage.severity)
+    //   )
+    //   .filter((statusMessage) => {
+    //     const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
+    //     return isMatch;
+    //   });
 
     const newState = {
       ...state,
