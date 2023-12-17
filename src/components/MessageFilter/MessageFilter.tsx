@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
+import {
+  UIStateContext,
+  UIStateDispatch,
+  actions,
+} from '../../chrome-extension/AppState';
 // import 'primereact/resources/themes/md-light-deeppurple/theme.css';
 // import 'primereact/resources/themes/mdc-light-indigo/theme.css';
 import './MessageFilter.module.css';
@@ -7,6 +12,7 @@ import { TStatusRecord } from '../StatusMessageListContainer/type';
 import { StatusMessageContainer } from '../StatusMessageListContainer/StatusMessageContainer';
 import { StatusMessageListContainer } from '../StatusMessageListContainer';
 import { CheckboxArray } from '../CheckboxArray';
+import { TStatusMessageSeverity } from '../../formstack/classes/Evaluator/type';
 
 type LogFilterType = {
   label: string;
@@ -39,14 +45,14 @@ const logFilterCheckboxesProps: LogFilterCollectionType = {
 };
 const getApplicableFilters = (
   filterCollection: LogFilterCollectionType
-): string[] => {
+): TStatusMessageSeverity[] => {
   return Object.entries(filterCollection)
     .filter(([logName, filterObject]) => {
       return filterObject.value;
     })
     .map(([logName, filterObject]) => {
       return logName;
-    });
+    }) as TStatusMessageSeverity[];
 };
 
 const getFilteredMessages = (
@@ -55,85 +61,60 @@ const getFilteredMessages = (
   statusMessages: TStatusRecord[]
 ) => {
   const searchRegExp = new RegExp(searchText, 'i');
-  const filteredMessages = statusMessages
-    .filter((statusMessage) => appliedFilters.includes(statusMessage.severity))
-    .filter((statusMessage) => {
+  const filteredMessages = statusMessages.filter((statusMessage) =>
+    appliedFilters.includes(statusMessage.severity)
+  );
+  if (searchText && searchText != '') {
+    return filteredMessages.filter((statusMessage) => {
       const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
       return isMatch;
     });
+  }
 
   return filteredMessages;
 };
 
-const MessageFilter = ({
-  statusMessages = [],
-  onFiltered,
-}: {
-  statusMessages?: TStatusRecord[];
-  onFiltered: (statusMessages: TStatusRecord[]) => void;
-}) => {
-  const _statusMessages = statusMessages;
+const MessageFilter = () => {
+  const uiStateContext = useContext(UIStateContext);
+  const dispatcher = useContext(UIStateDispatch);
 
-  const [controlState, setControlState] = useState({
-    appliedFilters: getApplicableFilters(logFilterCheckboxesProps),
-    statusMessages,
-    displayedStatusMessages: getFilteredMessages(
-      getApplicableFilters(logFilterCheckboxesProps),
-      '',
-      statusMessages
-    ),
-    searchText: '',
-  });
-
-  // const [searchText, setSearchText] = useState("");
-  const [loggingFilters, setLoggingFilters] = useState(
-    logFilterCheckboxesProps
-  );
-  // const [displayedStatusMessages, setDisplayedStatusMessages] =
-  //   useState(_statusMessages);
-
-  // ----------
   const handleLoggingFilterChange = (updatedLoggingFilter: any) => {
-    const newState = {
-      ...controlState,
-      ...{ appliedFilters: getApplicableFilters(updatedLoggingFilter) },
-    };
+    const newState = { ...uiStateContext };
+    newState.messageFilter.selectedLogLevels =
+      getApplicableFilters(updatedLoggingFilter);
 
-    // setLoggingFilters(updatedLoggingFilter);
     finalizeAndSetControlStatue(newState);
   };
 
   const handleSearchTextChange = (evt: React.FormEvent<HTMLInputElement>) => {
     const searchText = evt.currentTarget.value || '';
-    const newState = { ...controlState, ...{ searchText } };
+    // const newState = { ...uiStateContext };
+    // newState.messageFilter.searchText = searchText;
+
+    const newState = { ...uiStateContext };
+    newState.messageFilter.searchText = (searchText || '').replace(
+      /[^\w -]/g, // alphanumeric [space] _ -, but no other special characters
+      ''
+    );
+
     finalizeAndSetControlStatue(newState);
   };
 
-  const finalizeAndSetControlStatue = (state: any) => {
-    const searchRegExp = new RegExp(state.searchText, 'i');
-    const { appliedFilters } = state;
-    console.log('Pre loop');
+  const finalizeAndSetControlStatue = (revisedState: any) => {
+    const { messageFilter } = revisedState;
+    console.log({ finalizeAndSetControlStatue: { revisedState } });
     const filteredMessages = getFilteredMessages(
-      appliedFilters,
-      state.searchText,
-      controlState.statusMessages
+      messageFilter.selectedLogLevels,
+      messageFilter.searchText,
+      uiStateContext.apiResponse.allStatusMessages
     );
-    // const filteredMessages = controlState.statusMessages
-    //   .filter((statusMessage) =>
-    //     appliedFilters.includes(statusMessage.severity)
-    //   )
-    //   .filter((statusMessage) => {
-    //     const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
-    //     return isMatch;
-    //   });
-
-    const newState = {
-      ...state,
-      ...{ displayedStatusMessages: filteredMessages },
-    };
-    setControlState(newState);
-    onFiltered(filteredMessages);
-    // setDisplayedStatusMessages(filteredMessages);
+    dispatcher(
+      actions.messageFilter.update(uiStateContext, {
+        searchText: messageFilter.searchText,
+        selectedLogLevels: messageFilter.selectedLogLevels, // ['info', 'warn', 'error', 'logic'],
+        filteredMessages: filteredMessages,
+      })
+    );
   };
 
   return (
@@ -141,17 +122,40 @@ const MessageFilter = ({
       className="MessageFilterContainer"
       data-testid="message-filter-container"
     >
+      context.messageFilter.filteredMessages.length:{' '}
+      {JSON.stringify(uiStateContext.messageFilter.filteredMessages.length)}
+      <br />
+      apiResponse Keys:{' '}
+      {JSON.stringify(Object.keys(uiStateContext.apiResponse), null, ' ')}
+      <br />
+      {/* <div style={{ height: '500px', overflowY: 'scroll' }}>
+        <code>
+          <pre>{JSON.stringify(uiStateContext.apiResponse, null, ' ')}</pre>
+        </code>
+      </div> */}
+      selectedLogLevels:{' '}
+      {JSON.stringify(uiStateContext.messageFilter.selectedLogLevels)}
+      <br />
+      searchText: {JSON.stringify(uiStateContext.messageFilter.searchText)}
+      <br />
+      Object.keys(context.messageFilter):{' '}
+      {JSON.stringify(Object.keys(uiStateContext.messageFilter))}
+      <br />
+      context.apiResponse.allStatusMessages.length:{' '}
+      {uiStateContext.apiResponse.allStatusMessages.length}
+      {/* {JSON.stringify(context.apiResponse.allStatusMessages.length)} */}
+      <br />
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <InputText placeholder="Search" onChange={handleSearchTextChange} />
       </span>
       <CheckboxArray
-        props={loggingFilters}
+        props={logFilterCheckboxesProps}
         onChange={handleLoggingFilterChange}
       />
       <div style={{ overflowY: 'scroll', maxHeight: '500px' }}>
         <StatusMessageListContainer
-          statusMessages={controlState.displayedStatusMessages}
+          statusMessages={uiStateContext.messageFilter.filteredMessages}
         />
       </div>
     </div>

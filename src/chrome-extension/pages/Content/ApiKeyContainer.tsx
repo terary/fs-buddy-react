@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { InputText } from 'primereact/inputtext';
+import {
+  UIStateContextProvider,
+  UIStateContext,
+  UIStateDispatch,
+} from '../../AppState';
 
 interface Props {
   apiKey: null | string;
@@ -14,6 +19,8 @@ const ApiKeyContainer: React.FC<Props> = ({
   formId,
   onChange,
 }: Props) => {
+  const dispatcher = useContext(UIStateDispatch);
+
   const handleTextChange = (
     input: 'apiKey' | 'formId',
     evt: React.ChangeEvent<HTMLInputElement>
@@ -22,8 +29,22 @@ const ApiKeyContainer: React.FC<Props> = ({
     const newValue = { ...{ apiKey, formId }, ...{ [input]: value } };
     onChange(newValue);
   };
+
+  const handleStateUpdate = () => {
+    dispatcher({
+      type: 'messageFilter/selectedLogLevels/update',
+      payload: {
+        messageFilter: {
+          selectedLogLevels: ['info', 'warn'],
+          searchText: 'Search Text from APIKeyContainer.tsx',
+        },
+      },
+    });
+  };
+
   return (
     <div>
+      <button onClick={handleStateUpdate}>Update State</button>
       <InputText
         placeholder="API Key"
         value={apiKey || ''}

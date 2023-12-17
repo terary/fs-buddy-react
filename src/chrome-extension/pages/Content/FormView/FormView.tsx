@@ -1,6 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { TStatusRecord } from '../../../../formstack/classes/Evaluator/type';
 import './FormView.css';
+import { UIStateContext } from '../../../AppState';
 const fetchTreeFormId = '5375703';
 const fetchSubmissionId = '1129952515';
 interface Props {
@@ -126,7 +127,37 @@ class FormView {
     iFrame.contentWindow.postMessage(message);
   }
 
-  public component = ({ formHtml, context: any }: Props): ReactElement => {
+  // public component = ({ formHtml, context: any }: Props): ReactElement => {
+  public component = (): ReactElement => {
+    const uiStateContext = useContext(UIStateContext);
+    const stateFormHtml = uiStateContext.apiResponse.formHtml;
+    useEffect(() => {
+      this.applyFieldStatusMessages(
+        uiStateContext.messageFilter.filteredMessages
+      );
+    }, [uiStateContext.messageFilter.filteredMessages]);
+
+    useEffect(() => {
+      uiStateContext.logicFieldSelected.fieldId &&
+        this.applyLogicStatusMessages(
+          uiStateContext.logicFieldSelected.fieldId,
+          uiStateContext.logicFieldSelected.statusMessages,
+          uiStateContext.logicFieldSelected.allFieldSummary
+        );
+    }, [uiStateContext.logicFieldSelected.statusMessages]);
+
+    useEffect(() => {
+      uiStateContext.submissionSelected.submissionId &&
+        this.applySubmissionDataStatusMessages(
+          uiStateContext.submissionSelected.submissionId,
+          uiStateContext.submissionSelected.submissionUiDataItems
+        );
+    }, [uiStateContext.submissionSelected.submissionUiDataItems]);
+
+    // useEffect(() => {
+    //   statusMessages && this.applyFieldStatusMessages(statusMessages);
+    // }, []);
+
     return (
       <iframe
         id={FormView.IFRAME_ID}
@@ -139,7 +170,8 @@ class FormView {
         //   position: 'absolute',
         //   left: '100%',
         // }}
-        srcDoc={this._helperHtml + formHtml}
+        // srcDoc={this._helperHtml + formHtml}
+        srcDoc={this._helperHtml + `${stateFormHtml}`}
       ></iframe>
     );
   };

@@ -1,6 +1,7 @@
 .ContentContainer {
     text-align: left;
-    height: 100%
+    /* height: 100% */
+    height: auto;
 }
 
 .p-accordion-header{
@@ -21,7 +22,8 @@
     z-index: 1000;
     top:0px;
     left: 0px;
-    height: 100%;
+    /* height: 100%; */
+    height: auto;
     position: absolute;
     width: 800px;
     /* background-color: green; */

@@ -1,27 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ApiKeyContainer } from './ApiKeyContainer';
-import { LogicFieldSelect } from './LogicFieldSelect';
-import { FormstackBuddy } from '../../../FormstackBuddy/FormstackBuddy';
 import { FsFormModel, TFsFieldAnyJson } from '../../../formstack';
 import { FieldLogicService } from '../../../FormstackBuddy/FieldLogicService';
-import { transformers } from '../../../formstack/transformers';
 import { FormAnalytics } from '../../../FormstackBuddy/FormAnalytics';
-import { StatusMessageContainer } from '../../containers/StatusMessages';
-import { TStatusRecord } from '../../../formstack/classes/Evaluator/type';
 import { FormView } from './FormView/FormView';
-import { CheckboxArray } from '../../common/CheckboxArray';
-import { MessageFilter } from '../../../components/MessageFilter';
 import './ContentScript.css';
-import ExpandedExpressionTreeGraph from '../../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
-import { TGraphNode } from '../../../formstack/transformers/pojoToD3TableData';
-
-import { PrimeReactProvider } from 'primereact/api';
-import { Accordion, AccordionTab } from 'primereact/accordion';
-import { Button } from 'primereact/button';
-// import 'primereact/resources/themes/lara-light-cyan/theme.css';
-// import 'primereact/resources/themes/vela-blue/theme.css';
-// import 'primereact/resources/themes/md-light-indigo/theme.css';
-// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
+import { App } from '../../App';
 
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
@@ -32,11 +15,7 @@ const fetchTreeFormId = '5375703';
 // const fetchTreeFormId = '5358471'; // has submissions
 // const fetchSubmissionId = '1129952515';
 const fetchSubmissionId = '1172665940'; // from formId: '5375703', only a couple fields populated
-
 // 1129952515 submission id
-
-// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
-import { App } from '../../App';
 
 const ContentScript: React.FC = () => {
   return (

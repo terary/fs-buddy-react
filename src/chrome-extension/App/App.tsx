@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import 'primereact/resources/themes/mira/theme.css';
-
+import { actions, UIStateContext, UIStateDispatch } from '../AppState';
 import './App.css';
-import { TStatusRecord } from '../../components/StatusMessageListContainer/type';
-// import { FsFormModel } from '../../../../formstack';
+import { filterStatusMessages } from '../../common/functions';
 
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
@@ -12,13 +11,14 @@ import { FormstackBuddy } from '../../FormstackBuddy/FormstackBuddy';
 import { MessageFilter } from '../../components/MessageFilter';
 import { ApiKeyContainer } from '../pages/Content/ApiKeyContainer';
 import { LogicFieldSelect } from '../pages/Content/LogicFieldSelect';
-import { TGraphNode } from '../../formstack/transformers/pojoToD3TableData';
 import { PrimeReactProvider } from 'primereact/api';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
 import { FormView } from '../pages/Content/FormView/FormView';
 import { FsFormModel } from '../../formstack';
+import { UIStateApiResponseFormGetType } from '../AppState/types';
+import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
 const formView = new FormView();
 const fetchTreeFormId = '5375703';
 const fetchSubmissionId = '1129952515';
@@ -28,31 +28,20 @@ const fetchSubmissionId = '1129952515';
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
 let currentFieldCollection: FsFormModel;
-// interface Props {
-//   title: string;
-// }
+
 type apiParametersType = {
   apiKey: string | null;
   formId: string | null;
 };
 
 const App: React.FC = () => {
-  const [formHtml, setFormHtml] = useState('No Form HTML found.');
+  const dispatcher = useContext(UIStateDispatch);
+  const uiStateContext = useContext(UIStateContext);
+
   const [apiParameters, setApiParameters] = useState({
     apiKey: 'cc17435f8800943cc1abd3063a8fe44f',
     formId: '5375703',
   } as apiParametersType);
-
-  const [currentLogicFieldGraphMap, setCurrentLogicFieldGraphMap] = useState(
-    [] as TGraphNode[]
-  );
-  const [fieldStatusPayload, setFieldStatusPayload] = useState(
-    null as null | {
-      fieldIdsWithLogic: [];
-      formStatusMessages: TStatusRecord[];
-      fieldStatusMessages: TStatusRecord[];
-    }
-  );
 
   const handleFetchSubmissionClick = () => {
     console.log({
@@ -66,49 +55,29 @@ const App: React.FC = () => {
         type: 'GetSubmissionFromApiRequest',
         submissionId: fetchSubmissionId,
         apiKey: apiParameters.apiKey,
-        // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiSubmissionJson) => {
-        console.log({ apiSubmissionJson });
         const submissionUiDataItems =
           currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
-        // const message = {
-        //   messageType: 'fetchSubmissionResponse',
-        //   payload: {
-        //     id: apiSubmissionJson.id,
-        //     submissionData: submissionUiDataItems,
-        //     allFieldSummary,
-        //   },
-        // };
 
-        // formView.applySubmissionDataStatusMessages(message);
-        formView.applySubmissionDataStatusMessages(
-          apiSubmissionJson.id,
-          submissionUiDataItems
+        dispatcher(
+          actions.submissionSelected.update(uiStateContext, {
+            submissionId: apiSubmissionJson.id,
+            submissionUiDataItems: submissionUiDataItems,
+          })
         );
-        // @ts-ignore
-        // document.getElementById('theFrame').contentWindow.postMessage(message);
-        // caller.postMessage({
-        //   messageType: 'fetchSubmissionResponse',
-        //   payload: {
-        //     id: apiSubmissionJson.id,
-        //     submissionData: submissionUiDataItems,
-        //   },
-        // });
         return true;
       }
     );
   };
 
   const sendApiRequest = (parameters: apiParametersType) => {
-    //   const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';
     console.log({ sendApiRequest: { parameters } });
     chrome.runtime.sendMessage(
       {
         type: 'GetFormAsJson',
         fetchFormId: parameters.formId,
         apiKey: parameters.apiKey,
-        // apiKey: "cc17435f8800943cc1abd3063a8fe44f",
       },
       async (apiFormJson) => {
         if (apiFormJson.status == 'error') {
@@ -119,8 +88,9 @@ const App: React.FC = () => {
           return;
         }
 
-        console.log({ sendApiRequestResponse: { apiFormJson } });
         await formView.initialize();
+
+        // this has pseudo global scope? defined here but used elsewhere?
         currentFieldCollection = FsFormModel.fromApiFormJson(
           transformers.formJson(apiFormJson)
         );
@@ -131,49 +101,60 @@ const App: React.FC = () => {
         fieldLogicService = FormstackBuddy.getInstance().getFieldLogicService(
           transformers.formJson(apiFormJson)
         );
-        // -----------------
+
         const fieldSummary = fieldLogicService?.getAllFieldSummary();
-        // formView.setAllFieldSummary(fieldSummary);
+
         const formLogicStatusMessages =
           fieldLogicService.getFormLogicStatusMessages();
+
         const formStatusMessages = formAnalytic.findKnownSetupIssues();
+
         const fieldIdsWithLogic =
           fieldLogicService?.wrapFieldIdsIntoLabelOptionList(
             fieldLogicService?.getFieldIdsWithLogic()
           );
-        const payload = {
+
+        const allStatusMessages = [
+          ...formStatusMessages,
+          ...formLogicStatusMessages,
+        ];
+        const fieldStatusMessages = allStatusMessages.filter(
+          (statusMessage) => statusMessage.fieldId
+        );
+
+        // UIStateApiResponseFormGetType
+        const payload: UIStateApiResponseFormGetType = {
           fieldSummary,
-          formStatusMessages: [
+          formStatusMessages,
+          formLogicStatusMessages,
+          fieldStatusMessages,
+          allStatusMessages: [
             ...formStatusMessages,
             ...formLogicStatusMessages,
           ],
           fieldIdsWithLogic,
-          fieldStatusMessages: [] as TStatusRecord[],
+          formHtml: apiFormJson.html,
+          formJson: apiFormJson,
         };
-        // -----------------
-        const fieldMessages = payload.formStatusMessages.filter(
-          (statusMessage) => statusMessage.fieldId
+
+        dispatcher(actions.apiResponse.getForm(uiStateContext, payload));
+        dispatcher(
+          actions.messageFilter.update(uiStateContext, {
+            selectedLogLevels: ['info', 'warn', 'error', 'logic'],
+            filteredMessages: filterStatusMessages(allStatusMessages, [
+              // 'debug',
+              'info',
+              'warn',
+              'error',
+              'logic',
+            ]),
+          })
         );
-        payload.fieldStatusMessages = fieldMessages;
-        // formView.applyFieldStatusMessages(fieldMessages);
-        //const payload = { formAnalytic, fieldLogicService };
-        // @ts-ignore payload wrong shape (need gto work-out typing)
-        payload && setFieldStatusPayload(payload);
-
-        setFormHtml(apiFormJson.html);
-        // formView.applyFieldStatusMessages(fieldMessages);
-
-        console.log({
-          useEffect: true,
-          payload,
-        });
       }
     );
   };
 
   useEffect(() => {
-    // const fetchTreeFormId = '5079339';
-    // const fetchTreeFormId = '5375703';
     sendApiRequest(apiParameters);
   }, []);
 
@@ -183,25 +164,20 @@ const App: React.FC = () => {
 
   const handleLogicFieldSelected = (fieldId: string) => {
     console.log('handleLogicFieldSelected');
-    // const payload = { fieldId };
-    // console.log({ payload });
     const statusMessages = fieldLogicService?.getStatusMessagesFieldId(fieldId);
     fieldLogicService?.getCircularReferenceFieldIds(fieldId);
     const logicalNodeGraphMap =
       fieldLogicService?.getLogicNodeGraphMap(fieldId);
 
-    // Want to be able to filter these ? or create/add a differnt filter component?
-
     const allFieldSummary = fieldLogicService?.getAllFieldSummary();
-    formView.applyLogicStatusMessages(
-      fieldId,
-      statusMessages || [],
-      allFieldSummary
+    dispatcher(
+      actions.logic.updateSelectedField(uiStateContext, {
+        logicalNodeGraphMap,
+        fieldId,
+        statusMessages,
+        allFieldSummary,
+      })
     );
-    setCurrentLogicFieldGraphMap(logicalNodeGraphMap || []);
-    console.log({
-      applyFieldStatusMessages: fieldStatusPayload?.fieldStatusMessages || [],
-    });
   };
 
   const handleClearAllStatusMessage = async () => {
@@ -218,13 +194,6 @@ const App: React.FC = () => {
       .contentWindow.postMessage(message);
   };
 
-  const handleOnFilteredStatusMessages = (
-    filteredStatusMessage: TStatusRecord[]
-  ): void => {
-    console.log({ filteredStatusMessage });
-    formView.applyFieldStatusMessages(filteredStatusMessage || []);
-  };
-
   const handleApiGetFormRequestClick = async () => {
     sendApiRequest(apiParameters);
   };
@@ -234,10 +203,14 @@ const App: React.FC = () => {
     setApiParameters(apiParameters);
   };
 
+  const handleHideFsBuddy = (evt: any) => {
+    console.log({ handleHideFsBuddy: { evt } });
+    return true;
+  };
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
-        <Accordion multiple activeIndex={[0]}>
+        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[0]}>
           <AccordionTab header="FS Buddy">
             <p className="m-0">
               <Accordion multiple activeIndex={[0, 2, 4]}>
@@ -254,18 +227,23 @@ const App: React.FC = () => {
                 </AccordionTab>
                 <AccordionTab
                   header={`Logic (root field count: ${
-                    (fieldStatusPayload?.fieldIdsWithLogic || []).length
+                    (uiStateContext.apiResponse.fieldIdsWithLogic || []).length
                   })`}
                 >
                   <p className="m-0">
                     <LogicFieldSelect
-                      options={fieldStatusPayload?.fieldIdsWithLogic || []}
+                      options={
+                        uiStateContext.apiResponse.fieldIdsWithLogic || []
+                      }
                       onFieldIdSelected={handleLogicFieldSelected}
                     />
                     <ExpandedExpressionTreeGraph
                       height={500}
                       width={600}
-                      data={currentLogicFieldGraphMap}
+                      data={
+                        uiStateContext.logicFieldSelected.logicalNodeGraphMap ||
+                        []
+                      }
                     />
                   </p>
                 </AccordionTab>
@@ -282,14 +260,8 @@ const App: React.FC = () => {
                     </Button>
 
                     <div style={{ maxWidth: '500px', paddingTop: 20 }}>
-                      {fieldStatusPayload?.formStatusMessages && (
-                        <MessageFilter
-                          onFiltered={handleOnFilteredStatusMessages}
-                          statusMessages={
-                            fieldStatusPayload?.formStatusMessages
-                          }
-                        />
-                      )}
+                      {uiStateContext.apiResponse.formStatusMessages.length >
+                        0 && <MessageFilter />}
                     </div>
                   </p>
                 </AccordionTab>
@@ -302,13 +274,8 @@ const App: React.FC = () => {
                 </AccordionTab>
                 <AccordionTab header="Form View">
                   <p className="m-0">
-                    {fieldStatusPayload?.fieldStatusMessages && (
-                      <formView.component
-                        statusMessage={
-                          fieldStatusPayload.fieldStatusMessages || []
-                        }
-                        formHtml={formHtml}
-                      />
+                    {uiStateContext.apiResponse.formHtml !== '' && (
+                      <formView.component />
                     )}{' '}
                   </p>
                 </AccordionTab>
