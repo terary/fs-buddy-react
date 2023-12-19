@@ -11,7 +11,8 @@ interface Props {
 
 const LogicFieldSelect = ({ options, onFieldIdSelected }: Props) => {
   const [selectedValue, setSelectedValue] = useState(options[0]?.value || '');
-  const handleOptionSelected2 = (e: DropdownChangeEvent) => {
+
+  const handleOptionSelected = (e: DropdownChangeEvent) => {
     const fieldId = e.target.value;
     console.log({ changeEvent: e, fieldId });
 
@@ -19,19 +20,14 @@ const LogicFieldSelect = ({ options, onFieldIdSelected }: Props) => {
     onFieldIdSelected(fieldId);
   };
 
-  const handleOptionSelected = (e: SyntheticEvent) => {
-    // @ts-ignore
-    const fieldId = e.target.value;
-    console.log({ changeEvent: e, fieldId });
-
-    onFieldIdSelected(fieldId);
-  };
-
   return (
     <>
+      <label htmlFor="logicFieldSelect">Select Root Logic Field:</label>
+      <br />
       <Dropdown
+        id="logicFieldSelect"
         value={selectedValue}
-        onChange={handleOptionSelected2}
+        onChange={handleOptionSelected}
         options={options || []}
         optionValue="value"
         optionLabel="label"

@@ -1,10 +1,6 @@
 import React, { useContext } from 'react';
 import { InputText } from 'primereact/inputtext';
-import {
-  UIStateContextProvider,
-  UIStateContext,
-  UIStateDispatch,
-} from '../../AppState';
+import { UIStateDispatch } from '../../AppState';
 
 interface Props {
   apiKey: null | string;
@@ -30,21 +26,8 @@ const ApiKeyContainer: React.FC<Props> = ({
     onChange(newValue);
   };
 
-  const handleStateUpdate = () => {
-    dispatcher({
-      type: 'messageFilter/selectedLogLevels/update',
-      payload: {
-        messageFilter: {
-          selectedLogLevels: ['info', 'warn'],
-          searchText: 'Search Text from APIKeyContainer.tsx',
-        },
-      },
-    });
-  };
-
   return (
     <div>
-      <button onClick={handleStateUpdate}>Update State</button>
       <InputText
         placeholder="API Key"
         value={apiKey || ''}

@@ -55,7 +55,7 @@ const CheckboxArray = ({ props, onChange }: Props) => {
         return (
           <div
             key={logType}
-            style={{ display: 'inline' }}
+            style={{ display: 'inline', paddingLeft: '10px' }}
             className="flex align-items-center"
           >
             <Checkbox

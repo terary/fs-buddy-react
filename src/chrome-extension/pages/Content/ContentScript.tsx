@@ -25,16 +25,6 @@ const ContentScript: React.FC = () => {
   );
 };
 
-function getApiKey() {
-  const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';
-  // const apiKey = passwordControl.value;
-  if (apiKey.length != 32) {
-    alert('API Key does not look correct. Aborting Get Form');
-    return;
-  }
-  return apiKey;
-}
-
 function handleGetAllFieldInfoRequest(
   caller: MessageEventSource,
   payload: any

@@ -67,6 +67,15 @@ class FormView {
     this.postMessageToIframe(message);
   }
 
+  static clearFsHidden(): void {
+    const message = {
+      messageType: 'removeFsHiddenRequest',
+      payload: null,
+    };
+
+    FormView.postMessageToIframe(message);
+  }
+
   applySubmissionDataStatusMessages(
     submissionId: string,
     submissionUiDataItems: any
@@ -117,6 +126,16 @@ class FormView {
   }
 
   private postMessageToIframe(message: any) {
+    const iFrame = document.getElementById(FormView.IFRAME_ID);
+
+    if (!iFrame) {
+      return;
+    }
+
+    // @ts-ignore - doesn't like typing
+    iFrame.contentWindow.postMessage(message);
+  }
+  private static postMessageToIframe(message: any) {
     const iFrame = document.getElementById(FormView.IFRAME_ID);
 
     if (!iFrame) {

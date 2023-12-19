@@ -5,8 +5,10 @@ import {
   UIStateDispatch,
   actions,
 } from '../../chrome-extension/AppState';
-// import 'primereact/resources/themes/md-light-deeppurple/theme.css';
-// import 'primereact/resources/themes/mdc-light-indigo/theme.css';
+import { Button } from 'primereact/button';
+// import { FormView } from '../pages/Content/FormView/FormView';
+import { FormView } from '../../chrome-extension/pages/Content/FormView/FormView';
+
 import './MessageFilter.module.css';
 import { TStatusRecord } from '../StatusMessageListContainer/type';
 import { StatusMessageContainer } from '../StatusMessageListContainer/StatusMessageContainer';
@@ -100,6 +102,23 @@ const MessageFilter = () => {
     finalizeAndSetControlStatue(newState);
   };
 
+  const handleClearAllStatusMessage = async () => {
+    const message = {
+      messageType: 'clearAllStatusMessages',
+      payload: null,
+    };
+
+    // @ts-ignore
+    document
+      .getElementById(FormView.IFRAME_ID)
+      // @ts-ignore
+      .contentWindow.postMessage(message);
+  };
+
+  const handleClearFsHidden = () => {
+    FormView.clearFsHidden();
+  };
+
   const finalizeAndSetControlStatue = (revisedState: any) => {
     const { messageFilter } = revisedState;
     console.log({ finalizeAndSetControlStatue: { revisedState } });
@@ -122,37 +141,62 @@ const MessageFilter = () => {
       className="MessageFilterContainer"
       data-testid="message-filter-container"
     >
-      context.messageFilter.filteredMessages.length:{' '}
-      {JSON.stringify(uiStateContext.messageFilter.filteredMessages.length)}
-      <br />
-      apiResponse Keys:{' '}
-      {JSON.stringify(Object.keys(uiStateContext.apiResponse), null, ' ')}
-      <br />
-      {/* <div style={{ height: '500px', overflowY: 'scroll' }}>
-        <code>
-          <pre>{JSON.stringify(uiStateContext.apiResponse, null, ' ')}</pre>
-        </code>
-      </div> */}
-      selectedLogLevels:{' '}
-      {JSON.stringify(uiStateContext.messageFilter.selectedLogLevels)}
-      <br />
-      searchText: {JSON.stringify(uiStateContext.messageFilter.searchText)}
-      <br />
-      Object.keys(context.messageFilter):{' '}
-      {JSON.stringify(Object.keys(uiStateContext.messageFilter))}
-      <br />
-      context.apiResponse.allStatusMessages.length:{' '}
-      {uiStateContext.apiResponse.allStatusMessages.length}
-      {/* {JSON.stringify(context.apiResponse.allStatusMessages.length)} */}
-      <br />
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText placeholder="Search" onChange={handleSearchTextChange} />
-      </span>
-      <CheckboxArray
-        props={logFilterCheckboxesProps}
-        onChange={handleLoggingFilterChange}
-      />
+      <div>
+        <div style={{ float: 'left', display: 'inline', paddingRight: '30px' }}>
+          <InputText
+            id="message-filter-search-text"
+            style={{ margin: '5px', width: '20rem' }}
+            placeholder="Search"
+            onChange={handleSearchTextChange}
+          />
+
+          <CheckboxArray
+            props={logFilterCheckboxesProps}
+            onChange={handleLoggingFilterChange}
+          />
+        </div>
+        <div style={{ paddingLeft: '150px' }}>
+          <table>
+            <tr>
+              <td>Selected Log levels:</td>
+              <td>
+                {JSON.stringify(uiStateContext.messageFilter.selectedLogLevels)}
+              </td>
+            </tr>
+            <tr>
+              <td>Search Text:</td>
+              <td>{JSON.stringify(uiStateContext.messageFilter.searchText)}</td>
+            </tr>
+            <tr>
+              <td>All Messages Count</td>
+              <td>{uiStateContext.apiResponse.allStatusMessages.length}</td>
+            </tr>
+            <tr>
+              <td>Filtered Messages Count</td>
+              <td>{uiStateContext.messageFilter.filteredMessages.length}</td>
+            </tr>
+            <tr>
+              <td>Filtered Messages Count</td>
+              <td>{uiStateContext.messageFilter.filteredMessages.length}</td>
+            </tr>
+            <tr>
+              <td>
+                <Button onClick={handleClearAllStatusMessage}>
+                  Clear All Status Messages
+                </Button>
+              </td>
+              <td>
+                <Button
+                  style={{ marginLeft: '10px' }}
+                  onClick={handleClearFsHidden}
+                >
+                  Clear fsHidden Classes
+                </Button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
       <div style={{ overflowY: 'scroll', maxHeight: '500px' }}>
         <StatusMessageListContainer
           statusMessages={uiStateContext.messageFilter.filteredMessages}

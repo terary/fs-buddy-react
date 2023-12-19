@@ -19,6 +19,7 @@ import { FormView } from '../pages/Content/FormView/FormView';
 import { FsFormModel } from '../../formstack';
 import { UIStateApiResponseFormGetType } from '../AppState/types';
 import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
+import { InputText } from 'primereact/inputtext';
 const formView = new FormView();
 const fetchTreeFormId = '5375703';
 const fetchSubmissionId = '1129952515';
@@ -32,6 +33,7 @@ let currentFieldCollection: FsFormModel;
 type apiParametersType = {
   apiKey: string | null;
   formId: string | null;
+  submissionId?: string | null;
 };
 
 const App: React.FC = () => {
@@ -41,19 +43,20 @@ const App: React.FC = () => {
   const [apiParameters, setApiParameters] = useState({
     apiKey: 'cc17435f8800943cc1abd3063a8fe44f',
     formId: '5375703',
+    submissionId: '',
   } as apiParametersType);
 
   const handleFetchSubmissionClick = () => {
     console.log({
       handleFetchSubmissionClick: true,
       apiKey: apiParameters.apiKey,
-      submissionId: fetchSubmissionId,
+      submissionId: apiParameters.submissionId,
     });
 
     chrome.runtime.sendMessage(
       {
         type: 'GetSubmissionFromApiRequest',
-        submissionId: fetchSubmissionId,
+        submissionId: apiParameters.submissionId,
         apiKey: apiParameters.apiKey,
       },
       async (apiSubmissionJson) => {
@@ -181,7 +184,6 @@ const App: React.FC = () => {
   };
 
   const handleClearAllStatusMessage = async () => {
-    console.log('handleClearAllStatusMessage');
     const message = {
       messageType: 'clearAllStatusMessages',
       payload: null,
@@ -203,84 +205,88 @@ const App: React.FC = () => {
     setApiParameters(apiParameters);
   };
 
+  const handleSubmissionTextChange = (
+    evt: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const submissionId = evt.target.value;
+    setApiParameters({ ...apiParameters, ...{ submissionId } });
+  };
+
   const handleHideFsBuddy = (evt: any) => {
     console.log({ handleHideFsBuddy: { evt } });
     return true;
   };
+
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
-        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[0]}>
+        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[]}>
           <AccordionTab header="FS Buddy">
-            <p className="m-0">
-              <Accordion multiple activeIndex={[0, 2, 4]}>
-                <AccordionTab header="API">
-                  <p className="m-0">
-                    <ApiKeyContainer
-                      {...apiParameters}
-                      onChange={handleApiParameterChange}
-                    />
-                    <Button onClick={handleApiGetFormRequestClick}>
-                      API Request Form{' '}
-                    </Button>
-                  </p>
-                </AccordionTab>
-                <AccordionTab
-                  header={`Logic (root field count: ${
-                    (uiStateContext.apiResponse.fieldIdsWithLogic || []).length
-                  })`}
-                >
-                  <p className="m-0">
-                    <LogicFieldSelect
-                      options={
-                        uiStateContext.apiResponse.fieldIdsWithLogic || []
-                      }
-                      onFieldIdSelected={handleLogicFieldSelected}
-                    />
-                    <ExpandedExpressionTreeGraph
-                      height={500}
-                      width={600}
-                      data={
-                        uiStateContext.logicFieldSelected.logicalNodeGraphMap ||
-                        []
-                      }
-                    />
-                  </p>
-                </AccordionTab>
-                <AccordionTab header="Status Messages">
-                  <p className="m-0">
-                    <Button onClick={handleClearAllStatusMessage}>
-                      Clear All Status Messages
-                    </Button>
-                    <Button
-                      style={{ marginLeft: '10px' }}
-                      onClick={handleClearFsHidden}
-                    >
-                      Clear fsHidden
-                    </Button>
+            {/* <p className="m-0"> */}
+            <Accordion multiple activeIndex={[]}>
+              <AccordionTab header="API">
+                <p className="m-0">
+                  <ApiKeyContainer
+                    {...apiParameters}
+                    onChange={handleApiParameterChange}
+                  />
+                  <Button onClick={handleApiGetFormRequestClick}>
+                    API Request Form{' '}
+                  </Button>
+                </p>
+              </AccordionTab>
+              <AccordionTab
+                header={`Logic (root field count: ${
+                  (uiStateContext.apiResponse.fieldIdsWithLogic || []).length
+                })`}
+              >
+                <p className="m-0" style={{ paddingLeft: '20px' }}>
+                  <LogicFieldSelect
+                    options={uiStateContext.apiResponse.fieldIdsWithLogic || []}
+                    onFieldIdSelected={handleLogicFieldSelected}
+                  />
+                  <ExpandedExpressionTreeGraph
+                    height={500}
+                    width={600}
+                    data={
+                      uiStateContext.logicFieldSelected.logicalNodeGraphMap ||
+                      []
+                    }
+                  />
+                </p>
+              </AccordionTab>
+              <AccordionTab header="Status Messages">
+                <p className="m-0">
+                  {uiStateContext.apiResponse.formStatusMessages.length > 0 && (
+                    <MessageFilter />
+                  )}
+                </p>
+              </AccordionTab>
+              <AccordionTab header="Submissions">
+                <p className="m-0">
+                  <InputText
+                    placeholder="Submission Id"
+                    value={apiParameters.submissionId || ''}
+                    onChange={handleSubmissionTextChange}
+                  />{' '}
+                  <br />
+                  <Button onClick={handleFetchSubmissionClick}>
+                    Load Submission
+                    {apiParameters.submissionId}
+                  </Button>
+                </p>
+              </AccordionTab>
+              <AccordionTab header="Form View">
+                <p className="m-0">
+                  <formView.component />
 
-                    <div style={{ maxWidth: '500px', paddingTop: 20 }}>
-                      {uiStateContext.apiResponse.formStatusMessages.length >
-                        0 && <MessageFilter />}
-                    </div>
-                  </p>
-                </AccordionTab>
-                <AccordionTab header="Submissions">
-                  <p className="m-0">
-                    <Button onClick={handleFetchSubmissionClick}>
-                      Fetch Submission (id:1129952515)
-                    </Button>
-                  </p>
-                </AccordionTab>
-                <AccordionTab header="Form View">
-                  <p className="m-0">
-                    {uiStateContext.apiResponse.formHtml !== '' && (
-                      <formView.component />
-                    )}{' '}
-                  </p>
-                </AccordionTab>
-              </Accordion>
-            </p>
+                  {/* {uiStateContext.apiResponse.formHtml !== '' && (
+                    <formView.component />
+                  )}{' '} */}
+                </p>
+              </AccordionTab>
+            </Accordion>
+            {/* </p> */}
           </AccordionTab>
         </Accordion>
       </div>
