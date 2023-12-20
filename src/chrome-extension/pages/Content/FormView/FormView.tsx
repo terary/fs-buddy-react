@@ -87,7 +87,7 @@ class FormView {
         submissionData: submissionUiDataItems,
       },
     };
-
+    console.log({ applySubmissionDataStatusMessages: { message } });
     this.postMessageToIframe(message);
   }
 

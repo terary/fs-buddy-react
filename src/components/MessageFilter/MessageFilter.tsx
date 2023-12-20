@@ -90,8 +90,6 @@ const MessageFilter = () => {
 
   const handleSearchTextChange = (evt: React.FormEvent<HTMLInputElement>) => {
     const searchText = evt.currentTarget.value || '';
-    // const newState = { ...uiStateContext };
-    // newState.messageFilter.searchText = searchText;
 
     const newState = { ...uiStateContext };
     newState.messageFilter.searchText = (searchText || '').replace(
@@ -121,7 +119,12 @@ const MessageFilter = () => {
 
   const finalizeAndSetControlStatue = (revisedState: any) => {
     const { messageFilter } = revisedState;
-    console.log({ finalizeAndSetControlStatue: { revisedState } });
+    console.log({
+      finalizeAndSetControlStatue: {
+        revisedState,
+        allMessages: uiStateContext.apiResponse.allStatusMessages,
+      },
+    });
     const filteredMessages = getFilteredMessages(
       messageFilter.selectedLogLevels,
       messageFilter.searchText,
@@ -170,10 +173,6 @@ const MessageFilter = () => {
             <tr>
               <td>All Messages Count</td>
               <td>{uiStateContext.apiResponse.allStatusMessages.length}</td>
-            </tr>
-            <tr>
-              <td>Filtered Messages Count</td>
-              <td>{uiStateContext.messageFilter.filteredMessages.length}</td>
             </tr>
             <tr>
               <td>Filtered Messages Count</td>

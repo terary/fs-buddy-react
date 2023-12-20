@@ -21,4 +21,6 @@ const filterStatusMessages = (
   // return statusMessages;
 };
 
-export { filterStatusMessages };
+const keyIn = (key: string, obj: any) => obj !== undefined && key in obj;
+
+export { filterStatusMessages, keyIn };

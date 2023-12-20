@@ -1,14 +1,14 @@
-import { FsFormModel, TTreeFieldNode } from "../formstack";
-import { FsFieldModel } from "../formstack/classes/subtrees/trees";
-import { FsFormRootNode } from "../formstack/classes/subtrees/trees/nodes";
+import { FsFormModel, TTreeFieldNode } from '../formstack';
+import { FsFieldModel } from '../formstack/classes/subtrees/trees';
+import { FsFormRootNode } from '../formstack/classes/subtrees/trees/nodes';
 import {
   TSimpleDictionary,
   TStatusMessageSeverity,
   TStatusRecord,
-} from "../formstack/classes/Evaluator/type";
-import { TApiForm } from "../formstack/type.form";
-import { Evaluator } from "../formstack/classes/Evaluator";
-import { TFsFieldAny } from "../formstack/type.field";
+} from '../formstack/classes/Evaluator/type';
+import { TApiForm } from '../formstack/type.form';
+import { Evaluator } from '../formstack/classes/Evaluator';
+import { TFsFieldAny } from '../formstack/type.field';
 
 class FormAnalytics {
   private _fieldJson: TApiForm;
@@ -67,11 +67,11 @@ class FormAnalytics {
       const { fieldId, field } = node;
       const { fieldJson } = field;
       let label =
-        field.fieldType === "section"
+        field.fieldType === 'section'
           ? field.section_heading
           : field.label.trim();
 
-      !label && (label = "_NO_LABEL_FOUND_" + (fieldJson as TFsFieldAny).type);
+      !label && (label = '_NO_LABEL_FOUND_' + (fieldJson as TFsFieldAny).type);
 
       // const label =
       //   (fieldJson as TFsFieldAnyJson).label ||
@@ -94,17 +94,30 @@ class FormAnalytics {
     const messages: TStatusRecord[] = [];
     messages.push(
       this.isWorkflow
-        ? this.wrapAsStatusMessage("info", 'Form/Workflow type: "workflow".')
-        : this.wrapAsStatusMessage("info", 'Form/Workflow type: "form".')
+        ? this.wrapAsStatusMessage('info', 'Form/Workflow type: "workflow".')
+        : this.wrapAsStatusMessage('info', 'Form/Workflow type: "form".')
     );
+
+    if (
+      !this._fieldJson ||
+      !this._fieldJson.fields ||
+      !Array.isArray(this._fieldJson.fields)
+    ) {
+      messages.push(
+        this.wrapAsStatusMessage('info', `fieldJson.fields is non array.`)
+      );
+      return messages;
+    }
 
     messages.push(
       this.wrapAsStatusMessage(
-        "info",
+        'info',
+        // @ts-ignore - length is not property of never
         `Total Fields: ${this._fieldJson.fields.length}.`
       )
     );
 
+    // @ts-ignore - length is not property of never
     this._fieldJson.fields.forEach((fieldJson) => {
       const evaluator = Evaluator.getEvaluatorWithFieldJson(fieldJson);
       messages.push(...evaluator.findKnownSetupIssues());
@@ -115,7 +128,7 @@ class FormAnalytics {
       if (fieldIds.length > 1) {
         messages.push(
           this.wrapAsStatusMessage(
-            "warn",
+            'warn',
             `label: "${label}" is used ${fieldIds.length} times.`,
             fieldIds
           )

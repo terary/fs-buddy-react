@@ -28,14 +28,29 @@ const RelatedFields = ({
   );
 };
 
-const extractDebugMessage = (statusMessage: TStatusRecord) => {
-  if (statusMessage.severity !== 'debug') {
-    return statusMessage.message;
+const extractReplacePreCode = (potentialHtml: string = '') => {
+  const begTagIndex = potentialHtml.search(/<pre>.*<code>/);
+  const endTagIndex = potentialHtml.search('</pre>.*</code>');
+  if (begTagIndex == -1 || endTagIndex == -1) {
+    return potentialHtml;
   }
 
+  return (
+    potentialHtml.substring(0, begTagIndex) +
+    potentialHtml.substring(begTagIndex + '<pre><code>'.length, endTagIndex) +
+    potentialHtml.substring(endTagIndex + '</pre></code>'.length)
+  );
+};
+
+const extractDebugMessage = (statusMessage: TStatusRecord) => {
   if (!statusMessage.message.match(/json/)) {
-    return statusMessage.message;
+    <div
+      dangerouslySetInnerHTML={{
+        __html: extractReplacePreCode(statusMessage.message),
+      }}
+    ></div>;
   }
+
   return (
     <div dangerouslySetInnerHTML={{ __html: statusMessage.message }}></div>
   );

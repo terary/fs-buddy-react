@@ -1,21 +1,21 @@
-import { FsFormModel, TTreeFieldNode } from "../formstack";
-import type { TFsFieldAnyJson } from "../formstack";
-import { FsFieldModel } from "../formstack/classes/subtrees/trees";
-import { FsLogicTreeDeep } from "../formstack";
-import { FsFormRootNode } from "../formstack/classes/subtrees/trees/nodes";
-import { TApiForm } from "../formstack/type.form";
+import { FsFormModel, TTreeFieldNode } from '../formstack';
+import type { TFsFieldAnyJson } from '../formstack';
+import { FsFieldModel } from '../formstack/classes/subtrees/trees';
+import { FsLogicTreeDeep } from '../formstack';
+import { FsFormRootNode } from '../formstack/classes/subtrees/trees/nodes';
+import { TApiForm } from '../formstack/type.form';
 // import { Utility } from "../formstack/transformers/Utility";
-import { transformers } from "../formstack/transformers";
+import { transformers } from '../formstack/transformers';
 import {
   TSimpleDictionary,
   TStatusMessageSeverity,
   TStatusRecord,
-} from "../formstack/classes/Evaluator/type";
+} from '../formstack/classes/Evaluator/type';
 import {
   TLogicTreeDeepStatisticCountRecord,
   TLogicTreeDeepStatisticCountField,
-} from "../formstack/classes/subtrees/trees/FsLogicTreeDeep";
-import { TGraphNode } from "../formstack/transformers/pojoToD3TableData";
+} from '../formstack/classes/subtrees/trees/FsLogicTreeDeep';
+import { TGraphNode } from '../formstack/transformers/pojoToD3TableData';
 
 class FieldLogicService {
   // FsLogicTreeDeep
@@ -122,7 +122,7 @@ class FieldLogicService {
       if (!this._formModel.getAllFieldIds().includes(fieldId)) {
         statusMessages.push(
           this.wrapAsStatusMessage(
-            "error",
+            'error',
             `Found fieldId used in logic but not in form. fieldId: "${fieldId}". `
           )
         );
@@ -131,7 +131,7 @@ class FieldLogicService {
     statusMessages.push(
       // fieldUsageCounts
       this.wrapAsStatusMessage(
-        "info",
+        'logic',
         "Checked all fieldIds in logic expression are contained in this form (don't laugh, it happens).<br />"
       )
     );
@@ -139,12 +139,12 @@ class FieldLogicService {
     statusMessages.push(
       // fieldUsageCounts
       this.wrapAsStatusMessage(
-        "info",
+        'logic',
         `Field Leaf Usage (field actual in leaf expression): ` +
           transformers.Utility.jsObjectToHtmlFriendlyString(fieldUsageCounts)
       ),
       this.wrapAsStatusMessage(
-        "info",
+        'logic',
         `Logic composition: ` +
           transformers.Utility.jsObjectToHtmlFriendlyString({
             ...logicCounts,
@@ -153,27 +153,29 @@ class FieldLogicService {
           countHtmlLegend
       ),
       this.wrapAsStatusMessage(
-        "info",
+        'logic',
         `Number of fields with root logic:  ${
           this.getFieldIdsWithLogic().length
         }`,
         this.getFieldIdsWithLogic()
       ),
       this.wrapAsStatusMessage(
-        "info",
+        'logic',
         `Number of fields without root logic:  ${
           this.getFieldIdsWithoutLogic().length
         }`
       ),
       this.wrapAsStatusMessage(
-        this.getFieldIdsWithCircularReferences().length === 0 ? "info" : "warn",
+        this.getFieldIdsWithCircularReferences().length === 0
+          ? 'logic'
+          : 'warn',
         `Number of fields with circular references:  ${
           this.getFieldIdsWithCircularReferences().length
         }`,
         this.getFieldIdsWithCircularReferences()
       ),
       this.wrapAsStatusMessage(
-        this.getFieldIdsWithLogicError().length === 0 ? "info" : "error",
+        this.getFieldIdsWithLogicError().length === 0 ? 'logic' : 'error',
         `Number of fields with general logic errors:  ${
           this.getFieldIdsWithLogicError().length
         }`,
@@ -262,17 +264,17 @@ class FieldLogicService {
       );
     return fieldIds.map((fieldId) => {
       const field = this._formModel.getFieldModel(fieldId);
-      let label = circularReferenceFieldIds.includes(fieldId) ? "(Error) " : "";
+      let label = circularReferenceFieldIds.includes(fieldId) ? '(Error) ' : '';
 
       switch (field?.fieldType) {
-        case "section":
-          label += "(section) " + field?.section_heading;
+        case 'section':
+          label += '(section) ' + field?.section_heading;
           break;
-        case "richtext":
-          label += "(richtext)";
+        case 'richtext':
+          label += '(richtext)';
           break;
         default:
-          label += field?.label || "";
+          label += field?.label || '';
           break; // <-- never stops being funny
       }
       // label +=

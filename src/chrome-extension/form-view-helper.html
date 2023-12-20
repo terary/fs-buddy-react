@@ -149,6 +149,8 @@
           break;
           
         case 'fetchSubmissionResponse': 
+          clearAllStatusMessages();
+          clearAllFieldStatusMessages();
           handelFetchSubmissionResponse(e.data.payload)
           break;
 
@@ -294,10 +296,15 @@
         handelFetchSubmissionResponse: payload
       })
       const { submissionData } = payload;
-
+      const regEx  = new RegExp(/156707745/,)
+      const messagesFor156707745 = submissionData.filter((fieldData)=>{
+        const {statusMessages = [], fieldType, uiid, fieldId} = fieldData;
+        return regEx.test(fieldId || '') || regEx.test(uiid || ''); 
+      })
+      console.log({messagesFor156707745})
       submissionData.forEach((fieldData)=>{
         const {statusMessages = [], fieldType, uiid, fieldId} = fieldData;
-        
+
         if(uiid === null ) {
           // doesn't have UI associated with status Message
           // are these panel? form specific?
@@ -337,15 +344,8 @@
             break; // <-- never stops being funny
         }
 
-        // console.log({
-        //   fieldType: allFieldSummary[fieldId].type,
-        //   fieldSummary: allFieldSummary[fieldId],
-        //   fieldId,
-        //   uiid,
-        // })
-
-        if(`field${fieldId}` === uiid) {
-          // for non subfields
+        if (`field${fieldId}` === uiid || fieldType === "radio") {
+          // radio is a collection of subfields with no parent field
           appendFieldStatusMessages(fieldId, statusMessages)
         }
       })

@@ -1,7 +1,7 @@
-import { TStatusRecord, TUiEvaluationObject } from "./type";
+import { TStatusRecord, TUiEvaluationObject } from './type';
 
-import { isFunctions } from "../../../common/isFunctions";
-import { AbstractSelectOptionEvaluator } from "./AbstractSelectOptionEvaluator";
+import { isFunctions } from '../../../common/isFunctions';
+import { AbstractSelectOptionEvaluator } from './AbstractSelectOptionEvaluator';
 
 class RadioEvaluator extends AbstractSelectOptionEvaluator {
   private isValueInSelectOptions(value: string): boolean {
@@ -26,7 +26,7 @@ class RadioEvaluator extends AbstractSelectOptionEvaluator {
     if (!submissionDatum) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           this.invalidSelectedOptionMessage(submissionDatum as string)
         )
       );
@@ -34,16 +34,17 @@ class RadioEvaluator extends AbstractSelectOptionEvaluator {
       if (this.isRequired) {
         return this.getUiPopulateObjectsEmptyAndRequired(statusMessages);
       }
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
     if (!this.isCorrectType(submissionDatum)) {
       const message =
         `_BAD_DATA_TYPE_' type: '${typeof submissionDatum}', value: '` +
         JSON.stringify(submissionDatum).slice(0, 100) +
         "'";
-      statusMessages.push(this.wrapAsStatusMessage("warn", message));
+      statusMessages.push(this.wrapAsStatusMessage('warn', message));
 
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     // if (this.fieldType === "select") {
@@ -59,11 +60,11 @@ class RadioEvaluator extends AbstractSelectOptionEvaluator {
     if (!uiidFieldIdMap[parsedValues]) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           this.invalidSelectedOptionMessage(submissionDatum as string)
         )
       );
-      return [this.wrapAsUiObject(null, "null", statusMessages)];
+      return [this.wrapAsUiObject(null, 'null', statusMessages)];
     }
 
     return [
@@ -80,16 +81,16 @@ class RadioEvaluator extends AbstractSelectOptionEvaluator {
    */
   findKnownSetupIssues(): TStatusRecord[] {
     const messages = super.findKnownSetupIssues();
-    if (!("options" in this.fieldJson)) {
+    if (!('options' in this.fieldJson)) {
       messages.push(
-        this.wrapAsStatusMessage("warn", "Found no select options.")
+        this.wrapAsStatusMessage('warn', 'Found no select options.')
       );
     }
 
     if ((this.fieldJson.options?.length || 0) < 2) {
       messages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           `Select options have ${this.fieldJson.options?.length} options.`
         )
       );

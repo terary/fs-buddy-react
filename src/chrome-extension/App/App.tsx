@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import 'primereact/resources/themes/mira/theme.css';
 import { actions, UIStateContext, UIStateDispatch } from '../AppState';
 import './App.css';
-import { filterStatusMessages } from '../../common/functions';
+import { filterStatusMessages, keyIn } from '../../common/functions';
 
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
@@ -21,8 +21,6 @@ import { UIStateApiResponseFormGetType } from '../AppState/types';
 import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
 import { InputText } from 'primereact/inputtext';
 const formView = new FormView();
-const fetchTreeFormId = '5375703';
-const fetchSubmissionId = '1129952515';
 
 // moved this from outside the pages directory and now manifest can't find 128.png ..
 
@@ -36,14 +34,19 @@ type apiParametersType = {
   submissionId?: string | null;
 };
 
+// Not loading debug (field definitions) as expected see formId 5568576
+
 const App: React.FC = () => {
   const dispatcher = useContext(UIStateDispatch);
   const uiStateContext = useContext(UIStateContext);
 
   const [apiParameters, setApiParameters] = useState({
     apiKey: 'cc17435f8800943cc1abd3063a8fe44f',
-    formId: '5375703',
-    submissionId: '',
+    formId: '5568576',
+    submissionId: '1175954635',
+    // apiKey: '',
+    // formId: '',
+    // submissionId: '',
   } as apiParametersType);
 
   const handleFetchSubmissionClick = () => {
@@ -52,6 +55,19 @@ const App: React.FC = () => {
       apiKey: apiParameters.apiKey,
       submissionId: apiParameters.submissionId,
     });
+    // const handleClearAllStatusMessage = async () => {
+    //   const message = {
+    //     messageType: 'clearAllStatusMessages',
+    //     payload: null,
+    //   };
+
+    //   // @ts-ignore
+    //   document
+    //     .getElementById(FormView.IFRAME_ID)
+    //     // @ts-ignore
+    //     .contentWindow.postMessage(message);
+    // };
+    // build this into GetSubmissionFromApiRequest
 
     chrome.runtime.sendMessage(
       {
@@ -60,15 +76,26 @@ const App: React.FC = () => {
         apiKey: apiParameters.apiKey,
       },
       async (apiSubmissionJson) => {
-        const submissionUiDataItems =
-          currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
+        if (keyIn('data', apiSubmissionJson)) {
+          const submissionUiDataItems =
+            currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
 
-        dispatcher(
-          actions.submissionSelected.update(uiStateContext, {
-            submissionId: apiSubmissionJson.id,
-            submissionUiDataItems: submissionUiDataItems,
-          })
-        );
+          dispatcher(
+            actions.submissionSelected.update(uiStateContext, {
+              submissionId: apiSubmissionJson.id,
+              submissionUiDataItems: submissionUiDataItems,
+            })
+          );
+        } else {
+          alert(
+            'Failed to get submission data.  See console for more information.  ' +
+              JSON.stringify(apiSubmissionJson || {})
+          );
+          console.log({
+            GetSubmissionFromApiRequest: { error: apiSubmissionJson },
+          });
+        }
+
         return true;
       }
     );
@@ -139,7 +166,7 @@ const App: React.FC = () => {
           formHtml: apiFormJson.html,
           formJson: apiFormJson,
         };
-
+        console.log({ sendApiRequest: { payload } });
         dispatcher(actions.apiResponse.getForm(uiStateContext, payload));
         dispatcher(
           actions.messageFilter.update(uiStateContext, {
@@ -272,7 +299,6 @@ const App: React.FC = () => {
                   <br />
                   <Button onClick={handleFetchSubmissionClick}>
                     Load Submission
-                    {apiParameters.submissionId}
                   </Button>
                 </p>
               </AccordionTab>
