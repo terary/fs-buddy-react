@@ -20,6 +20,7 @@ import { FsFormModel } from '../../formstack';
 import { UIStateApiResponseFormGetType } from '../AppState/types';
 import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
 import { InputText } from 'primereact/inputtext';
+
 const formView = new FormView();
 
 // moved this from outside the pages directory and now manifest can't find 128.png ..
@@ -27,6 +28,8 @@ const formView = new FormView();
 let fieldLogicService: FieldLogicService | null = null;
 let formAnalytic: FormAnalytics | null = null;
 let currentFieldCollection: FsFormModel;
+
+import { Config } from '../../config';
 
 type apiParametersType = {
   apiKey: string | null;
@@ -41,12 +44,9 @@ const App: React.FC = () => {
   const uiStateContext = useContext(UIStateContext);
 
   const [apiParameters, setApiParameters] = useState({
-    apiKey: 'cc17435f8800943cc1abd3063a8fe44f',
-    formId: '5568576',
-    submissionId: '1175954635',
-    // apiKey: '',
-    // formId: '',
-    // submissionId: '',
+    apiKey: Config.get('apiKey'),
+    formId: Config.get('formId'),
+    submissionId: Config.get('submissionId'),
   } as apiParametersType);
 
   const handleFetchSubmissionClick = () => {
