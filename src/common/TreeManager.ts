@@ -1,6 +1,7 @@
-import { TApiFormJson } from "../formstack/type.form";
-import { FormstackBuddy } from "../FormstackBuddy/FormstackBuddy";
-import { FieldLogicService } from "../FormstackBuddy/FieldLogicService";
+import { TApiFormJson } from '../formstack/type.form';
+// import { FormstackBuddy } from '../FormstackBuddy/FormstackBuddy';
+import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
+import { transformers } from '../formstack/transformers';
 
 const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
   const { apiKey, formId } = message;
@@ -13,13 +14,13 @@ const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
     const formGetUrl = `https://www.formstack.com/api/v2/form/${formId}`;
 
     var myHeaders = new Headers();
-    myHeaders.append("Authorization", `Bearer ${apiKey}`);
-    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append('Authorization', `Bearer ${apiKey}`);
+    myHeaders.append('Content-Type', 'application/json');
 
     var requestOptions: RequestInit = {
-      method: "GET",
+      method: 'GET',
       headers: myHeaders,
-      redirect: "follow",
+      redirect: 'follow',
     };
 
     fetch(formGetUrl, requestOptions)
@@ -58,10 +59,12 @@ class TreeManager {
     } else {
       const formJson = await getFormJsonFromApi({ apiKey, formId });
       this._formTrees[formId] = formJson;
-      this._fieldLogicService =
-        FormstackBuddy.getInstance().getFieldLogicService(
-          formJson.fields || []
-        );
+      this._fieldLogicService = new FieldLogicService(
+        transformers.formJson(formJson)
+      );
+      // FormstackBuddy.getInstance().getFieldLogicService(
+      //   formJson.fields || []
+      // );
 
       return this._formTrees[formId];
     }

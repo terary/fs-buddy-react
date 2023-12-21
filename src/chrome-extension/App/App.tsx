@@ -7,7 +7,7 @@ import { filterStatusMessages, keyIn } from '../../common/functions';
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
 import { transformers } from '../../formstack/transformers';
-import { FormstackBuddy } from '../../FormstackBuddy/FormstackBuddy';
+// import { FormstackBuddy } from '../../FormstackBuddy/FormstackBuddy';
 import { MessageFilter } from '../../components/MessageFilter';
 import { ApiKeyContainer } from '../pages/Content/ApiKeyContainer';
 import { LogicFieldSelect } from '../pages/Content/LogicFieldSelect';
@@ -18,26 +18,21 @@ import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTree
 import { FormView } from '../pages/Content/FormView/FormView';
 import { FsFormModel } from '../../formstack';
 import { UIStateApiResponseFormGetType } from '../AppState/types';
-import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
 import { InputText } from 'primereact/inputtext';
 
-const formView = new FormView();
-
-// moved this from outside the pages directory and now manifest can't find 128.png ..
-
-let fieldLogicService: FieldLogicService | null = null;
-let formAnalytic: FormAnalytics | null = null;
-let currentFieldCollection: FsFormModel;
-
 import { Config } from '../../config';
+
+const formView = new FormView();
 
 type apiParametersType = {
   apiKey: string | null;
   formId: string | null;
   submissionId?: string | null;
 };
-
-// Not loading debug (field definitions) as expected see formId 5568576
+// pseudo-global scope
+let fieldLogicService: FieldLogicService | null = null;
+let formAnalytic: FormAnalytics | null = null;
+let formModel: FsFormModel;
 
 const App: React.FC = () => {
   const dispatcher = useContext(UIStateDispatch);
@@ -55,19 +50,6 @@ const App: React.FC = () => {
       apiKey: apiParameters.apiKey,
       submissionId: apiParameters.submissionId,
     });
-    // const handleClearAllStatusMessage = async () => {
-    //   const message = {
-    //     messageType: 'clearAllStatusMessages',
-    //     payload: null,
-    //   };
-
-    //   // @ts-ignore
-    //   document
-    //     .getElementById(FormView.IFRAME_ID)
-    //     // @ts-ignore
-    //     .contentWindow.postMessage(message);
-    // };
-    // build this into GetSubmissionFromApiRequest
 
     chrome.runtime.sendMessage(
       {
@@ -78,7 +60,7 @@ const App: React.FC = () => {
       async (apiSubmissionJson) => {
         if (keyIn('data', apiSubmissionJson)) {
           const submissionUiDataItems =
-            currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
+            formModel.getUiPopulateObject(apiSubmissionJson);
 
           dispatcher(
             actions.submissionSelected.update(uiStateContext, {
@@ -88,7 +70,7 @@ const App: React.FC = () => {
           );
         } else {
           alert(
-            'Failed to get submission data.  See console for more information.  ' +
+            'Failed to get submission data.  See console for more information.' +
               JSON.stringify(apiSubmissionJson || {})
           );
           console.log({
@@ -121,16 +103,17 @@ const App: React.FC = () => {
         await formView.initialize();
 
         // this has pseudo global scope? defined here but used elsewhere?
-        currentFieldCollection = FsFormModel.fromApiFormJson(
+        formModel = FsFormModel.fromApiFormJson(
           transformers.formJson(apiFormJson)
         );
 
-        formAnalytic =
-          FormstackBuddy.getInstance().getFormAnalyticService(apiFormJson);
+        formAnalytic = new FormAnalytics(apiFormJson);
+        // FormstackBuddy.getInstance().getFormAnalyticService(apiFormJson);
 
-        fieldLogicService = FormstackBuddy.getInstance().getFieldLogicService(
-          transformers.formJson(apiFormJson)
-        );
+        fieldLogicService = new FieldLogicService(apiFormJson);
+        // FormstackBuddy.getInstance().getFieldLogicService(
+        //   transformers.formJson(apiFormJson)
+        // );
 
         const fieldSummary = fieldLogicService?.getAllFieldSummary();
 

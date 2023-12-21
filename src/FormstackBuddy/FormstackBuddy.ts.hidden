@@ -1,7 +1,7 @@
-import { TFsFieldAnyJson } from "../formstack";
-import { TApiForm } from "../formstack/type.form";
-import { FieldLogicService } from "./FieldLogicService";
-import { FormAnalytics } from "./FormAnalytics";
+import { TFsFieldAnyJson } from '../formstack';
+import { TApiForm } from '../formstack/type.form';
+import { FieldLogicService } from './FieldLogicService';
+import { FormAnalytics } from './FormAnalytics';
 
 class FormstackBuddy {
   private static _instance: FormstackBuddy;
