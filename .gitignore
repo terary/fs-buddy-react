@@ -22,3 +22,5 @@
 
 # secrets
 secrets.*.js
+
+src/config/config.json
