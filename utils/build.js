@@ -21,7 +21,13 @@ config.plugins = (config.plugins || []).concat(
     path: path.join(__dirname, '../', 'zip'),
   })
 );
-
-webpack(config, function (err) {
-  if (err) throw err;
+webpack(config, (err, stats) => {
+  if (err || stats.hasErrors()) {
+    console.log('stats:', stats.toString({ colors: true }));
+    // ...
+  }
+  // Done processing
 });
+// webpack(config, function (err) {
+//   if (err) throw err;
+// });

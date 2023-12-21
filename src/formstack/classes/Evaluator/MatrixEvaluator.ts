@@ -1,15 +1,15 @@
-import { AbstractComplexSubmissionDatumEvaluator } from "./AbstractComplexSubmissionDatumEvaluator";
-import { TFsFieldMatrix } from "../../type.field";
-import { TUiEvaluationObject } from "./type";
+import { AbstractComplexSubmissionDatumEvaluator } from './AbstractComplexSubmissionDatumEvaluator';
+import { TFsFieldMatrix } from '../../type.field';
+import { TUiEvaluationObject } from './type';
 
 class MatrixEvaluator extends AbstractComplexSubmissionDatumEvaluator {
   private getAsMatrixUiFieldIdMap(): {
     [row: string]: { [column: string]: string };
   } {
     // I *think* reverse these when that option is set in the fieldJson.options
-    const rows = (this.fieldJson as TFsFieldMatrix).row_choices.split("\n");
+    const rows = (this.fieldJson as TFsFieldMatrix).row_choices.split('\n');
     const columns = (this.fieldJson as TFsFieldMatrix).column_choices.split(
-      "\n"
+      '\n'
     );
 
     const matrix: any = {};
@@ -33,7 +33,7 @@ class MatrixEvaluator extends AbstractComplexSubmissionDatumEvaluator {
       if (this.isRequired) {
         return this.getUiPopulateObjectsEmptyAndRequired(statusMessages);
       }
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     const parsedValues = this.parseSubmittedData(submissionDatum as string);
@@ -42,41 +42,47 @@ class MatrixEvaluator extends AbstractComplexSubmissionDatumEvaluator {
     if (Object.keys(parsedValues).length === 0) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           `Found no selected rows/columns within submitted data: '${JSON.stringify(
             fieldIdMatrix
           )}' found in submission data: '${submissionDatum}'.`
         )
       );
 
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     const selectedRows =
       Object.entries(parsedValues)
         .filter(([row, column]) => {
-          const uiFieldId = fieldIdMatrix[row][column];
-          if (uiFieldId === undefined) {
+          // const uiFieldId = fieldIdMatrix[row][column];
+          if (
+            !keyIn(row, fieldIdMatrix) ||
+            !keyIn(column, fieldIdMatrix[row])
+          ) {
             statusMessages.push(
               this.wrapAsStatusMessage(
-                "warn",
+                'warn',
                 `Unable to find matrix mapping for: '${JSON.stringify({
                   row,
                   column,
-                })}'.`
+                })}'.  This may a consequence non default matrix configuration and not necessarily an error. (row: '${row}', column: '${column}')`
               )
             );
+            return false;
           }
 
-          return uiFieldId;
+          return fieldIdMatrix[row][column];
         })
         .map(([row, column]) => {
           const uiFieldId = fieldIdMatrix[row][column];
-          return this.wrapAsUiObject(uiFieldId || null, "checked");
+          return this.wrapAsUiObject(uiFieldId || null, 'checked');
         }) || [];
 
-    selectedRows.push(this.wrapAsUiObject(null, "", statusMessages));
+    selectedRows.push(this.wrapAsUiObject(null, '', statusMessages));
     return selectedRows as TUiEvaluationObject[];
   }
 }
+
+const keyIn = (key: string, obj: any) => key in obj;
 export { MatrixEvaluator };

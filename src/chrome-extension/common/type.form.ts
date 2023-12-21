@@ -1,6 +1,5 @@
-type TNumericBoolean = "0" | "1";
-import { TFsFieldAnyJson } from "./classes/types";
-import type { TFsFieldAny } from "./type.field";
+type TNumericBoolean = '0' | '1';
+import type { TFsFieldAny } from './type.field';
 
 type TApiForm = {
   created: string; //"2023-07-04 06:04:24";
@@ -48,10 +47,10 @@ type TSubmissionJson = {
   data: TSubmissionDataItem[];
 };
 type OverridePropertyTypes =
-  | "fields"
-  | "inactive"
-  | "is_workflow_form"
-  | "is_workflow_published";
+  | 'fields'
+  | 'inactive'
+  | 'is_workflow_form'
+  | 'is_workflow_published';
 // *tmc* type 'any' should be json type
 type TApiFormJson = Partial<Omit<TApiForm, OverridePropertyTypes>> & {
   fields: any; // TFsFieldAnyJson[];

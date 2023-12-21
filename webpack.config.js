@@ -38,7 +38,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    newtab: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Newtab', 'index.jsx'),
+    newtab: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Newtab', 'index.tsx'),
     options: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Options', 'index.jsx'),
     popup: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Popup', 'index.jsx'),
     background: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Background', 'index.js'),
@@ -49,7 +49,7 @@ var options = {
     panel: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Panel', 'index.jsx'),
   },
   chromeExtensionBoilerplate: {
-    notHotReload: ['background', 'contentScript', 'devtools'],
+    notHotReload: ['background', 'contentScript', 'devtools', 'newTab'],
   },
   output: {
     filename: '[name].bundle.js',
@@ -162,7 +162,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/chrome-extension/pages/Content/content.styles.css',
+          from: 'src/chrome-extension/pages/Content/ContentScript.css',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -180,12 +180,30 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/chrome-extension/form-render-inject.html',
+          from: 'src/chrome-extension/assets/img/icon-34.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/chrome-extension/assets/js/d3.v7.min.js',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
+    // new CopyWebpackPlugin({
+    //   patterns: [
+    //     {
+    //       from: 'src/chrome-extension/form-render-inject.html',
+    //       to: path.join(__dirname, 'build'),
+    //       force: true,
+    //     },
+    //   ],
+    // }),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -204,15 +222,6 @@ var options = {
     //     },
     //   ],
     // }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'src/chrome-extension/assets/img/icon-34.png',
-          to: path.join(__dirname, 'build'),
-          force: true,
-        },
-      ],
-    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'chrome-extension', 'pages', 'Newtab', 'index.html'),
       filename: 'newtab.html',

@@ -1,0 +1,40 @@
+circle {
+  fill: steelblue;
+  stroke: none;
+}
+
+line {
+  fill: none;
+  /* stroke: red; */
+  stroke: #ccc;
+  stroke-width: 1px;
+}
+
+text {
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.svgContainer {
+  border: 1px solid black;
+}
+  
+.linkCircular {
+  fill: none;
+  stroke: red;
+  stroke-opacity: 0.4;
+  stroke-width: 3px;
+}
+
+ 
+
+  /*
+  .count-label {
+    background-color: blue;
+    text-wrap: wrap;
+  }
+  text.count-label {
+    background-color: blue;
+    text-wrap: wrap;
+  }
+*/

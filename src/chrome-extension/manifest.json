@@ -16,9 +16,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "matches": [
+        "https://*.formstack.com/admin/form/builder/*",
+        "http://localhost/"
+      ],
       "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"]
+      "css": ["ContentScript.css"]
     }
   ],
   "devtools_page": "devtools.html",
@@ -28,12 +31,8 @@
       "matches": []
     },
     {
-      "resources": ["form-render-inject.html"],
-      "matches": ["*://*/*"]
-    },
-    {
       "resources": ["form-view-helper.html"],
-      "matches": ["*://*/*"]
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"]
     }
   ]
 }

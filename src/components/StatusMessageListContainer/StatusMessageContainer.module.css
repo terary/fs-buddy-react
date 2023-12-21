@@ -1,0 +1,43 @@
+.statusMessageContainer {
+    display: table-row;
+    width: auto;
+    clear: both;
+    text-align: left;
+}
+.relatedFieldsContainer {
+    /* display: table-row; */
+    width: auto;
+    clear: both;
+}
+.tableCell {
+    padding: 3px;
+    float: left; /* fix for  buggy browsers */
+    display: table-column;         
+    /* width: 200px;          */
+    /* background-color: #ccc; */
+}
+
+.statusMessageDebug {
+    background-color:  lightcyan;
+}
+
+.statusMessageInfo {
+    background-color:  lightblue;
+}
+
+.statusMessageWarn {
+    background-color:  lightyellow;
+    /* background-color:  yellow; */
+}
+
+.statusMessageError {
+    background-color:  lightsalmon;
+}
+
+.statusMessageLogic {
+    background-color:  lightgreen;
+}
+
+.relatedFieldIdsArray {
+    width: 30px;
+}

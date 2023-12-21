@@ -1,0 +1,39 @@
+.ContentContainer {
+    text-align: left;
+    height: 100%;
+    /* padding: 50px; */
+}
+
+.p-accordion-header{
+    background-color: lightgrey;
+    /* padding: 10px; */
+    /* padding: 3px; */
+
+}
+.p-accordion .p-accordion-content {
+    padding: 3px    
+    /* padding: 1rem; */
+}
+.p-accordion .m-0 {
+    padding-left: 20px    
+    /* padding: 1rem; */
+}
+
+
+
+.p-accordion-header > a{
+    background-color: lightgrey;
+    font-weight: bold;
+    color: black;
+}
+
+
+.fsBodyControlPanel {
+    background-color: #ffffff;
+    z-index: 1000;
+    top:0px;
+    left: 0px;
+    /* height: 100%; */
+    height: auto;
+    position: absolute;
+}

@@ -1,20 +1,21 @@
-import { AbstractExpressionTree } from "predicate-tree-advanced-poc/dist/src";
+import { AbstractExpressionTree } from 'predicate-tree-advanced-poc/dist/src';
 
-import { FsFieldModel } from "./trees/FsFieldModel";
+import { FsFieldModel } from './trees/FsFieldModel';
 
-import { FsFieldVisibilityLinkNode, FsFormRootNode } from "./trees/nodes";
+import { FsFieldVisibilityLinkNode, FsFormRootNode } from './trees/nodes';
 import type {
   TFsLeafOperators,
   TSimpleDictionary,
   TTreeFieldNode,
-} from "./types";
+} from './types';
 
-import { FsLogicTreeDeep } from "./trees/FsLogicTreeDeep";
+import { FsLogicTreeDeep } from './trees/FsLogicTreeDeep';
 
-import { TStatusRecord, TUiEvaluationObject } from "../Evaluator/type";
-import { TApiForm, TSubmissionJson } from "../../type.form";
-import { IEValuator } from "../Evaluator/IEvaluator";
-import { TFsFieldAny } from "../../type.field";
+import { TStatusRecord, TUiEvaluationObject } from '../Evaluator/type';
+import { TApiForm, TSubmissionJson } from '../../type.form';
+import { IEValuator } from '../Evaluator/IEvaluator';
+import { TFsFieldAny } from '../../type.field';
+import { keyIn } from '../../../common/functions';
 
 // interface ILogicCheck {
 //   fieldId: string;
@@ -30,7 +31,7 @@ class FsFormModel extends AbstractExpressionTree<
   #deepLogicTreesFieldIdMap!: TSimpleDictionary<FsLogicTreeDeep | null>; // = {};
 
   createSubtreeAt(targetNodeId: string): FsFormModel {
-    const subtree = new FsFormModel("_subtree_");
+    const subtree = new FsFormModel('_subtree_');
 
     const subtreeParentNodeId = this.appendChildNodeWithContent(
       targetNodeId,
@@ -108,7 +109,7 @@ class FsFormModel extends AbstractExpressionTree<
       }
     });
     return statusMessages.filter(
-      (statusMessage) => statusMessage.severity !== "debug" // filter probably shouldn't be here
+      (statusMessage) => statusMessage.severity !== 'debug' // filter probably shouldn't be here
     );
   }
 
@@ -184,10 +185,10 @@ class FsFormModel extends AbstractExpressionTree<
     apiSubmissionJson: TSubmissionJson
   ): TUiEvaluationObject[] {
     if (
-      !("data" in apiSubmissionJson) ||
+      !keyIn('data', apiSubmissionJson) ||
       !Array.isArray(apiSubmissionJson.data)
     ) {
-      console.log("Did not understand apiSubmissionJson");
+      console.log('Did not understand apiSubmissionJson');
       console.log({ apiSubmissionJson });
       return [];
     }
@@ -203,6 +204,16 @@ class FsFormModel extends AbstractExpressionTree<
     const submissionUiDataItems: TUiEvaluationObject[] = this.getAllFieldIds()
       .map((fieldId) => {
         const evaluator = this.getEvaluatorByFieldId(fieldId);
+        if (fieldId === '156707745') {
+          console.log({
+            uiPopulateObjects: evaluator.getUiPopulateObjects(
+              mappedSubmissionData[fieldId]
+            ),
+            mappedSubmissionData: mappedSubmissionData[fieldId],
+            fieldId,
+            evaluator: evaluator,
+          });
+        }
         return evaluator.getUiPopulateObjects(mappedSubmissionData[fieldId]);
       })
       .reduce((prev: TUiEvaluationObject[], cur: TUiEvaluationObject[]) => {
@@ -210,12 +221,21 @@ class FsFormModel extends AbstractExpressionTree<
         return prev;
       }, []);
 
+    const regEx = new RegExp(/156707745/);
+    const messagesFor156707745 = submissionUiDataItems.filter((fieldData) => {
+      const { statusMessages = [], fieldType, uiid, fieldId } = fieldData;
+      return regEx.test(fieldId || '') || regEx.test(uiid || '');
+    });
+
+    console.log({
+      getUiPopulateObject: { messagesFor156707745, submissionUiDataItems },
+    });
     return submissionUiDataItems;
   }
 
   static fromApiFormJson(
     formJson: TApiForm,
-    formId = "_FORM_ID_"
+    formId = '_FORM_ID_'
   ): FsFormModel {
     const fieldsJson = formJson.fields;
 
@@ -247,7 +267,7 @@ class FsFormModel extends AbstractExpressionTree<
       const { fieldId, field } = childNode;
       const { type: fieldType } = field?.fieldJson as TFsFieldAny;
 
-      if (fieldType && fieldType === "section") {
+      if (fieldType && fieldType === 'section') {
         currentSection = field;
       } else if (currentSection instanceof FsFieldModel) {
         const isUltimatelyVisible = (values: {
@@ -280,8 +300,8 @@ const sortBySortProperty = (
   if (fieldAJson.sort === undefined || fieldBJson.sort === undefined) {
     return 1;
   }
-  const sortA = parseInt(fieldAJson.sort + "");
-  const sortB = parseInt(fieldBJson.sort + "");
+  const sortA = parseInt(fieldAJson.sort + '');
+  const sortB = parseInt(fieldBJson.sort + '');
 
   if (sortA > sortB) {
     return 1;

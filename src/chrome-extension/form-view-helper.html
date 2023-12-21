@@ -1,45 +1,6 @@
 <html>
 	<head>
-    <!-- 
-      the html gets goofed quote &qt; etc. 
-        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> 
-    -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-
-<style>
-    circle {
-    fill: steelblue;
-    stroke: none;
-  }
-
-  line {
-    fill: none;
-    /* stroke: red; */
-    stroke: #ccc;
-    stroke-width: 1px;
-  }
-
-  text {
-    font-size: 12px;
-    text-anchor: middle;
-  }
-
-  .linkCircular {
-    fill: none;
-    stroke: red;
-    /* stroke-opacity: 0.4; */
-    stroke-width: 3px;
-  }
-
-  .count-label {
-    background-color: blue;
-    text-wrap: wrap;
-  }
-  text.count-label {
-    background-color: blue;
-    text-wrap: wrap;
-  }
-
+  <style>
   .fsBuddy_obscure_field {
       opacity: 0.7;
       border: lightgray 1px solid;
@@ -77,24 +38,6 @@
   .fsBuddy_lightgreen {
       /* opacity: 0.5; */
       background-color: lightgreen;
-  }
-  /* ----------------------------------------------------- */
-  #fsBuddy_filterStatusMessageContainer label {
-    display: inline;
-    padding-left: 15px;
-  }
-
-  #fsBuddy_filterStatusMessageContainer ul {
-    list-style-type: none;
-    display:inline;
-  }
-
-  #fsBuddy_filterStatusMessageContainer li {
-    float: left;
-  }
-
-  .fsBuddy_statusContainer {
-      opacity: 0.5;
   }
 
   .fsBuddy_statusRowHeader
@@ -174,111 +117,72 @@
       text-decoration: underline;
   }
 
-  .fsControlPanelSubsection {
+  /* .fsControlPanelSubsection {
     border: 1px black solid;
     margin: 5px;
-  }
+  } */
 
 </style>
   <script>
-      console.log('Hello from form-render-inject.html')
-      const cssClassBySeverity = {
-         // maybe make this part of fsBuddy or something similar?
-          debug: 'fsBuddyDebug',
-          info: 'fsBuddyInfo',
-          warn: 'fsBuddyWarn',
-          error: 'fsBuddyError',
-          logic: 'fsBuddyLogicInfo'
-        }
+    const cssClassBySeverity = {
+      debug: 'fsBuddyDebug',
+      info: 'fsBuddyInfo',
+      warn: 'fsBuddyWarn',
+      error: 'fsBuddyError',
+      logic: 'fsBuddyLogicInfo'
+    }
 
-        // window.onmessage = function(e) {
-        window.addEventListener('message',
-        
-         function(e) {
+    window.addEventListener('message', function(e) {
       console.log({eData:e.data})
       switch(e.data.messageType) {
-        case 'addCssClassToFieldIdList':
-          addCssClassToFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
+        case 'applyFieldStatusMessages':
+          handleApplyFieldStatusMessages(e.data.payload)
           break;
-        case 'removeClassFromFieldIdList':
-          removeCssClassFromFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
+
+        case 'applyLogicStatusMessages':
+          handleApplyLogicStatusMessages(e.data.payload)
+          break;
+
+        case 'clearAllStatusMessages':
+          clearAllStatusMessages();
+          clearAllFieldStatusMessages();
+          break;
+          
+        case 'fetchSubmissionResponse': 
+          clearAllStatusMessages();
+          clearAllFieldStatusMessages();
+          handelFetchSubmissionResponse(e.data.payload)
           break;
 
         case 'removeFsHiddenRequest':
           removeAllCssName('fsHidden');
           removeAllCssName('fsHiddenPage');
           removeAllCssName('fsWorkflowHidden');
-          // removeCssClassFromFields(e.data.payload.cssClassName, e.data.payload.fieldIds)
           break;
 
-        case 'fetchSubmissionResponse': 
-          handelFetchSubmissionResponse(e.data.payload)
-          break;
- 
         case 'pong':
           console.log({ping:'pong', message: e.data.payload});
           break;
 
-        case 'removeAllClassName':
-          removeAllCssName(e.data.payload.cssClassName)
-          break;
-  
-        case 'clearAllStatusMessages':
-          clearAllStatusMessages();
-          clearAllFieldStatusMessages();
-          break;
-          
-        case 'getFieldsWithCircularLogicResponse':
-          handleGetFieldsWithCircularLogicResponse(e.data.payload)
-          break;
-        case 'getFieldLogicDependentsResponse':
-          handleGetFieldLogicDependentsResponse(e.data.payload)
-          break;
-        case 'getAllFieldInfoResponse':
-          handleGetAllFieldInfoResponse(e.data.payload)
-          break;
-        case 'applyFieldStatusMessages':
-          handleGetAllFieldInfoResponse(e.data.payload)
-          break;
-          
         default:
-          // console.log({'messageReceived': e});
           break;  // <-- never stops being funny.
       }
-      
     });
 
     function sendMessageToParent(messageType, payload){
       let message;
       switch(messageType){
-          case 'getAllFieldInfoRequest':
-            message = {
-              messageType: "getAllFieldInfoRequest",
-              payload:  null
-            };
-          break;          
           case 'removeFsBuddyRequest':
+            console.log('Send request remove')
             message = {
               messageType: "removeFsBuddyRequest",
               payload:  null
             }
           break;
-          case 'getFieldStatusesRequest':
+          case 'announceAwake':
             message = {
-              messageType: "getFieldStatusesRequest",
-              payload: payload || null
-            }
-          break;
-          case 'getFieldLogicDependentsRequest':
-            message = {
-              messageType: "getFieldLogicDependentsRequest",
-              payload: payload || null
-            }
-          break;
-          case 'fetchSubmissionRequest':
-            message = {
-              messageType: "fetchSubmissionRequest",
-              payload: payload || null
+              messageType: "announceAwake",
+              payload: null
             }
           break;
         default:
@@ -291,91 +195,56 @@
       window.top.postMessage(message, '*')
 		}
 
-    const handleFetchSubmissionClick = ()=>{
-      const submissionIdContainer = document.getElementById("fsBuddyFetchSubmissionIdInput");
-      sendMessageToParent('fetchSubmissionRequest', {submissionId: submissionIdContainer.value})
-    }
-
-    const handleLogicFieldIdSelected = (selectElementId, selectedValue)=>{
-      clearAllStatusMessages();
-      clearAllFieldStatusMessages();
-      if(selectedValue === "_EMPTY_DEFAULT_OPTION_") {
-        // should be clear statuses
-      } else {
-        sendMessageToParent('getFieldLogicDependentsRequest', {fieldId: selectedValue})
-      }
-    }
-
-    const isChecked = (elementId) => {
-      const e = document.getElementById(elementId);
-      return e && e.checked
-    }
-
-    const buildFilterList = ()=>{
-      const filters = [];
-      if(isChecked('statusMessageInclude_debug')){
-        filters.push('debug')
-      }
-      if(isChecked('statusMessageInclude_info')){
-        filters.push('info')
-      }
-      if(isChecked('statusMessageInclude_warn')){
-        filters.push('warn')
-      }
-      if(isChecked('statusMessageInclude_error')){
-        filters.push('error')
-      }
-      if(isChecked('statusMessageInclude_logic')){
-        filters.push('logic')
-      }
-      return filters
-    }
-
-    const handleGetAllFieldInfoResponse = (fieldInfoResponse)=>{
-      fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
-      console.log({fieldInfoResponse})
-
-      const {fieldIdsWithLogic} = fieldInfoResponse;
-
-      fsBuddyHelper.getAllFieldIds = ()=>{
-        return Object.keys(fsBuddyHelper['fieldSummary'])
-      }
-      const {formStatusMessages} = fieldInfoResponse;
+    const handleApplyLogicStatusMessages = (payload)=>{
+      const { dependentsByFieldId, allFieldSummary } = payload;
+      console.log('handleApplyLogicStatusMessages')
+      removeAllFsBuddyCss()
+      removeAllCssName('fsBuddy_statusMessages')
+      removeAllFsHidden();
 
       clearAllStatusMessages();
       clearAllFieldStatusMessages();
 
-      if(formStatusMessages) {
-        const statusMessageFilter = buildFilterList();
-        const filteredStatusMessages = formStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
-        prependFormAnalysisMessages(...filteredStatusMessages);
-        (filteredStatusMessages ||[]).forEach(statusMessage=>{
-          const {relatedFieldIds} = statusMessage;
-          relatedFieldIds.forEach(fieldId=>{
-            appendFieldStatusMessages(fieldId, [statusMessage])
-          })
-        })
-      }
+      console.log({dependentsByFieldId})
+      // const statusMessageFilter = buildFilterList();
+      
+      Object.entries(dependentsByFieldId).forEach(([fieldId, {dependentFieldIds, interdependentFieldIds, statusMessages}])=>{
+        const filteredStatusMessages = statusMessages; //.filter(sm=>statusMessageFilter.includes(sm.severity)) 
+        filteredStatusMessages.forEach(statusMessage => {
+          appendFieldStatusMessages(statusMessage.fieldId, [statusMessage])
+        });
 
-      populateLogicSelectBox(fieldIdsWithLogic);
+        const nonDependentFieldIds = Object.keys(allFieldSummary)
+            .filter( (childFieldId)=>{
+              return !dependentFieldIds.includes(childFieldId) && fieldId !== childFieldId && !interdependentFieldIds.includes(childFieldId)
+            }); 
+
+          addCssClassToFields('fsBuddy_dependant_logic_field', dependentFieldIds)
+          nonDependentFieldIdsNonPanel = nonDependentFieldIds.filter(fieldId=>allFieldSummary[fieldId].type !== 'section')
+          nonDependentFieldIdsPanel = nonDependentFieldIds.filter(fieldId=>allFieldSummary[fieldId].type === 'section')
+
+          addCssClassToFields('fsBuddy_obscure_field', nonDependentFieldIdsNonPanel)
+          addCssClassToFields('fsBuddy_obscure_section', nonDependentFieldIdsPanel)
+          addCssClassToFields('fsBuddyLogicError', interdependentFieldIds)
+      })
+
+      const logicFocusFieldIds = Object.keys(dependentsByFieldId);
+      addCssClassToFields('fsBuddy_logic_focus', logicFocusFieldIds);
     }
+
     const handleApplyFieldStatusMessages = (fieldInfoResponse)=>{
       fsBuddyHelper['fieldSummary'] = {...fieldInfoResponse.fieldSummary}
-      console.log({fieldInfoResponse})
-
-      const {fieldIdsWithLogic} = fieldInfoResponse;
-
       fsBuddyHelper.getAllFieldIds = ()=>{
         return Object.keys(fsBuddyHelper['fieldSummary'])
       }
-      const {formStatusMessages} = fieldInfoResponse;
+      const { fieldStatusMessages } = fieldInfoResponse;
 
+      removeAllFsHidden();
       clearAllStatusMessages();
       clearAllFieldStatusMessages();
+      if(fieldStatusMessages) {
+        const filteredStatusMessages = fieldStatusMessages;
 
-      if(formStatusMessages) {
-        const statusMessageFilter = buildFilterList();
-        const filteredStatusMessages = formStatusMessages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)) 
         prependFormAnalysisMessages(...filteredStatusMessages);
         (filteredStatusMessages ||[]).forEach(statusMessage=>{
           const {relatedFieldIds} = statusMessage;
@@ -385,19 +254,9 @@
         })
       }
 
-      populateLogicSelectBox(fieldIdsWithLogic);
+      // populateLogicSelectBox(fieldIdsWithLogic);
     }
  
-    const populateLogicSelectBox = (fieldIds) => {
-      if (document.getElementById('selectFieldIdWithLogic') === null) {
-        const divWithSelect = optionListToSelectElement('selectFieldIdWithLogic', handleLogicFieldIdSelected, fieldIds)
-        const logicBuddyContainer = document.getElementById('fsBuddyControlPanelLogic');
-        logicBuddyContainer.prepend(divWithSelect);
-      }
-      removeAllCssName('fsHidden'); // show all fields
-      removeAllCssName('fsHiddenPage'); // show all fields
-      
-    }
 
     const handleGetFieldLogicDependentsResponse = (payload)=>{
       const { dependentsByFieldId, logicalNodeGraphMap } = payload;
@@ -405,7 +264,7 @@
       removeAllFsBuddyCss()
       removeAllCssName('fsBuddy_statusMessages')
       console.log({dependentsByFieldId})
-      const statusMessageFilter = buildFilterList();
+      // const statusMessageFilter = buildFilterList();
       
       Object.entries(dependentsByFieldId).forEach(([fieldId, {dependentFieldIds, interdependentFieldIds, statusMessages}])=>{
         const filteredStatusMessages = statusMessages.filter(sm=>statusMessageFilter.includes(sm.severity)) 
@@ -417,7 +276,6 @@
             .filter( (childFieldId)=>{
               return !dependentFieldIds.includes(childFieldId) && fieldId !== childFieldId && !interdependentFieldIds.includes(childFieldId)
             }); 
-          // addCssClassToFields('fsBuddy_lightblue', dependentFieldIds)
           addCssClassToFields('fsBuddy_dependant_logic_field', dependentFieldIds)
           nonDependentFieldIdsNonPanel = nonDependentFieldIds.filter(fieldId=>fsBuddyHelper.fieldSummary[fieldId].type !== 'section')
           nonDependentFieldIdsPanel = nonDependentFieldIds.filter(fieldId=>fsBuddyHelper.fieldSummary[fieldId].type === 'section')
@@ -434,11 +292,22 @@
 
  
     const handelFetchSubmissionResponse = (payload)=>{
-      const {submissionData } = payload;
+      console.log({
+        handelFetchSubmissionResponse: payload
+      })
+      const { submissionData } = payload;
+      const regEx  = new RegExp(/156707745/,)
+      const messagesFor156707745 = submissionData.filter((fieldData)=>{
+        const {statusMessages = [], fieldType, uiid, fieldId} = fieldData;
+        return regEx.test(fieldId || '') || regEx.test(uiid || ''); 
+      })
+      console.log({messagesFor156707745})
       submissionData.forEach((fieldData)=>{
         const {statusMessages = [], fieldType, uiid, fieldId} = fieldData;
-        
+
         if(uiid === null ) {
+          // doesn't have UI associated with status Message
+          // are these panel? form specific?
           if(statusMessages.length>0) {
             appendFieldStatusMessages(fieldData.fieldId, statusMessages)
           }
@@ -475,15 +344,8 @@
             break; // <-- never stops being funny
         }
 
-        console.log({
-          fieldType: fsBuddyHelper.fieldSummary[fieldId].type,
-          fieldSummary: fsBuddyHelper.fieldSummary[fieldId],
-          fieldId,
-          uiid,
-        })
-
-        if(`field${fieldId}` === uiid) {
-          // for non subfields
+        if (`field${fieldId}` === uiid || fieldType === "radio") {
+          // radio is a collection of subfields with no parent field
           appendFieldStatusMessages(fieldId, statusMessages)
         }
       })
@@ -519,8 +381,8 @@
     const prependFormAnalysisMessages = (...messages)=>{
       const userMessageDiv = document.getElementById('fsBuddyUserMessagesDiv');
       
-      const statusMessageFilter = buildFilterList();
-      const filteredMessages = messages.filter(statusMessage=>statusMessageFilter.includes(statusMessage.severity)).sort((aMessage, bMessage)=>{
+      // const statusMessageFilter = buildFilterList();
+      const filteredMessages = messages.sort((aMessage, bMessage)=>{
         if(SEVERITIES[aMessage.severity] > SEVERITIES[bMessage.severity]){
           return -1;
         }
@@ -629,8 +491,6 @@
       const sectionId =`fsSection${fieldId}`;
       
       return document.getElementById(containerId) || document.getElementById(sectionId);
-      //fsSection126381010
-
     }
       
     const getFieldStatusContainer = (fieldId, collectionSeverity)=>{
@@ -666,7 +526,6 @@
       const collectionSeverityCssClass = cssClassBySeverity[collectionSeverity]  || cssClassBySeverity['error']; 
       const statusContainer = getFieldStatusContainer(fieldId, collectionSeverityCssClass);
 
-      //        {severity:'debug', message: 'The debug message', fieldId: '148111228',  relatedFieldIds:['147738154', '148111228', '147738157']},
       statusMessages.forEach(message=>{
           const divStatusRow = document.createElement('div');
           divStatusRow.classList.add(`fsBuddy_statusRow`);
@@ -705,37 +564,6 @@
       }
     }
 
-    function optionListToSelectElement(elementId, onSelectHandler, options){
-      if(!Array.isArray(options)) {
-        console.log({message: 'options not an array', options});
-        return
-      }
-
-
-      const div = document.createElement('div');
-      div.id = `${elementId}-container`;
-      const selectHandlerWrapper = (evt)=>{
-          onSelectHandler(evt.target.id, evt.target.value)
-      }
-          
-      const theSelect = document.createElement('select');
-      const emptyOption = document.createElement('option');
-      emptyOption.value = "_EMPTY_DEFAULT_OPTION_";
-      emptyOption.innerText = "Select Logic Root (field)";
-      theSelect.appendChild(emptyOption);
-
-      (options || []).forEach(option=>{
-          const theOption = document.createElement('option');
-          theOption.value = option.value;
-          theOption.innerText = option.label;
-          theSelect.appendChild(theOption);
-      })
-      theSelect.onchange = selectHandlerWrapper;
-      theSelect.id = elementId;
-      div.appendChild(theSelect)
-      return div;
-    }
-
     const buildFsBuddyControlPanel = ()=>{
       document.getElementById('fsBuddyFieldStatusesContainer') && document.getElementById('fsBuddyFieldStatusesContainer').remove()
 
@@ -752,10 +580,8 @@
 
     function hideAllPanels(){
       [
-      'fsBuddyControlPanelSubmission',
-      'fsBuddyControlPanelLogic', 
-      // 'fsBuddyControlPanelFieldStatus',
-      // 'fsBuddyControlPanelUserMessages'
+        'fsBuddyControlPanelSubmission',
+        'fsBuddyControlPanelLogic', 
       ].forEach(panelId=>{
         const panel = document.getElementById(panelId);
         if(panel) {
@@ -763,10 +589,7 @@
         } else {
           console.log(`'${panelId}' is not panel. (hideAllPanels())`)
         }
-
-
       })
-          
     }    
 
     function showOnly(showPanelId){
@@ -780,29 +603,12 @@
 
     }
 
-    function setPresetCheckboxesLogic(){
-      setCheckboxChecked('statusMessageInclude_error', true);
-      setCheckboxChecked('statusMessageInclude_logic', true);
-      setCheckboxChecked('statusMessageInclude_info', false); 
-      setCheckboxChecked('statusMessageInclude_warn', true); 
-      setCheckboxChecked('statusMessageInclude_debug', false);
+    function removeAllFsHidden(){
+      removeAllCssName('fsHidden');
+      removeAllCssName('fsHiddenPage');
+      removeAllCssName('fsWorkflowHidden');
     }
 
-    function setPresetCheckboxesFieldAnalysis() {
-      setCheckboxChecked('statusMessageInclude_error', true);
-      setCheckboxChecked('statusMessageInclude_logic', false);
-      setCheckboxChecked('statusMessageInclude_info', true); 
-      setCheckboxChecked('statusMessageInclude_warn', true); 
-      setCheckboxChecked('statusMessageInclude_debug', false);
-    }
-
-    function setCheckboxChecked(checkboxId, value){
-      const checkbox = document.getElementById(checkboxId);
-      if(checkbox){
-        checkbox.checked = !!value;
-      }
-    }
- 
     function removeAllFsBuddyCss(){
       removeAllCssName('fsBuddy_obscure_field'); 
       removeAllCssName('fsBuddy_obscure_section'); 
@@ -814,163 +620,11 @@
       removeAllCssName('fsBuddyLogicError');
     }
 
-    function buildTree(fieldGraphJson, targetDivId){
-      let width = 400, height = 440
-      const circularLinks = [];
-      const pTreeNodeGTreeNodeMap ={};
-
-      const theDataTable = fieldGraphJson; //["148604161"];
-      const leavesBranchesVirtualRootNodes = theDataTable
-                            .filter(
-                              node=> ["FsLogicLeafNode", "FsLogicBranchNode", "FsVirtualRootNode"].includes(node.nodeContent.nodeType)
-                            )
-      const problemNodes = theDataTable
-                            .filter(
-                              node=> !["FsLogicLeafNode", "FsLogicBranchNode", "FsVirtualRootNode"].includes(node.nodeContent.nodeType)
-                            )
-
-      const treeFactory = d3.stratify()
-          .id((d) => d.nodeId)
-          .parentId((d) => d.parentId);
-
-      const root = treeFactory(theDataTable);
-    
-      let treeLayout = d3.tree()
-          .size([700, 380])
-
-      treeLayout(root);
-
-      const htmlContainer = document.getElementById( targetDivId);
-      while (htmlContainer && htmlContainer.firstChild) {
-          htmlContainer.firstChild.remove()
-      }
-      
-      const svgContainer = d3.select("#" + targetDivId).append("svg:svg");
-      svgContainer.attr('height', '500');
-      svgContainer.attr('width', '700');
-      const svg = svgContainer.append('g'); 
-      svg.attr('transform', 'translate(0, 35)');
-
-      // Links
-      svg
-          .selectAll('line')
-          .data(root.links())
-          .join('line')
-          .attr('x1', function(d) {return d.source.x;})
-          .attr('y1', function(d) {return d.source.y;})
-          .attr('x2', function(d) {return d.target.x;})
-          .attr('y2', function(d) {return d.target.y;})
-
-          .attr("stroke", function (d) {
-              return 'red' ; //(d.x > 50) ? 'red' : 'blue';
-          })
-          .attr("fill", "none")   
-          .attr("stroke-width", 2);
-
-      
-      // Nodes
-      // d3.select('svg g')
-      svg
-          .selectAll('circle')
-          .data(root.descendants())
-          .join('circle')
-          .attr('cx', function(d) {
-              const {nodeContent} = d.data;
-              pTreeNodeGTreeNodeMap[nodeContent.nodeId + ""] = d;
-              return d.x;
-          })
-          .attr('cy', function(d) {return d.y;})
-          .attr('r', 10);
-
-      problemNodes.forEach(pNode=>{
-          const {sourceNodeId, targetNodeId} = pNode.nodeContent;
-          // const sourceNode = pTreeNodeGTreeNodeMap[pNode.nodeId];
-          const sourceNode = pTreeNodeGTreeNodeMap[sourceNodeId];
-          const targetNode = pTreeNodeGTreeNodeMap[targetNodeId];
-          if(sourceNode === undefined || targetNode === undefined) {
-              console.log('oops, I did it again.')
-          }
-          circularLinks.push({
-              source: {
-                  x: sourceNode.x,
-                  y: sourceNode.y,
-              },
-              target: {
-                  x: targetNode.x,
-                  y: targetNode.y,
-              }
-          });
-      })
-
-      // Circular References
-      svg
-        .selectAll('linkCircular')
-        .data(circularLinks)
-        .join('line')
-        .attr('x1', function(d) {console.log({circularSource: d});return d.source.x;})
-        .attr('y1', function(d) {return d.source.y;})
-        .attr('x2', function(d) {console.log({circularTarget: d}); return d.target.x;})
-        .attr('y2', function(d) {return d.target.y;})
-        .attr("class", "linkCircular");
-
-      // Labels
-      svg
-        .selectAll('text.label')
-        .data(root.descendants())
-        .join('text')
-        .classed('label', true)
-        .attr('x', function(d) {return d.x;})
-        .attr('y', function(d) {return d.y - 15})
-        .text(function(d) {
-          console.log(d);
-        //   return d.data.nodeContent.fieldId 
-        if(!["FsLogicLeafNode"].includes(d.data.nodeContent.nodeType)){
-            return d.data.nodeId
-        }
-        return ''
-            // return d.data.nodeContent.fieldId + '/' + d.data.nodeContent.nodeId 
-        });
-
-      // Lower Labels
-      svg
-        .selectAll('text.count-label')
-        .data(root.descendants())
-        .join('text')
-        // .text('')
-        .call(function(t){
-            t.each(function(d){ // for each one
-                t.classed('count-label', true)
-                const c = this.children
-                var self = d3.select(this);
-                const {nodeContent} = d.data;
-                self.text(''); // clear it out
-                // t.text('')
-                
-                if(Array.isArray(nodeContent.label)) {
-                    // self.text(''); // clear it out
-                    // t.text('')
-                    nodeContent.label.forEach((line,index)=>{
-                        self.append("tspan") // insert two tspans
-                        .attr("x", d.x)
-                        .attr("y", d.y +  ((index +1) * 15))
-                        .text(line);                        
-                    })
-                } else {
-                    self.text(nodeContent.label)
-                        .attr("x", d.x)
-                        .attr("y",d.y + 15);
-                }
-            })
-        });
-  }// buildTre()
-  
 
     document.addEventListener("DOMContentLoaded",()=>{
         buildFsBuddyControlPanel();
- 
         showOnly('fsBuddyControlPanelFieldStatus');
-        setPresetCheckboxesFieldAnalysis();
-        sendMessageToParent('getAllFieldInfoRequest');
+        sendMessageToParent('announceAwake');
     })
     const fsBuddyHelper = {}
 
@@ -978,102 +632,33 @@
 	</head>
 	<body>
     <div id="fsBuddyControllPannel">
-      <button style='float: right' onclick="removeFsBuddy()">X</button>
-      <h3 style='text-align: center'>FS Buddy Control Panel</h3>
+      <!-- <button style='float: right' onclick="removeFsBuddy()">X</button> -->
+      <h3 style='text-align: center'>FS Buddy Form View</h3>
  
       <table>
-            <!-- <tr>
-                <td>
-                  <button onclick="showOnly('fsBuddyControlPanelSubmission')">x Submission Tool</button>
-                </td>
-                <td>
-                    <button onclick="showOnly('fsBuddyControlPanelLogic'); setPresetCheckboxesLogic(); sendMessageToParent('getAllFieldInfoRequest');">x Logic Tool</button>
-                </td>
-                <td>
-                    <button onclick="showOnly('fsBuddyControlPanelFieldStatus'); setPresetCheckboxesFieldAnalysis(); sendMessageToParent('getAllFieldInfoRequest')">x Field Analysis</button>
-                </td>
-            </tr> -->
-            <tr>
-              <td colspan="3">
-                <div id="fsBuddy_filterStatusMessageContainer">
-                  <ul>
-                    <li><span>Include status messages: </span></li>
-                    <li>
-                      <label for="statusMessageInclude_debug">Debug</label>
-                      <input id="statusMessageInclude_debug" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_warn">Warn</label>
-                      <input id="statusMessageInclude_warn" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_info">Info</label>
-                      <input id="statusMessageInclude_info" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_logic">Logic</label>
-                      <input id="statusMessageInclude_logic" type="checkbox" checked="checked" onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                    <li>
-                      <label for="statusMessageInclude_error">Error</label>
-                      <input id="statusMessageInclude_error" type="checkbox" checked="checked"  onchange="sendMessageToParent('getAllFieldInfoRequest')" />
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3">
-                <!-- here goes css controls-->
-                <table>
-                  <tr>
-                    <td style="padding: 5px;">
-                          <button onclick="collapseAllFsBuddyStatusItems()">Collapse Statuses</button>    
-                    </td>
-                    <td style="padding: 5px;">
-                          <button onclick="expandAllFsBuddyStatusItems()">Expand Statuses</button>                  
-                    </td>
-                    <td style="padding: 5px;">
-                        <button onclick="removeAllCssName('fsHidden');removeAllCssName('fsHiddenPage');removeAllCssName('fsWorkflowHidden')">Remove All fsHidden</button>
-                    </td>
-                    <td style="padding: 5px;">
-                      <button onclick="removeAllFsBuddyCss()">Remove Logic CSS</button>
-                    </td>
-                  </tr>
-                </table>
-
-              </td>
-            </tr>
-      </table>
-      <div id='fsBuddyControlPanelSubmission' class="fsControlPanelSubsection">
-        <h3>Submission Tool</h3>
-        <table>
+        <tr>
+          <td colspan="3">
+            <!-- here goes css controls-->
+            <table>
               <tr>
-                    <td>
-                          <button onclick="handleFetchSubmissionClick()">Load Submission</button>
-                    </td>
-                    <td>
-                          <input id="fsBuddyFetchSubmissionIdInput" value="1129952515"/>    
-                    </td>
+                <td style="padding: 5px;">
+                      <button onclick="collapseAllFsBuddyStatusItems()">Collapse Statuses</button>    
+                </td>
+                <td style="padding: 5px;">
+                      <button onclick="expandAllFsBuddyStatusItems()">Expand Statuses</button>                  
+                </td>
+                <td style="padding: 5px;">
+                    <button onclick="removeAllCssName('fsHidden');removeAllCssName('fsHiddenPage');removeAllCssName('fsWorkflowHidden')">Remove All fsHidden</button>
+                </td>
+                <!-- <td style="padding: 5px;">
+                  <button onclick="removeAllFsBuddyCss()">Remove All FsBuddy</button>
+                </td> -->
               </tr>
-        </table>
-      </div>
-      <div  id="graphContainer">
-        <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
-        </div>
-      </div>      
-      <div id='fsBuddyControlPanelLogic' class="fsControlPanelSubsection">
-        <h3>Logic Tool</h3>
-        <!-- <div  id="graphContainer">
-          <div style="border: 1px solid black;"  id="graphLogicNodeMapContainer">
-          </div>
-        </div> -->
-      </div>
-      <!-- <div id='fsBuddyControlPanelFieldStatus' class="fsControlPanelSubsection">
-        <h4>Field Analysis</h4>
-        <div class="fsBuddy_statusMessages" style="background-color: white;height: 300px; overflow-y: auto;" id="fsBuddyUserMessagesDiv"></div>
-        </div>
-      </div> -->
+            </table>
+
+          </td>
+        </tr>
+      </table>
     </div>
 	</body>
 </html>

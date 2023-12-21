@@ -1,51 +1,50 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-// import { ApiKeyContainer } from './ApiKeyContainer';
-// import { LogicFieldSelect } from './LogicFieldSelect';
-// import { FormstackBuddy } from '../../../FormstackBuddy/FormstackBuddy';
-import { FsFormModel, TFsFieldAnyJson } from '../../../../formstack';
-import { FieldLogicService } from '../../../../FormstackBuddy/FieldLogicService';
-// import { transformers } from '../../../formstack/transformers';
-
-import { FormAnalytics } from '../../../../FormstackBuddy/FormAnalytics';
-// import { StatusMessageContainer } from '../../containers/StatusMessages';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { TStatusRecord } from '../../../../formstack/classes/Evaluator/type';
-import { TApiForm } from '../../../common/type.form';
-
-let fieldLogicService: FieldLogicService | null = null;
-let formAnalytic: FormAnalytics | null = null;
-let currentFieldCollection: FsFormModel;
-
+import './FormView.css';
+import { UIStateContext } from '../../../AppState';
 const fetchTreeFormId = '5375703';
-// const fetchTreeFormId = '5358471'; // has submissions
 const fetchSubmissionId = '1129952515';
-// 1129952515 submission id
-// TApiFormJson
 interface Props {
   formHtml?: string;
   context?: any;
+  statusMessage: TStatusRecord[];
 }
+
 class FormView {
+  static IFRAME_ID = 'fsBuddyFormView';
   _helperHtml!: string;
+  _allFieldSummary!: {
+    [fieldId: string]: { fieldType: string; fieldId: string; label: string };
+  };
 
   async initialize(): Promise<void> {
-    this._helperHtml = await getChildFrameHtml();
+    try {
+      this._helperHtml = await getChildFrameHtml();
+    } catch (e) {
+      console.log({
+        message: 'failed to get form iframe html.',
+        e,
+      });
+    }
+
+    window.onmessage = function (e) {
+      switch (e.data.messageType) {
+        case 'announceAwake':
+          // console.log({ announceAwake: 'received' });
+          break;
+        case 'removeFsBuddyRequest':
+          const iframe = document.getElementById(FormView.IFRAME_ID);
+          if (iframe) {
+            iframe.remove();
+          }
+          break;
+        default:
+      }
+    };
   }
-  // const FormView: React.FC<Props> = ({ formHtml }: Props) => {
-  // const [fieldStatusPayload, setFieldStatusPayload] = useState(
-  //   null as null | {
-  //     fieldIdsWithLogic: [];
-  //     formStatusMessages: TStatusRecord[];
-  //   }
-  // );
 
-  // useEffect(() => {
-  //   // const fetchTreeFormId = '5079339';
-  //   // const fetchTreeFormId = '5375703';
-  // }, []);
-
-  // const component: React.FC<Props> = ({ formHtml }: Props) => {
   _removeAllCssName(cssClassName: string): void {
-    const iframe = document.getElementById('theFrame2');
+    const iframe = document.getElementById(FormView.IFRAME_ID);
     const x = iframe ? document.querySelectorAll(`.${cssClassName}`) : [];
     console.log({
       cssClassName,
@@ -65,54 +64,136 @@ class FormView {
       payload: null,
     };
 
-    // @ts-ignore - doesn't like typing
-    document.getElementById('theFrame2').contentWindow.postMessage(message);
+    this.postMessageToIframe(message);
+  }
 
-    // console.log('clearFsHidden');
-    // this._removeAllCssName('fsHidden');
-    // this._removeAllCssName('fsHiddenPage');
-    // this._removeAllCssName('fsWorkflowHidden');
+  static clearFsHidden(): void {
+    const message = {
+      messageType: 'removeFsHiddenRequest',
+      payload: null,
+    };
+
+    FormView.postMessageToIframe(message);
+  }
+
+  applySubmissionDataStatusMessages(
+    submissionId: string,
+    submissionUiDataItems: any
+  ) {
+    const message = {
+      messageType: 'fetchSubmissionResponse',
+      payload: {
+        id: submissionId,
+        submissionData: submissionUiDataItems,
+      },
+    };
+    console.log({ applySubmissionDataStatusMessages: { message } });
+    this.postMessageToIframe(message);
   }
 
   applyFieldStatusMessages(statusMessages: TStatusRecord[]) {
     const message = {
       messageType: 'applyFieldStatusMessages',
-      payload: { statusMessages },
+      payload: { fieldStatusMessages: statusMessages },
     };
+
+    this.postMessageToIframe(message);
   }
 
-  public component = ({ formHtml, context: any }: Props): ReactElement => {
+  applyLogicStatusMessages(
+    rootFieldId: string,
+    statusMessages: TStatusRecord[],
+    allFieldSummary: {
+      [fieldId: string]: { fieldType: string; fieldId: string; label: string };
+    }
+  ) {
+    const message = {
+      messageType: 'applyLogicStatusMessages',
+      payload: {
+        dependentsByFieldId: {
+          [rootFieldId]: {
+            dependentFieldIds: [],
+            interdependentFieldIds: [],
+            statusMessages: statusMessages,
+          },
+        },
+        allFieldSummary,
+        // fieldStatusMessages:
+        // statusMessages
+      },
+    };
+    this.postMessageToIframe(message);
+  }
+
+  private postMessageToIframe(message: any) {
+    const iFrame = document.getElementById(FormView.IFRAME_ID);
+
+    if (!iFrame) {
+      return;
+    }
+
+    // @ts-ignore - doesn't like typing
+    iFrame.contentWindow.postMessage(message);
+  }
+  private static postMessageToIframe(message: any) {
+    const iFrame = document.getElementById(FormView.IFRAME_ID);
+
+    if (!iFrame) {
+      return;
+    }
+
+    // @ts-ignore - doesn't like typing
+    iFrame.contentWindow.postMessage(message);
+  }
+
+  // public component = ({ formHtml, context: any }: Props): ReactElement => {
+  public component = (): ReactElement => {
+    const uiStateContext = useContext(UIStateContext);
+    const stateFormHtml = uiStateContext.apiResponse.formHtml;
+    useEffect(() => {
+      this.applyFieldStatusMessages(
+        uiStateContext.messageFilter.filteredMessages
+      );
+    }, [uiStateContext.messageFilter.filteredMessages]);
+
+    useEffect(() => {
+      uiStateContext.logicFieldSelected.fieldId &&
+        this.applyLogicStatusMessages(
+          uiStateContext.logicFieldSelected.fieldId,
+          uiStateContext.logicFieldSelected.statusMessages,
+          uiStateContext.logicFieldSelected.allFieldSummary
+        );
+    }, [uiStateContext.logicFieldSelected.statusMessages]);
+
+    useEffect(() => {
+      uiStateContext.submissionSelected.submissionId &&
+        this.applySubmissionDataStatusMessages(
+          uiStateContext.submissionSelected.submissionId,
+          uiStateContext.submissionSelected.submissionUiDataItems
+        );
+    }, [uiStateContext.submissionSelected.submissionUiDataItems]);
+
+    // useEffect(() => {
+    //   statusMessages && this.applyFieldStatusMessages(statusMessages);
+    // }, []);
+
     return (
       <iframe
-        id="theFrame2"
-        name="theFrame2"
-        style={{
-          width: '100%',
-          height: '1000px',
-          top: '150px',
-          position: 'absolute',
-        }}
-        srcDoc={this._helperHtml + formHtml}
+        id={FormView.IFRAME_ID}
+        name={FormView.IFRAME_ID}
+        className="formViewIframeContainer"
+        // style={{
+        //   width: '100%',
+        //   height: '1000px',
+        //   top: '150px',
+        //   position: 'absolute',
+        //   left: '100%',
+        // }}
+        // srcDoc={this._helperHtml + formHtml}
+        srcDoc={this._helperHtml + `${stateFormHtml}`}
       ></iframe>
     );
   };
-  // return iFrame;
-  // return (
-  //   <iframe
-  //     id="theFrame"
-  //     name="theFrame"
-  //     style={{
-  //       width: '100%',
-  //       height: '1000px',
-  //       top: '150px',
-  //       position: 'absolute',
-  //     }}
-  //     srcDoc={formHtml}
-  //   ></iframe>
-  //   // <div
-  //   //   dangerouslySetInnerHTML={{ __html: formHtml || 'No Form HTML.' }}
-  //   // ></div>
-  // );
 }
 
 function getChildFrameHtml() {
@@ -122,63 +203,5 @@ function getChildFrameHtml() {
     return response.text();
   });
 }
-
-function buildIframe(iframeId: string): HTMLIFrameElement {
-  const iframe = document.createElement('iframe');
-  iframe.id = iframeId;
-  iframe.style.width = '50%';
-  iframe.style.height = '100%';
-  iframe.style.zIndex = '1001';
-  iframe.style.top = '50px';
-  iframe.style.right = '0px';
-  iframe.style.position = 'absolute';
-  iframe.style.backgroundColor = 'green';
-  return iframe;
-}
-
-function handleGetAllFieldInfoRequest(
-  caller: MessageEventSource,
-  payload: any
-) {
-  /// getFieldIdsExtendedLogicOf
-  if (fieldLogicService === null) {
-    console.log(
-      'handleGetAllFieldInfoRequest failed.  "fieldLogicService" not defined.'
-    );
-    return;
-  }
-  if (formAnalytic === null) {
-    console.log(
-      'handleGetAllFieldInfoRequest failed.  "formAnalytic" not defined.'
-    );
-    return;
-  }
-
-  const fieldSummary = fieldLogicService?.getAllFieldSummary();
-  const formLogicStatusMessages =
-    fieldLogicService.getFormLogicStatusMessages();
-  const formStatusMessages = formAnalytic.findKnownSetupIssues();
-  const fieldIdsWithLogic = fieldLogicService?.wrapFieldIdsIntoLabelOptionList(
-    fieldLogicService?.getFieldIdsWithLogic()
-  );
-
-  caller.postMessage({
-    messageType: 'getAllFieldInfoResponse',
-    payload: {
-      fieldSummary,
-      formStatusMessages: [...formStatusMessages, ...formLogicStatusMessages],
-      fieldIdsWithLogic,
-    },
-  });
-}
-
-// window.onmessage = function (e) {
-//   switch (e.data.messageType) {
-//     case 'getAllFieldInfoRequest':
-//       e.source && handleGetAllFieldInfoRequest(e.source, e.data.payload);
-//       !e.source && console.log('No Source of message received.');
-//       break;
-//   }
-// };
 
 export { FormView };

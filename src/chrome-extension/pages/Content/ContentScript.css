@@ -1,0 +1,38 @@
+.ContentContainer {
+    text-align: left;
+    /* height: 100% */
+    height: auto;
+}
+
+.p-accordion-header{
+    background-color: lightgrey;
+    padding: 10px;
+}
+
+.p-accordion-header > a{
+    background-color: lightgrey;
+    font-weight: bold;
+    color: black;
+    /* color: green; */
+}
+
+
+.fsBodyControlPanel {
+    background-color: #ffffff;
+    z-index: 1000;
+    top:0px;
+    left: 0px;
+    /* height: 100%; */
+    height: auto;
+    position: absolute;
+    width: 800px;
+    /* background-color: green; */
+
+    /* fsBodyControlPanel.style.backgroundColor = '#FFFFFF';
+    fsBodyControlPanel.style.border = '1px black solid';
+    fsBodyControlPanel.style.zIndex = '1000';
+    fsBodyControlPanel.style.top = '0px';
+    fsBodyControlPanel.style.left = '0px';
+    fsBodyControlPanel.style.position = 'absolute'; */
+
+}
