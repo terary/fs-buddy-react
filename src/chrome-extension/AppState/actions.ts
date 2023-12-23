@@ -1,22 +1,12 @@
 import { TStatusRecord } from '../../components/StatusMessageListContainer/type';
 import {
+  TOffFormLogicEntity,
   UIStateApiResponseFormGetType,
   UIStateLogicFieldSelected,
+  UIStateOffFormLogic,
   UIStateSubmissionSelected,
   UIStateType,
 } from './types';
-
-// dispatcher({
-//     type: 'apiResponse',
-//     payload: {
-//       apiResponse: {
-//         allStatusMessages: [
-//           ...formStatusMessages,
-//           ...formLogicStatusMessages,
-//         ],
-//       },
-//     },
-//   });
 
 const apiResponseGetForm = (
   state: UIStateType,
@@ -41,10 +31,6 @@ const updateMessageFilter = (
     ...messageFilter,
     ...messageFilterChanges,
   };
-  //   const revisedState = {
-  //     ...state,
-  //     ...{ messageFilter: { ...newMessageFilterState } },
-  //   };
   return {
     type: 'messageFilter/selectedLogLevels/update',
     payload: {
@@ -62,13 +48,41 @@ const updateLogicFieldSelected = (
     ...logicFieldSelected,
     ...logicFieldSelectedChanges,
   };
-  console.log({
-    updateLogicFieldSelected: { logicFieldSelectedChanges, state },
-  });
   return {
     type: 'logic/selectedField/update',
     payload: {
       logicFieldSelected: newLogicFieldSelected,
+    },
+  };
+};
+
+const updateOffFormLogicLists = (
+  state: UIStateType,
+  offFormLogicChanges: Partial<UIStateOffFormLogic>
+) => {
+  const { offFormLogic } = state;
+  const stateOffFormLogic = state.offFormLogic;
+  const newOffFormLogic = { ...offFormLogic, ...offFormLogicChanges };
+  newOffFormLogic.allOffFormLogic = ([] as TOffFormLogicEntity[]).concat(
+    // not sure spread works with arrays
+    (newOffFormLogic.notificationEmails || []) as TOffFormLogicEntity[],
+    (newOffFormLogic.confirmationEmails || []) as TOffFormLogicEntity[],
+    newOffFormLogic.formLogic || [],
+    newOffFormLogic.webhooks || []
+  ) as TOffFormLogicEntity[];
+  console.log({
+    updateOffFormLogicLists: {
+      newOffFormLogic,
+      offFormLogic,
+      offFormLogicChanges,
+      state,
+      stateOffFormLogic,
+    },
+  });
+  return {
+    type: 'offFormLogic/update',
+    payload: {
+      offFormLogic: newOffFormLogic,
     },
   };
 };
@@ -82,9 +96,6 @@ const updateSubmissionSelected = (
     ...submissionSelected,
     ...submissionSelectedChanges,
   };
-  //   console.log({
-  //     updateLogicFieldSelected: { logicFieldSelectedChanges, state },
-  //   });
   return {
     type: 'apiResponse/getSubmission',
     payload: {
@@ -98,6 +109,10 @@ const actions = {
   messageFilter: {
     update: updateMessageFilter,
   },
+  offFormLogicLists: {
+    update: updateOffFormLogicLists,
+  },
+
   apiResponse: {
     getForm: apiResponseGetForm,
   },

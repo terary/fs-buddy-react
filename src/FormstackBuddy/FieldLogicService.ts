@@ -1,10 +1,7 @@
 import { FsFormModel, TTreeFieldNode } from '../formstack';
-import type { TFsFieldAnyJson } from '../formstack';
 import { FsFieldModel } from '../formstack/classes/subtrees/trees';
-import { FsLogicTreeDeep } from '../formstack';
 import { FsFormRootNode } from '../formstack/classes/subtrees/trees/nodes';
 import { TApiForm } from '../formstack/type.form';
-// import { Utility } from "../formstack/transformers/Utility";
 import { transformers } from '../formstack/transformers';
 import {
   TSimpleDictionary,
@@ -61,8 +58,8 @@ class FieldLogicService {
     const logicCounts: TLogicTreeDeepStatisticCountRecord = {
       totalNodes: 0,
       totalCircularLogicNodes: 0,
-      totalCircularExclusiveLogicNodes: 0,
-      totalCircularInclusiveLogicNodes: 0,
+      // totalCircularExclusiveLogicNodes: 0,
+      // totalCircularInclusiveLogicNodes: 0,
       totalUnclassifiedNodes: 0,
       totalLeafNodes: 0,
       totalBranchNodes: 0,
@@ -233,9 +230,7 @@ class FieldLogicService {
 
   getLogicNodeGraphMap(fieldId: string): TGraphNode[] {
     const agTree = this._formModel.aggregateLogicTree(fieldId);
-    console.log({ agTree });
     const pojo = agTree.toPojoAt(undefined, false);
-    console.log({ pojo });
 
     return transformers.pojoToD3TableData(pojo, this._formModel);
 

@@ -83,7 +83,7 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
     const treeFactory = d3 //HierarchyLink HierarchyPointNode
       .stratify<D3NodeEnvelopeShape>()
       .id((d) => {
-        console.log({ treeFactoryD: d });
+        // console.log({ treeFactoryD: d });
         return d.nodeId;
       })
       .parentId((d) => d.parentId);
@@ -191,7 +191,7 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
         return d.y - 15;
       })
       .text(function (d) {
-        console.log({ nodeLabelsD: d });
+        // console.log({ nodeLabelsD: d });
         if (!['FsLogicLeafNode'].includes(d.data.nodeContent.nodeType)) {
           const nodeIdElements = d.data.nodeId.split(':').slice(1).join(':');
           return `(${nodeIdElements || d.data.nodeId})`;

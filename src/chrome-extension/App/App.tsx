@@ -3,7 +3,6 @@ import 'primereact/resources/themes/mira/theme.css';
 import { actions, UIStateContext, UIStateDispatch } from '../AppState';
 import './App.css';
 import { filterStatusMessages, keyIn } from '../../common/functions';
-
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
 import { transformers } from '../../formstack/transformers';
@@ -16,11 +15,18 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
 import { FormView } from '../pages/Content/FormView/FormView';
-import { FsFormModel } from '../../formstack';
-import { UIStateApiResponseFormGetType } from '../AppState/types';
+import { FsFormModel, FsLogicTreeDeep } from '../../formstack';
+import {
+  TOffFormLogicEntity,
+  UIStateApiResponseFormGetType,
+} from '../AppState/types';
 import { InputText } from 'primereact/inputtext';
-
 import { Config } from '../../config';
+import { TFsNotificationEmailLogicJson } from '../../formstack/type.notification';
+
+import confirmationEmailJson from './confirmationEmail.json';
+import notificationEmailJson from './notificationEmail.json';
+import webhookJson from './webhook.json';
 
 const formView = new FormView();
 
@@ -37,7 +43,6 @@ let formModel: FsFormModel;
 const App: React.FC = () => {
   const dispatcher = useContext(UIStateDispatch);
   const uiStateContext = useContext(UIStateContext);
-
   const [apiParameters, setApiParameters] = useState({
     apiKey: Config.get('apiKey'),
     formId: Config.get('formId'),
@@ -106,16 +111,122 @@ const App: React.FC = () => {
         formModel = FsFormModel.fromApiFormJson(
           transformers.formJson(apiFormJson)
         );
-
         formAnalytic = new FormAnalytics(apiFormJson);
-        // FormstackBuddy.getInstance().getFormAnalyticService(apiFormJson);
-
         fieldLogicService = new FieldLogicService(apiFormJson);
-        // FormstackBuddy.getInstance().getFieldLogicService(
-        //   transformers.formJson(apiFormJson)
-        // );
-
         const fieldSummary = fieldLogicService?.getAllFieldSummary();
+
+        // ---------------------------
+        if (apiFormJson.id) {
+          const notifications = notificationEmailJson.notifications.map(
+            (notification) => {
+              const agTree = formModel.aggregateOffFormLogicJson(
+                // @ts-ignore - type
+                notification.logic
+                // transformers.notificationEmailLogicJson(notification.logic)
+              );
+              const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
+
+              const graphMap = transformers.pojoToD3TableData(pojo, formModel);
+              const emailProps =
+                notification as unknown as TFsNotificationEmailLogicJson;
+              return {
+                // @ts-ignore id not a property
+                id: 'NE-' + (emailProps.id || '_NO_NOTIFICATION_EMAIL_ID'),
+                // @ts-ignore name not a property
+                name: '[NE]' + notification.name || emailProps?.name,
+
+                // emailNotificationProperties:
+                //   notification as unknown as TFsNotificationEmailLogicJson,
+                graphMap,
+                statusMessages: agTree?.getStatusMessage(),
+                entityType: 'notificationEmail',
+              };
+            }
+          ) as TOffFormLogicEntity[];
+          //confirmationEmailJson
+          const confirmations = confirmationEmailJson.confirmations.map(
+            (confirmation) => {
+              const agTree = formModel.aggregateOffFormLogicJson(
+                // @ts-ignore - type
+                confirmation.logic
+                // transformers.notificationEmailLogicJson(notification.logic)
+              );
+              const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
+
+              const graphMap = transformers.pojoToD3TableData(pojo, formModel);
+              const emailProps =
+                confirmation as unknown as TFsNotificationEmailLogicJson;
+              return {
+                // @ts-ignore id not a property
+                id: 'CE-' + (emailProps.id || '_NO_NOTIFICATION_EMAIL_ID'),
+                // @ts-ignore name not a property
+                name: '[CE]' + confirmation.name || emailProps?.name,
+
+                // emailNotificationProperties:
+                //   notification as unknown as TFsNotificationEmailLogicJson,
+                graphMap,
+                statusMessages: agTree?.getStatusMessage(),
+                entityType: 'confirmationEmail',
+              };
+            }
+          ) as TOffFormLogicEntity[];
+
+          const webhooks = webhookJson.webhooks.map((webhook) => {
+            const agTree = formModel.aggregateOffFormLogicJson(
+              // @ts-ignore - type
+              webhook.logic
+              // transformers.notificationEmailLogicJson(notification.logic)
+            );
+            const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
+
+            const graphMap = transformers.pojoToD3TableData(pojo, formModel);
+            const webhookProps =
+              webhook as unknown as TFsNotificationEmailLogicJson;
+            return {
+              // @ts-ignore id not a property
+              id: 'WH-' + webhook.id,
+              // @ts-ignore name not a property
+              name: '[wh]' + webhook.name,
+
+              // emailNotificationProperties:
+              //   notification as unknown as TFsNotificationEmailLogicJson,
+              graphMap,
+              statusMessages: agTree?.getStatusMessage(),
+              entityType: 'webhook',
+            };
+          }) as TOffFormLogicEntity[];
+
+          const formLogic = fieldLogicService
+            ?.getFieldIdsWithLogic()
+            .map((fieldId) => {
+              const statusMessages =
+                fieldLogicService?.getStatusMessagesFieldId(fieldId);
+              fieldLogicService?.getCircularReferenceFieldIds(fieldId);
+              const logicalNodeGraphMap =
+                fieldLogicService?.getLogicNodeGraphMap(fieldId);
+
+              return {
+                statusMessages,
+                graphMap: logicalNodeGraphMap,
+                id: 'field-' + fieldId,
+                name: fieldSummary[fieldId].label,
+                entityType: 'formLogic',
+              } as TOffFormLogicEntity;
+            });
+
+          dispatcher(
+            actions.offFormLogicLists.update(uiStateContext, {
+              webhooks: webhooks,
+              notificationEmails: notifications,
+              confirmationEmails: confirmations,
+              formLogic,
+            })
+          );
+
+          // @ts-ignore - typing issues
+          // setNotificationLogics(notifications);
+          // ------------------------------
+        }
 
         const formLogicStatusMessages =
           fieldLogicService.getFormLogicStatusMessages();
@@ -134,6 +245,7 @@ const App: React.FC = () => {
         const fieldStatusMessages = allStatusMessages.filter(
           (statusMessage) => statusMessage.fieldId
         );
+        ///FieldFewDetailsType
 
         // UIStateApiResponseFormGetType
         const payload: UIStateApiResponseFormGetType = {
@@ -171,41 +283,6 @@ const App: React.FC = () => {
     sendApiRequest(apiParameters);
   }, []);
 
-  const handleClearFsHidden = () => {
-    formView.clearFsHidden();
-  };
-
-  const handleLogicFieldSelected = (fieldId: string) => {
-    console.log('handleLogicFieldSelected');
-    const statusMessages = fieldLogicService?.getStatusMessagesFieldId(fieldId);
-    fieldLogicService?.getCircularReferenceFieldIds(fieldId);
-    const logicalNodeGraphMap =
-      fieldLogicService?.getLogicNodeGraphMap(fieldId);
-
-    const allFieldSummary = fieldLogicService?.getAllFieldSummary();
-    dispatcher(
-      actions.logic.updateSelectedField(uiStateContext, {
-        logicalNodeGraphMap,
-        fieldId,
-        statusMessages,
-        allFieldSummary,
-      })
-    );
-  };
-
-  const handleClearAllStatusMessage = async () => {
-    const message = {
-      messageType: 'clearAllStatusMessages',
-      payload: null,
-    };
-
-    // @ts-ignore
-    document
-      .getElementById(FormView.IFRAME_ID)
-      // @ts-ignore
-      .contentWindow.postMessage(message);
-  };
-
   const handleApiGetFormRequestClick = async () => {
     sendApiRequest(apiParameters);
   };
@@ -230,10 +307,10 @@ const App: React.FC = () => {
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
-        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[]}>
+        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[0]}>
           <AccordionTab header="FS Buddy">
             {/* <p className="m-0"> */}
-            <Accordion multiple activeIndex={[]}>
+            <Accordion multiple activeIndex={[5]}>
               <AccordionTab header="API">
                 <p className="m-0">
                   <ApiKeyContainer
@@ -247,14 +324,11 @@ const App: React.FC = () => {
               </AccordionTab>
               <AccordionTab
                 header={`Logic (root field count: ${
-                  (uiStateContext.apiResponse.fieldIdsWithLogic || []).length
+                  (uiStateContext.offFormLogic.allOffFormLogic || []).length
                 })`}
               >
                 <p className="m-0" style={{ paddingLeft: '20px' }}>
-                  <LogicFieldSelect
-                    options={uiStateContext.apiResponse.fieldIdsWithLogic || []}
-                    onFieldIdSelected={handleLogicFieldSelected}
-                  />
+                  <LogicFieldSelect />
                   <ExpandedExpressionTreeGraph
                     height={500}
                     width={600}
@@ -288,10 +362,6 @@ const App: React.FC = () => {
               <AccordionTab header="Form View">
                 <p className="m-0">
                   <formView.component />
-
-                  {/* {uiStateContext.apiResponse.formHtml !== '' && (
-                    <formView.component />
-                  )}{' '} */}
                 </p>
               </AccordionTab>
             </Accordion>

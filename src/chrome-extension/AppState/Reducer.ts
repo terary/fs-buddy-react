@@ -46,6 +46,19 @@ const UIStateReducer: Reducer<UIStateType, UIStateActionType> = (
         },
       };
     }
+
+    case 'offFormLogic/update': {
+      const { offFormLogic } = action.payload || [];
+      return {
+        ...uiState,
+        ...{
+          offFormLogic: {
+            ...offFormLogic,
+          },
+        },
+      };
+    }
+
     case 'apiResponse/getSubmission': {
       // const { submissionSelected } = action.payload || [];
       const newState = { ...uiState };

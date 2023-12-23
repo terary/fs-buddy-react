@@ -1,25 +1,25 @@
-import { TTreePojo } from "predicate-tree-advanced-poc/dist/src";
-import { FsCircularDependencyNode } from "./LogicNodes/FsCircularDependencyNode";
-import { FsFieldModel } from "../FsFieldModel";
-import { AbstractLogicNode } from "./LogicNodes/AbstractLogicNode";
-import { FsLogicTreeDeepInternal } from "./FsLogicTreeDeepInternal";
-import { TStatusRecord } from "../../../Evaluator/type";
-import { FsFormModel } from "../../FsFormModel";
-import { FsFieldLogicModel } from "../FsFieldLogicModel";
+import { TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
+import { FsCircularDependencyNode } from './LogicNodes/FsCircularDependencyNode';
+import { FsFieldModel } from '../FsFieldModel';
+import { AbstractLogicNode } from './LogicNodes/AbstractLogicNode';
+import { FsLogicTreeDeepInternal } from './FsLogicTreeDeepInternal';
+import { TStatusRecord } from '../../../Evaluator/type';
+import { FsFormModel } from '../../FsFormModel';
+import { FsFieldLogicModel } from '../FsFieldLogicModel';
 import {
   TFsFieldLogicJunction,
   TFsFieldLogicCheckLeaf,
   TFsJunctionOperators,
   TFsLogicNode,
-} from "../../types";
+} from '../../types';
 
-import { FsLogicBranchNode } from "./LogicNodes/FsLogicBranchNode";
+import { FsLogicBranchNode } from './LogicNodes/FsLogicBranchNode';
 
-import { FsLogicLeafNode } from "./LogicNodes/FsLogicLeafNode";
-import { FsVirtualRootNode } from "./LogicNodes/FsVirtualRootNode";
-import type { TLogicTreeDeepStatisticCountRecord } from "./type";
-import { FsLogicErrorNode } from "./LogicNodes/FsLogicErrorNode";
-import { NegateVisitor } from "../NegateVisitor";
+import { FsLogicLeafNode } from './LogicNodes/FsLogicLeafNode';
+import { FsVirtualRootNode } from './LogicNodes/FsVirtualRootNode';
+import type { TLogicTreeDeepStatisticCountRecord } from './type';
+import { FsLogicErrorNode } from './LogicNodes/FsLogicErrorNode';
+import { NegateVisitor } from '../NegateVisitor';
 
 class FsLogicTreeDeep {
   static readonly MAX_TOTAL_NODES = 50;
@@ -212,8 +212,8 @@ class FsLogicTreeDeep {
     const countRecords: TLogicTreeDeepStatisticCountRecord = {
       totalNodes: 0,
       totalCircularLogicNodes: 0,
-      totalCircularExclusiveLogicNodes: 0,
-      totalCircularInclusiveLogicNodes: 0,
+      // totalCircularExclusiveLogicNodes: 0,
+      // totalCircularInclusiveLogicNodes: 0,
       totalUnclassifiedNodes: 0,
       totalLeafNodes: 0,
       totalBranchNodes: 0,
@@ -247,6 +247,23 @@ class FsLogicTreeDeep {
     return countRecords;
   }
 
+  // to circumvent scope resolution
+  // public static _dev_debug_appendFieldTreeNodeToLogicDeep(
+  //   fieldLogicModel: FsFieldLogicModel,
+  //   fieldLogicNodeId: string,
+  //   deepTree: FsLogicTreeDeep,
+  //   deepTreeNodeId: string,
+  //   fieldCollection: FsFormModel
+  // ): FsLogicTreeDeep | null {
+  //   return FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
+  //     fieldLogicModel,
+  //     fieldLogicNodeId,
+  //     deepTree,
+  //     deepTreeNodeId,
+  //     fieldCollection
+  //   );
+  // }
+
   private static appendFieldTreeNodeToLogicDeep(
     fieldLogicModel: FsFieldLogicModel,
     fieldLogicNodeId: string,
@@ -263,14 +280,14 @@ class FsLogicTreeDeep {
     const parentFieldId = nodeContent?.fieldId || nodeContent?.ownerFieldId;
 
     if (!parentFieldId) {
-      throw Error("Found no field id" + JSON.stringify(nodeContent));
+      throw Error('Found no field id' + JSON.stringify(nodeContent));
     }
 
     if (
       deepTree._fsDeepLogicTree.countTotalNodes() >
       FsLogicTreeDeep.MAX_TOTAL_NODES
     ) {
-      throw new Error("What - too many nodes");
+      throw new Error('What - too many nodes');
     }
 
     if (
@@ -359,7 +376,7 @@ class FsLogicTreeDeep {
           ) as FsLogicBranchNode;
           const { action } = childNodeContent;
           // @ts-ignore "hide" not action
-          if (action === "Hide" || action === "hide") {
+          if (action === 'Hide' || action === 'hide') {
             const negatedClone =
               t._fsDeepLogicTree.getNegatedCloneAt(childNodeId);
             return negatedClone;
@@ -415,6 +432,71 @@ class FsLogicTreeDeep {
     const tree =
       deepTree ||
       new FsLogicTreeDeep(field.fieldId, new FsVirtualRootNode(fieldId));
+
+    const parentNodeId = deepTreeParentNodeId || tree.rootNodeId;
+
+    if (!logicTree) {
+      return FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
+        visualTree as FsFieldLogicModel,
+        (visualTree as FsFieldLogicModel).rootNodeId,
+        tree,
+        parentNodeId,
+        formModel
+      );
+    }
+
+    if (!visualTree) {
+      return FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
+        logicTree as FsFieldLogicModel,
+        (logicTree as FsFieldLogicModel).rootNodeId,
+        tree,
+        parentNodeId,
+        formModel
+      );
+    }
+
+    FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
+      logicTree as FsFieldLogicModel,
+      (logicTree as FsFieldLogicModel).rootNodeId,
+      tree,
+      parentNodeId,
+      formModel
+    );
+    return FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
+      visualTree as FsFieldLogicModel,
+      (visualTree as FsFieldLogicModel).rootNodeId,
+      tree,
+      parentNodeId,
+      formModel
+    );
+  }
+
+  static offFormDeepLogic(
+    fieldId: string,
+    formModel: FsFormModel,
+    deepTree: FsLogicTreeDeep,
+    deepTreeParentNodeId?: string
+  ): FsLogicTreeDeep | null {
+    const field = formModel.getFieldModelOrThrow(fieldId);
+    const logicTree = field.getLogicTree() || null;
+    const visualTree = field.getVisibilityLogicTree();
+    const m = formModel.aggregateLogicTree(field.fieldId);
+    const q = FsFieldLogicModel.fromFieldJson(field.fieldJson);
+    if (!logicTree && !visualTree) {
+      //       { fieldId, condition, option } as TFsFieldLogicCheckLeaf
+      // const { fieldId, condition, option } = {}
+
+      deepTree.appendChildNodeWithContent(
+        deepTree.rootFieldId,
+        new FsLogicLeafNode('fieldId', 'equals', 'option')
+      );
+      return deepTree;
+    }
+
+    const tree = deepTree;
+    // const tree =
+    //   deepTree ||
+    //   new FsLogicTreeDeep(field.fieldId, new FsVirtualRootNode(fieldId));
 
     const parentNodeId = deepTreeParentNodeId || tree.rootNodeId;
 

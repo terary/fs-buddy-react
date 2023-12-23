@@ -31,6 +31,10 @@
       "matches": []
     },
     {
+      "resources": ["*.woff", "*js.map"],
+      "matches": ["<all_urls>"]
+    },
+    {
       "resources": ["form-view-helper.html"],
       "matches": ["http://*/*", "https://*/*", "<all_urls>"]
     }
