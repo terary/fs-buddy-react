@@ -78,7 +78,8 @@ const UIStateReducer: Reducer<UIStateType, UIStateActionType> = (
     }
 
     default:
-      throw Error('Unknown action: ' + action.type);
+      return uiState;
+    // throw Error('Unknown action: ' + action.type);
   }
 };
 

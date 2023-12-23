@@ -88,6 +88,8 @@ const App: React.FC = () => {
     );
   };
 
+  // time to write AppController
+
   const sendApiRequest = (parameters: apiParametersType) => {
     console.log({ sendApiRequest: { parameters } });
     chrome.runtime.sendMessage(
@@ -209,7 +211,7 @@ const App: React.FC = () => {
                 statusMessages,
                 graphMap: logicalNodeGraphMap,
                 id: 'field-' + fieldId,
-                name: fieldSummary[fieldId].label,
+                name: `[${fieldId}]` + fieldSummary[fieldId].label,
                 entityType: 'formLogic',
               } as TOffFormLogicEntity;
             });
