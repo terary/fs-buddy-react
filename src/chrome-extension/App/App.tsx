@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import 'primereact/resources/themes/mira/theme.css';
-import { actions, UIStateContext, UIStateDispatch } from '../AppState';
+import { UIStateContext, UIStateDispatch } from '../AppState';
 import './App.css';
-import { filterStatusMessages, keyIn } from '../../common/functions';
-
-import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
-import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
-import { transformers } from '../../formstack/transformers';
-import { FormstackBuddy } from '../../FormstackBuddy/FormstackBuddy';
 import { MessageFilter } from '../../components/MessageFilter';
 import { ApiKeyContainer } from '../pages/Content/ApiKeyContainer';
 import { LogicFieldSelect } from '../pages/Content/LogicFieldSelect';
@@ -16,30 +10,33 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
 import { FormView } from '../pages/Content/FormView/FormView';
-import { FsFormModel } from '../../formstack';
-import { UIStateApiResponseFormGetType } from '../AppState/types';
-import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
 import { InputText } from 'primereact/inputtext';
+import { Config } from '../../config';
+
+import { AppController } from './AppController';
+import { InputSwitch, InputSwitchChangeEvent } from 'primereact/inputswitch';
 
 const formView = new FormView();
 
-// moved this from outside the pages directory and now manifest can't find 128.png ..
+type AppLayoutType = {
+  position: 'left' | 'right';
+  isRight: boolean;
+};
 
-let fieldLogicService: FieldLogicService | null = null;
-let formAnalytic: FormAnalytics | null = null;
-let currentFieldCollection: FsFormModel;
-
-import { Config } from '../../config';
+const getDefaultAppLayout = (): AppLayoutType => {
+  return {
+    position: 'left',
+    isRight: false,
+  };
+};
 
 type apiParametersType = {
   apiKey: string | null;
   formId: string | null;
   submissionId?: string | null;
 };
-
-// Not loading debug (field definitions) as expected see formId 5568576
-
 const App: React.FC = () => {
+  const [appLayout, setAppLayout] = useState(getDefaultAppLayout());
   const dispatcher = useContext(UIStateDispatch);
   const uiStateContext = useContext(UIStateContext);
 
@@ -50,181 +47,35 @@ const App: React.FC = () => {
   } as apiParametersType);
 
   const handleFetchSubmissionClick = () => {
-    console.log({
-      handleFetchSubmissionClick: true,
-      apiKey: apiParameters.apiKey,
-      submissionId: apiParameters.submissionId,
-    });
-    // const handleClearAllStatusMessage = async () => {
-    //   const message = {
-    //     messageType: 'clearAllStatusMessages',
-    //     payload: null,
-    //   };
-
-    //   // @ts-ignore
-    //   document
-    //     .getElementById(FormView.IFRAME_ID)
-    //     // @ts-ignore
-    //     .contentWindow.postMessage(message);
-    // };
-    // build this into GetSubmissionFromApiRequest
-
-    chrome.runtime.sendMessage(
-      {
-        type: 'GetSubmissionFromApiRequest',
-        submissionId: apiParameters.submissionId,
-        apiKey: apiParameters.apiKey,
-      },
-      async (apiSubmissionJson) => {
-        if (keyIn('data', apiSubmissionJson)) {
-          const submissionUiDataItems =
-            currentFieldCollection.getUiPopulateObject(apiSubmissionJson);
-
-          dispatcher(
-            actions.submissionSelected.update(uiStateContext, {
-              submissionId: apiSubmissionJson.id,
-              submissionUiDataItems: submissionUiDataItems,
-            })
-          );
-        } else {
-          alert(
-            'Failed to get submission data.  See console for more information.  ' +
-              JSON.stringify(apiSubmissionJson || {})
-          );
-          console.log({
-            GetSubmissionFromApiRequest: { error: apiSubmissionJson },
-          });
-        }
-
-        return true;
-      }
-    );
-  };
-
-  const sendApiRequest = (parameters: apiParametersType) => {
-    console.log({ sendApiRequest: { parameters } });
-    chrome.runtime.sendMessage(
-      {
-        type: 'GetFormAsJson',
-        fetchFormId: parameters.formId,
-        apiKey: parameters.apiKey,
-      },
-      async (apiFormJson) => {
-        if (apiFormJson.status == 'error') {
-          console.log({
-            errorMessage: 'Error response from API.',
-            apiFormJson,
-          });
-          return;
-        }
-
-        await formView.initialize();
-
-        // this has pseudo global scope? defined here but used elsewhere?
-        currentFieldCollection = FsFormModel.fromApiFormJson(
-          transformers.formJson(apiFormJson)
-        );
-
-        formAnalytic =
-          FormstackBuddy.getInstance().getFormAnalyticService(apiFormJson);
-
-        fieldLogicService = FormstackBuddy.getInstance().getFieldLogicService(
-          transformers.formJson(apiFormJson)
-        );
-
-        const fieldSummary = fieldLogicService?.getAllFieldSummary();
-
-        const formLogicStatusMessages =
-          fieldLogicService.getFormLogicStatusMessages();
-
-        const formStatusMessages = formAnalytic.findKnownSetupIssues();
-
-        const fieldIdsWithLogic =
-          fieldLogicService?.wrapFieldIdsIntoLabelOptionList(
-            fieldLogicService?.getFieldIdsWithLogic()
-          );
-
-        const allStatusMessages = [
-          ...formStatusMessages,
-          ...formLogicStatusMessages,
-        ];
-        const fieldStatusMessages = allStatusMessages.filter(
-          (statusMessage) => statusMessage.fieldId
-        );
-
-        // UIStateApiResponseFormGetType
-        const payload: UIStateApiResponseFormGetType = {
-          fieldSummary,
-          formStatusMessages,
-          formLogicStatusMessages,
-          fieldStatusMessages,
-          allStatusMessages: [
-            ...formStatusMessages,
-            ...formLogicStatusMessages,
-          ],
-          fieldIdsWithLogic,
-          formHtml: apiFormJson.html,
-          formJson: apiFormJson,
-        };
-        console.log({ sendApiRequest: { payload } });
-        dispatcher(actions.apiResponse.getForm(uiStateContext, payload));
-        dispatcher(
-          actions.messageFilter.update(uiStateContext, {
-            selectedLogLevels: ['info', 'warn', 'error', 'logic'],
-            filteredMessages: filterStatusMessages(allStatusMessages, [
-              // 'debug',
-              'info',
-              'warn',
-              'error',
-              'logic',
-            ]),
-          })
-        );
-      }
-    );
+    apiParameters.submissionId &&
+      AppController.getInstance().fetchSubmissionAndSetState(
+        apiParameters.submissionId,
+        uiStateContext,
+        dispatcher
+      );
   };
 
   useEffect(() => {
-    sendApiRequest(apiParameters);
+    apiParameters.apiKey &&
+      AppController.getInstance().setApiKey(apiParameters.apiKey);
+
+    formView.initialize();
+
+    apiParameters.formId &&
+      AppController.getInstance().fetchFormAndSetState(
+        apiParameters.formId,
+        uiStateContext,
+        dispatcher
+      );
   }, []);
 
-  const handleClearFsHidden = () => {
-    formView.clearFsHidden();
-  };
-
-  const handleLogicFieldSelected = (fieldId: string) => {
-    console.log('handleLogicFieldSelected');
-    const statusMessages = fieldLogicService?.getStatusMessagesFieldId(fieldId);
-    fieldLogicService?.getCircularReferenceFieldIds(fieldId);
-    const logicalNodeGraphMap =
-      fieldLogicService?.getLogicNodeGraphMap(fieldId);
-
-    const allFieldSummary = fieldLogicService?.getAllFieldSummary();
-    dispatcher(
-      actions.logic.updateSelectedField(uiStateContext, {
-        logicalNodeGraphMap,
-        fieldId,
-        statusMessages,
-        allFieldSummary,
-      })
-    );
-  };
-
-  const handleClearAllStatusMessage = async () => {
-    const message = {
-      messageType: 'clearAllStatusMessages',
-      payload: null,
-    };
-
-    // @ts-ignore
-    document
-      .getElementById(FormView.IFRAME_ID)
-      // @ts-ignore
-      .contentWindow.postMessage(message);
-  };
-
   const handleApiGetFormRequestClick = async () => {
-    sendApiRequest(apiParameters);
+    apiParameters.formId &&
+      AppController.getInstance().fetchFormAndSetState(
+        apiParameters.formId,
+        uiStateContext,
+        dispatcher
+      );
   };
 
   const handleApiParameterChange = (apiParameters: apiParametersType) => {
@@ -239,18 +90,113 @@ const App: React.FC = () => {
     setApiParameters({ ...apiParameters, ...{ submissionId } });
   };
 
-  const handleHideFsBuddy = (evt: any) => {
-    console.log({ handleHideFsBuddy: { evt } });
-    return true;
+  const setLeft = (leftRight: 'left' | 'right') => {
+    const fsBuddyControlPanels = document.querySelectorAll(
+      '.fsBodyControlPanel'
+    );
+    fsBuddyControlPanels.forEach((panel) => {
+      if (leftRight === 'left') {
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty('left', '0px');
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty('right', 'unset');
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty(
+          'animation',
+          `2s ease-in-out alternate swingViewportRight`
+        );
+      } else {
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty(
+          'animation',
+          `2s ease-in-out swingViewportLeft`
+        );
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty('left', 'unset');
+        // @ts-ignore 'style' not a property
+        panel.style.setProperty('right', '0px');
+      }
+    });
   };
 
+  const handleMoveLeftRightToggle = (evt: InputSwitchChangeEvent) => {
+    evt.stopPropagation();
+    const newAppLayout: AppLayoutType = {
+      ...appLayout,
+      ...{
+        position: appLayout.position === 'left' ? 'right' : 'left',
+        isRight: appLayout.position === 'left',
+      },
+    };
+    setLeft(newAppLayout.position);
+    setAppLayout(newAppLayout);
+    console.log({ handleMoveLeftRightToggle: { newAppLayout } });
+  };
+
+  const ExtendedTreeGraphWrapper = () => {
+    const { logicalNodeGraphMap } = uiStateContext.logicFieldSelected;
+
+    const ExpandedTree = () => {
+      return (
+        <ExpandedExpressionTreeGraph
+          height={500}
+          width={700}
+          data={uiStateContext.logicFieldSelected.logicalNodeGraphMap || []}
+        />
+      );
+    };
+
+    const EmptyTree = () => {
+      return (
+        <div style={{ paddingTop: '10px' }}>
+          <span>No Logic Available.</span>
+        </div>
+      );
+    };
+
+    return logicalNodeGraphMap &&
+      Array.isArray(logicalNodeGraphMap) &&
+      logicalNodeGraphMap.length > 0 ? (
+      <ExpandedTree />
+    ) : (
+      <EmptyTree />
+    );
+  };
+  const LeftRightToggle = () => {
+    return (
+      <>
+        <div
+          style={{
+            float: 'left',
+            width: '80%',
+            display: 'inline',
+            // border: '1px solid black',
+          }}
+        >
+          Fs Buddy
+        </div>
+        <div>
+          <InputSwitch
+            // tooltip="Left/Right"
+            checked={appLayout.isRight}
+            onChange={handleMoveLeftRightToggle}
+          />
+        </div>
+      </>
+    );
+  };
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
-        <Accordion onTabClose={handleHideFsBuddy} multiple activeIndex={[]}>
-          <AccordionTab header="FS Buddy">
+        <Accordion
+          // onTabOpen={handleMainTabOpen}
+          // onTabClose={handleMainTabClose}
+          multiple
+          activeIndex={[0]}
+        >
+          <AccordionTab headerTemplate={LeftRightToggle}>
             {/* <p className="m-0"> */}
-            <Accordion multiple activeIndex={[]}>
+            <Accordion multiple activeIndex={[5]}>
               <AccordionTab header="API">
                 <p className="m-0">
                   <ApiKeyContainer
@@ -264,22 +210,19 @@ const App: React.FC = () => {
               </AccordionTab>
               <AccordionTab
                 header={`Logic (root field count: ${
-                  (uiStateContext.apiResponse.fieldIdsWithLogic || []).length
+                  (uiStateContext.offFormLogic.allOffFormLogic || []).length
                 })`}
               >
-                <p className="m-0" style={{ paddingLeft: '20px' }}>
-                  <LogicFieldSelect
-                    options={uiStateContext.apiResponse.fieldIdsWithLogic || []}
-                    onFieldIdSelected={handleLogicFieldSelected}
-                  />
-                  <ExpandedExpressionTreeGraph
-                    height={500}
-                    width={600}
-                    data={
-                      uiStateContext.logicFieldSelected.logicalNodeGraphMap ||
-                      []
-                    }
-                  />
+                <p
+                  className="m-0"
+                  style={{
+                    paddingLeft: '20px',
+                    minHeight: '500px',
+                    minWidth: '600px',
+                  }}
+                >
+                  <LogicFieldSelect />
+                  <ExtendedTreeGraphWrapper />
                 </p>
               </AccordionTab>
               <AccordionTab header="Status Messages">
@@ -305,10 +248,6 @@ const App: React.FC = () => {
               <AccordionTab header="Form View">
                 <p className="m-0">
                   <formView.component />
-
-                  {/* {uiStateContext.apiResponse.formHtml !== '' && (
-                    <formView.component />
-                  )}{' '} */}
                 </p>
               </AccordionTab>
             </Accordion>

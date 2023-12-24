@@ -1,7 +1,7 @@
 {
-  "name": "react-chrome-extension",
-  "version": "5.0.4",
-  "description": "A chrome extension boilerplate built with React 18, Webpack 5, and Webpack Dev Server 4",
+  "name": "fsbuddy-react-chrome-extension",
+  "version": "1.0.0",
+  "description": "Formstack FsBuddy (a glitch sniffer)",
   "license": "MIT",
   "scripts": {
     "build": "node utils/build.js",

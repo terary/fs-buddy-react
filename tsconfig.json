@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+
+    "module": "commonjs",
+    "target": "es6",
+
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
     "skipLibCheck": true,
@@ -9,7 +12,6 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noEmit": false,

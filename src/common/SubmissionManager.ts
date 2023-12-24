@@ -1,6 +1,5 @@
-import { TSubmissionDataItem, TSubmissionJson } from "../formstack/type.form";
-import { FormstackBuddy } from "../FormstackBuddy/FormstackBuddy";
-import { FieldLogicService } from "../FormstackBuddy/FieldLogicService";
+import { TSubmissionJson } from '../formstack/type.form';
+import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
 
 const getSubmissionJsonFromApi = async (
   message: any
@@ -17,13 +16,13 @@ const getSubmissionJsonFromApi = async (
     const submissionGetUrl = `https://www.formstack.com/api/v2/submission/${submissionId}.json`;
 
     var myHeaders = new Headers();
-    myHeaders.append("Authorization", `Bearer ${apiKey}`);
-    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append('Authorization', `Bearer ${apiKey}`);
+    myHeaders.append('Content-Type', 'application/json');
 
     var requestOptions: RequestInit = {
-      method: "GET",
+      method: 'GET',
       headers: myHeaders,
-      redirect: "follow",
+      redirect: 'follow',
     };
 
     fetch(submissionGetUrl, requestOptions)

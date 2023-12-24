@@ -29,10 +29,18 @@ const createInitialState = (): UIStateType => {
       fieldId: null,
       statusMessages: [],
       allFieldSummary: {}, // fromAp
+      allLogicId: '',
     },
     submissionSelected: {
       submissionId: null,
       submissionUiDataItems: [],
+    },
+    offFormLogic: {
+      formLogic: [],
+      notificationEmails: [],
+      confirmationEmails: [],
+      webhooks: [],
+      allOffFormLogic: [],
     },
   };
 };

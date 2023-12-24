@@ -4,6 +4,7 @@ import {
   TUiEvaluationObject,
 } from '../../formstack/classes/Evaluator/type';
 import { TGraphNode } from '../../formstack/transformers/pojoToD3TableData';
+import { TApiForm } from '../common/type.form';
 
 type FieldFewDetailsType = {
   fieldId: string;
@@ -16,11 +17,33 @@ type UIStateLogicFieldSelected = {
   fieldId: string | null;
   statusMessages: TStatusRecord[];
   allFieldSummary: any; // fromApi
+  allLogicId: string; // all logic goes in an array of objects with the 'id' property
 };
 
 type UIStateSubmissionSelected = {
   submissionId: string | null;
   submissionUiDataItems: TUiEvaluationObject[];
+};
+
+type TOffFormLogicEntity = {
+  entityType:
+    | 'webhook'
+    | 'confirmationEmail'
+    | 'notificationEmail'
+    | 'integration'
+    | 'formLogic';
+  graphMap: TGraphNode[];
+  statusMessages: TStatusRecord[];
+  id: string;
+  name: string;
+};
+
+type UIStateOffFormLogic = {
+  notificationEmails: TOffFormLogicEntity[];
+  webhooks: TOffFormLogicEntity[];
+  confirmationEmails: TOffFormLogicEntity[];
+  formLogic: TOffFormLogicEntity[];
+  allOffFormLogic: TOffFormLogicEntity[];
 };
 
 type UIStateApiResponseFormGetType = {
@@ -32,7 +55,7 @@ type UIStateApiResponseFormGetType = {
   allStatusMessages: TStatusRecord[];
   fieldIdsWithLogic: { value: string; label: string }[];
   formHtml: string | null;
-  formJson: null | undefined | string;
+  formJson: null | undefined | string | TApiForm;
   // };
 };
 
@@ -45,6 +68,7 @@ type UIStateType = {
   apiResponse: UIStateApiResponseFormGetType;
   logicFieldSelected: UIStateLogicFieldSelected;
   submissionSelected: UIStateSubmissionSelected;
+  offFormLogic: UIStateOffFormLogic;
 };
 
 type UIStateActionType<T = any> = {
@@ -54,14 +78,17 @@ type UIStateActionType<T = any> = {
     | 'apiResponse/getSubmission'
     | 'logic/selectedField/update'
     | 'messageFilter/filteredMessages/update'
-    | 'messageFilter/selectedLogLevels/update';
+    | 'messageFilter/selectedLogLevels/update'
+    | 'offFormLogic/update';
   payload: T;
 };
 
 export type {
+  TOffFormLogicEntity,
   UIStateActionType,
   UIStateApiResponseFormGetType,
   UIStateLogicFieldSelected,
+  UIStateOffFormLogic,
   UIStateSubmissionSelected,
   UIStateType,
 };

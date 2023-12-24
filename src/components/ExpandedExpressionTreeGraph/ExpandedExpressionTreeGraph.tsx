@@ -2,9 +2,6 @@ import React, { useEffect } from 'react';
 import * as d3 from 'd3';
 import './ExpandedExpressionTreeGraph.css';
 
-// const width = 700;
-// const height = 500;
-
 interface D3NodeEnvelopeShape {
   //
   // I had some troubles with d3.stratify and getting the typing correct.
@@ -35,6 +32,9 @@ interface D3NodeShape {
 const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
   useEffect(() => {
     props.data && props.data.length > 0 && draw();
+    console.log({
+      ExpandedExpressionTreeGraph: { useEffect: { data: props.data } },
+    });
   }, [props.data]);
 
   const getSvg = () => {
@@ -74,16 +74,9 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
         )
     );
 
-    // const simpleNodes = data.filter((node: any) =>
-    //   ["FsLogicLeafNode", "FsLogicBranchNode", "FsVirtualRootNode"].includes(
-    //     node.nodeContent.nodeType
-    //   )
-    // );
-
     const treeFactory = d3 //HierarchyLink HierarchyPointNode
       .stratify<D3NodeEnvelopeShape>()
       .id((d) => {
-        console.log({ treeFactoryD: d });
         return d.nodeId;
       })
       .parentId((d) => d.parentId);
@@ -191,7 +184,7 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
         return d.y - 15;
       })
       .text(function (d) {
-        console.log({ nodeLabelsD: d });
+        // console.log({ nodeLabelsD: d });
         if (!['FsLogicLeafNode'].includes(d.data.nodeContent.nodeType)) {
           const nodeIdElements = d.data.nodeId.split(':').slice(1).join(':');
           return `(${nodeIdElements || d.data.nodeId})`;

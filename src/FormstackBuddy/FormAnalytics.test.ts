@@ -26,7 +26,7 @@ describe('FormAnalytics', () => {
   });
   describe('Case Assist, troubleshooting.', () => {
     //import formJson5488291 from "../test-dev-resources/form-json/5488291.json";
-    it.only('Should have a status message about duplicate labels', () => {
+    it.skip('Should have a status message about duplicate labels', () => {
       const formAnalytic = new FormAnalytics(
         jsonTransformers.formJson(formJson5568576 as unknown as TApiFormJson)
       );

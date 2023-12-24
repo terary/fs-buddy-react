@@ -1,15 +1,14 @@
 import {
   AbstractExpressionTree,
   IExpressionTree,
-} from "predicate-tree-advanced-poc/dist/src";
-import type { TFsFieldAny } from "../../../type.field";
+} from 'predicate-tree-advanced-poc/dist/src';
+import type { TFsFieldAny } from '../../../type.field';
 
-import { TFsNode, TFsFieldAnyJson } from "../../types";
+import { TFsNode, TFsFieldAnyJson } from '../../types';
 import {
   TFsFieldLogicCheckLeafJson,
   TFsFieldLogicJunctionJson,
-} from "../types";
-import { MultipleLogicTreeError } from "../../../errors/MultipleLogicTreeError";
+} from '../types';
 
 abstract class AbstractFsTreeGeneric<
   T extends object
@@ -54,7 +53,7 @@ abstract class AbstractFsTreeGeneric<
   ): AbstractFsTreeGeneric<T> {
     const subtree = (
       subtreeConstructor
-        ? subtreeConstructor("_subtree_", fieldJson)
+        ? subtreeConstructor('_subtree_', fieldJson)
         : new GenericAbstractFsTreeGeneric(targetRootId)
     ) as AbstractFsTreeGeneric<T>;
     const subtreeParentNodeId = this.appendChildNodeWithContent(

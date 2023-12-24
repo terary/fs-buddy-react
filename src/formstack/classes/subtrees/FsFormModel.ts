@@ -4,18 +4,26 @@ import { FsFieldModel } from './trees/FsFieldModel';
 
 import { FsFieldVisibilityLinkNode, FsFormRootNode } from './trees/nodes';
 import type {
+  TFsFieldLogicCheckLeaf,
+  TFsFieldLogicCheckLeafJson,
+  TFsFieldLogicJunction,
+  TFsFieldLogicJunctionJson,
+  TFsJunctionOperators,
   TFsLeafOperators,
   TSimpleDictionary,
   TTreeFieldNode,
 } from './types';
 
-import { FsLogicTreeDeep } from './trees/FsLogicTreeDeep';
+import { FsLogicLeafNode, FsLogicTreeDeep } from './trees/FsLogicTreeDeep';
 
 import { TStatusRecord, TUiEvaluationObject } from '../Evaluator/type';
 import { TApiForm, TSubmissionJson } from '../../type.form';
 import { IEValuator } from '../Evaluator/IEvaluator';
 import { TFsFieldAny } from '../../type.field';
 import { keyIn } from '../../../common/functions';
+import { FsVirtualRootNode } from './trees/FsLogicTreeDeep/LogicNodes/FsVirtualRootNode';
+import { FsFieldLogicModel } from './trees/FsFieldLogicModel';
+import { transformers } from '../../transformers';
 
 // interface ILogicCheck {
 //   fieldId: string;
@@ -79,12 +87,6 @@ class FsFormModel extends AbstractExpressionTree<
   private getExtendedTree<T extends FsLogicTreeDeep = FsLogicTreeDeep>(
     field: FsFieldModel
   ): FsLogicTreeDeep | null {
-    // #deepLogicTreesFieldIdMap
-    // if (this.#deepLogicTreesFieldIdMap[field.fieldId] === undefined) {
-    //   this.#deepLogicTreesFieldIdMap[field.fieldId] =
-    //     FsLogicTreeDeep.fromFormModel(field.fieldId, this);
-    // }
-    // return this.#deepLogicTreesFieldIdMap[field.fieldId];
     return FsLogicTreeDeep.fromFormModel(field.fieldId, this);
   }
 
@@ -94,6 +96,56 @@ class FsFormModel extends AbstractExpressionTree<
     // @ts-ignore - possible null
     return this.getExtendedTree(field);
   }
+
+  private _make_new_logic_tree(
+    field: FsFieldModel,
+    check: TFsFieldLogicCheckLeaf
+  ) {
+    const tree = new FsLogicTreeDeep(
+      field.fieldId,
+      new FsVirtualRootNode(field.fieldId)
+    );
+
+    tree.appendChildNodeWithContent(
+      tree.rootNodeId,
+      new FsLogicLeafNode(check.fieldId, check.condition, check.option)
+    );
+    return tree;
+  }
+
+  aggregateOffFormLogicJson(
+    logic: TFsFieldLogicJunctionJson
+  ): FsLogicTreeDeep | null {
+    const { action, conditional, checks } =
+      transformers.notificationEmailLogicJson(logic);
+    // this.transformNotificationJson(logic);
+
+    const firstCheck = (checks || []).pop();
+    if (!firstCheck) {
+      return null;
+    }
+    const fModel = this.getFieldModel(firstCheck?.fieldId || '_FIELD_ID_');
+
+    const offFormLogicTree =
+      this.aggregateLogicTree(firstCheck?.fieldId || '_FIELD_ID_') ||
+      this._make_new_logic_tree(
+        fModel as FsFieldModel,
+        firstCheck as TFsFieldLogicCheckLeaf
+      );
+
+    (checks || []).forEach((check: any) => {
+      FsLogicTreeDeep.offFormDeepLogic(
+        check.field,
+        this, // model
+        offFormLogicTree,
+        offFormLogicTree.rootFieldId
+      );
+      // append tree
+    });
+
+    return offFormLogicTree;
+  }
+  // TFsFieldLogicJunctionJson
 
   getAllLogicStatusMessages(): TStatusRecord[] {
     const allFieldIds = Object.keys(this._fieldIdNodeMap);

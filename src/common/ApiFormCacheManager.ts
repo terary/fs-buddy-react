@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 type TFsFormJson = any;
 
 const getFormJsonFromApi = async (message: any) => {
@@ -13,13 +13,13 @@ const getFormJsonFromApi = async (message: any) => {
     const formGetUrl = `https://www.formstack.com/api/v2/form/${formId}`;
 
     var myHeaders = new Headers();
-    myHeaders.append("Authorization", `Bearer ${apiKey}`);
-    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append('Authorization', `Bearer ${apiKey}`);
+    myHeaders.append('Content-Type', 'application/json');
 
     var requestOptions: RequestInit = {
-      method: "GET",
+      method: 'GET',
       headers: myHeaders,
-      redirect: "follow",
+      redirect: 'follow',
     };
 
     fetch(formGetUrl, requestOptions)
@@ -39,7 +39,7 @@ const getFormJsonFromApi = async (message: any) => {
 
 class ApiFormCacheManager {
   static #instance: ApiFormCacheManager;
-  #cacheDirectory = process.cwd() + "/api-cache/forms";
+  #cacheDirectory = process.cwd() + '/api-cache/forms';
   private _formsAsJson: { [formId: string]: TFsFormJson } = {};
   private constructor() {
     this._initialize();
@@ -49,10 +49,10 @@ class ApiFormCacheManager {
     const fileNames = fs.readdirSync(this.#cacheDirectory);
 
     fileNames.forEach((fileName) => {
-      const formId = fileName.replace(".json", "");
+      const formId = fileName.replace('.json', '');
       const formJson = fs
         .readFileSync(path.join(this.#cacheDirectory, fileName))
-        .toString("utf8");
+        .toString('utf8');
       this.addTree(formId, JSON.parse(formJson));
     });
   }

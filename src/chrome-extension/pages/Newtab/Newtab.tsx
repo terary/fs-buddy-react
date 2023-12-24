@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { App } from '../../App';
 
 const Newtab: React.FC = () => {
-  return <App />;
+  return (
+    <div className="fsBodyControlPanel">
+      <App />
+    </div>
+  );
 };
 
 export default Newtab;
