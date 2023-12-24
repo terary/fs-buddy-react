@@ -9,14 +9,17 @@ import {
 const transformNotificationEmailLogicJson = (
   logic: TFsFieldLogicJunctionJson
 ): TFsFieldLogicJunction<TFsJunctionOperators> => {
-  const checks = (logic.checks || []).map(
-    (check: TFsFieldLogicCheckLeafJson): TFsFieldLogicCheckLeaf => {
-      return {
-        ...check,
-        ...{ fieldId: check.field },
-      } as TFsFieldLogicCheckLeaf;
-    }
-  );
+  const checks =
+    !logic || !logic.checks || !Array.isArray(logic.checks)
+      ? []
+      : (logic.checks || []).map(
+          (check: TFsFieldLogicCheckLeafJson): TFsFieldLogicCheckLeaf => {
+            return {
+              ...check,
+              ...{ fieldId: check.field },
+            } as TFsFieldLogicCheckLeaf;
+          }
+        );
   return {
     ...logic,
     ...{

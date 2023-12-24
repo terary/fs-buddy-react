@@ -1,21 +1,85 @@
-import { TApiForm } from '../common/type.form';
+import { TApiForm, TApiFormJson, TSubmissionJson } from '../common/type.form';
 import { actions, UIStateContext, UIStateDispatch } from '../AppState';
-// import confirmationEmailJson from './confirmationEmail.json';
-// import notificationEmailJson from './notificationEmail.json';
-// import webhookJson from './webhook.json';
+import { filterStatusMessages, keyIn } from '../../common/functions';
 import { FsFormModel } from '../../formstack';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
 import { transformers } from '../../formstack/transformers';
-import { TFsNotificationEmailLogicJson } from '../../formstack/type.notification';
-import { TOffFormLogicEntity, UIStateType } from '../AppState/types';
+import {
+  TOffFormLogicEntity,
+  UIStateApiResponseFormGetType,
+  UIStateType,
+} from '../AppState/types';
+
+interface IOffFormLogic {
+  id: string;
+  name: string;
+  logic: any;
+}
+
+type OffFormLogicEntityType =
+  | 'notificationEmail'
+  | 'confirmationEmail'
+  | 'webhook';
+type TOffFormLogicEntityTag = 'NE' | 'CE' | 'WH' | '??';
+
+const logicItemEntityToTag = (
+  entityType: OffFormLogicEntityType
+): TOffFormLogicEntityTag => {
+  switch (entityType) {
+    case 'confirmationEmail':
+      return 'CE';
+    case 'notificationEmail':
+      return 'NE';
+    case 'webhook':
+      return 'WH';
+    default:
+      return '??';
+  }
+};
+
+// the API returns response {[APILogicEntityFieldKeys]: ArrayOfLogicItems}
+type APILogicEntityFieldKeys = 'confirmations' | 'notifications' | 'webhooks';
+const logicItemEntityToApiFieldKey = (
+  entityType: OffFormLogicEntityType
+): APILogicEntityFieldKeys => {
+  switch (entityType) {
+    case 'confirmationEmail':
+      return 'confirmations';
+    case 'notificationEmail':
+      return 'notifications';
+    case 'webhook':
+      return 'webhooks';
+    // default:
+    //   return '??';
+  }
+};
+
+const transformJsonToOffFormLogic = (
+  offFormLogicJson: IOffFormLogic,
+  entityType: OffFormLogicEntityType,
+  formModel: FsFormModel
+): TOffFormLogicEntity => {
+  const entityTag = logicItemEntityToTag(entityType);
+  const agTree = formModel.aggregateOffFormLogicJson(offFormLogicJson.logic);
+  const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
+  const graphMap = transformers.pojoToD3TableData(pojo, formModel);
+  return {
+    id: `${entityTag}-` + offFormLogicJson.id,
+    name: `[${entityTag}]` + offFormLogicJson.name,
+    graphMap,
+    statusMessages: agTree?.getStatusMessage() || [],
+    entityType,
+  };
+};
 
 const backendResponse = <T>(backendMessage: any): Promise<T> => {
   // const webhooksAsPromised = () => {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(backendMessage, async (apiWebhookJson) => {
+    chrome.runtime.sendMessage(backendMessage, async (apiJson) => {
       // need reject somewhere, probably?
-      resolve(apiWebhookJson);
+      resolve(apiJson);
+      return true; // I think this needs to be here?
     });
   });
   //   };
@@ -24,150 +88,235 @@ const backendResponse = <T>(backendMessage: any): Promise<T> => {
 class AppController {
   static #instance: AppController;
   private constructor() {}
+  #apiKey!: string;
+  #formModel!: FsFormModel;
+  #fieldLogicService!: FieldLogicService;
+  #formAnalytics!: FormAnalytics;
+  #formId!: string;
 
-  public async setStateFromApiJson(
-    apiKey: string,
-    apiFormJson: TApiForm,
+  public setApiKey(apiKey: string) {
+    this.#apiKey = apiKey;
+  }
+
+  public async fetchFormAndSetState(
+    // apiKey: string,
+    formId: string,
     context: UIStateType, // Context<UIStateType>,
     dispatcher: Function
-  ): Promise<void> {
-    // ---------------------------
-    const formId = apiFormJson.id;
-    const webhookJson = await backendResponse({
-      type: 'GetWebhooksAsJson',
-      fetchFormId: formId,
-      apiKey: apiKey,
+  ) {
+    this.setFormId(formId);
+    const apiFormJson = await backendResponse<TApiFormJson>({
+      type: 'GetFormAsJson',
+      fetchFormId: this.#formId,
+      apiKey: this.#apiKey,
     });
-    console.log({ webhookJson });
 
-    const notificationEmailJson = await backendResponse({
-      type: 'GetNotificationEmailsAsJson',
-      fetchFormId: formId,
-      apiKey: apiKey,
-    });
-    console.log({ notificationEmailJson });
-
-    const confirmationEmailJson = await backendResponse({
-      type: 'GetConfirmationEmailsAsJson',
-      fetchFormId: formId,
-      apiKey: apiKey,
-    });
-    console.log({ confirmationEmailJson });
-
-    const formModel = FsFormModel.fromApiFormJson(apiFormJson);
-
-    const formAnalytic = new FormAnalytics(apiFormJson);
-    const fieldLogicService = new FieldLogicService(apiFormJson);
-    const fieldSummary = fieldLogicService?.getAllFieldSummary();
-
-    if (apiFormJson.id) {
-      // @ts-ignore notificationEmailJson json unknown type
-      const notifications = notificationEmailJson.notifications.map(
-        (notification: any) => {
-          const agTree = formModel.aggregateOffFormLogicJson(
-            // @ts-ignore - type
-            notification.logic
-            // transformers.notificationEmailLogicJson(notification.logic)
-          );
-          const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
-
-          const graphMap = transformers.pojoToD3TableData(pojo, formModel);
-          const emailProps =
-            notification as unknown as TFsNotificationEmailLogicJson;
-          return {
-            // @ts-ignore id not a property
-            id: 'NE-' + (emailProps.id || '_NO_NOTIFICATION_EMAIL_ID'),
-            // @ts-ignore name not a property
-            name: '[NE]' + notification.name || emailProps?.name,
-
-            // emailNotificationProperties:
-            //   notification as unknown as TFsNotificationEmailLogicJson,
-            graphMap,
-            statusMessages: agTree?.getStatusMessage(),
-            entityType: 'notificationEmail',
-          };
-        }
-      ) as TOffFormLogicEntity[];
-
-      // @ts-ignore notificationEmailJson json unknown type
-      const confirmations = confirmationEmailJson.confirmations.map(
-        (confirmation: any) => {
-          const agTree = formModel.aggregateOffFormLogicJson(
-            // @ts-ignore - type
-            confirmation.logic
-            // transformers.notificationEmailLogicJson(notification.logic)
-          );
-          const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
-
-          const graphMap = transformers.pojoToD3TableData(pojo, formModel);
-          const emailProps =
-            confirmation as unknown as TFsNotificationEmailLogicJson;
-          return {
-            // @ts-ignore id not a property
-            id: 'CE-' + (emailProps.id || '_NO_CONFIRMATION_EMAIL_ID'),
-            // @ts-ignore name not a property
-            name: '[CE]' + confirmation.name || emailProps?.name,
-
-            // emailNotificationProperties:
-            //   notification as unknown as TFsNotificationEmailLogicJson,
-            graphMap,
-            statusMessages: agTree?.getStatusMessage(),
-            entityType: 'confirmationEmail',
-          };
-        }
-      ) as TOffFormLogicEntity[];
-      // @ts-ignore Webhook json unknown type
-      const webhooks = webhookJson.webhooks.map((webhook: any) => {
-        const agTree = formModel.aggregateOffFormLogicJson(
-          // @ts-ignore - type
-          webhook.logic
-          // transformers.notificationEmailLogicJson(notification.logic)
-        );
-        const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
-
-        const graphMap = transformers.pojoToD3TableData(pojo, formModel);
-        const webhookProps =
-          webhook as unknown as TFsNotificationEmailLogicJson;
-        return {
-          // @ts-ignore id not a property
-          id: 'WH-' + webhook.id,
-          // @ts-ignore name not a property
-          name: '[wh]' + webhook.name,
-
-          // emailNotificationProperties:
-          //   notification as unknown as TFsNotificationEmailLogicJson,
-          graphMap,
-          statusMessages: agTree?.getStatusMessage(),
-          entityType: 'webhook',
-        };
-      }) as TOffFormLogicEntity[];
-
-      const formLogic = fieldLogicService
-        ?.getFieldIdsWithLogic()
-        .map((fieldId) => {
-          const statusMessages =
-            fieldLogicService?.getStatusMessagesFieldId(fieldId);
-          fieldLogicService?.getCircularReferenceFieldIds(fieldId);
-          const logicalNodeGraphMap =
-            fieldLogicService?.getLogicNodeGraphMap(fieldId);
-
-          return {
-            statusMessages,
-            graphMap: logicalNodeGraphMap,
-            id: 'field-' + fieldId,
-            name: `[${fieldId}]` + fieldSummary[fieldId].label,
-            entityType: 'formLogic',
-          } as TOffFormLogicEntity;
-        });
-
-      const changeAction = {
-        webhooks: webhooks,
-        notificationEmails: notifications,
-        confirmationEmails: confirmations,
-        formLogic,
-      };
-      dispatcher(actions.offFormLogicLists.update(context, changeAction));
+    // @ts-ignore - status does not belong on formJson
+    if (apiFormJson.status == 'error') {
+      console.log({
+        errorMessage: 'Error response from API.',
+        apiFormJson,
+      });
+      return;
     }
+
+    const formJson = transformers.formJson(apiFormJson);
+    this.#formAnalytics = new FormAnalytics(formJson);
+    this.#formModel = FsFormModel.fromApiFormJson(formJson);
+    this.#fieldLogicService = new FieldLogicService(formJson);
+
+    await this.getOffFormLogicAndSetState(context, dispatcher);
+
+    const fieldSummary =
+      this.getFieldLogicServiceOrThrow().getAllFieldSummary();
+
+    const formLogicStatusMessages =
+      this.getFieldLogicServiceOrThrow().getFormLogicStatusMessages();
+
+    const formStatusMessages =
+      this.getFormAnalyticOrThrow().findKnownSetupIssues();
+
+    const fieldIdsWithLogic =
+      this.getFieldLogicServiceOrThrow().wrapFieldIdsIntoLabelOptionList(
+        this.getFieldLogicServiceOrThrow().getFieldIdsWithLogic()
+      ) || [];
+
+    const allStatusMessages = [
+      ...formStatusMessages,
+      ...formLogicStatusMessages,
+    ];
+
+    const fieldStatusMessages = allStatusMessages.filter(
+      (statusMessage) => statusMessage.fieldId
+    );
+
+    const payload: UIStateApiResponseFormGetType = {
+      fieldSummary,
+      formStatusMessages,
+      formLogicStatusMessages,
+      fieldStatusMessages,
+      allStatusMessages,
+      fieldIdsWithLogic,
+      formHtml: apiFormJson.html || null,
+      formJson: formJson,
+    };
+
+    dispatcher(actions.apiResponse.getForm(context, payload));
+
+    dispatcher(
+      actions.messageFilter.update(context, {
+        selectedLogLevels: ['info', 'warn', 'error', 'logic'],
+        filteredMessages: filterStatusMessages(allStatusMessages, [
+          // 'debug',
+          'info',
+          'warn',
+          'error',
+          'logic',
+        ]),
+      })
+    );
+  }
+
+  public async fetchSubmissionAndSetState(
+    submissionId: string,
+    stateContext: UIStateType,
+    dispatcher: Function
+  ) {
+    const apiSubmissionJson = await backendResponse<TSubmissionJson>({
+      type: 'GetSubmissionFromApiRequest',
+      submissionId: submissionId,
+      apiKey: this.#apiKey,
+    });
+    // async (apiSubmissionJson) => {
+    if (keyIn('data', apiSubmissionJson)) {
+      const submissionUiDataItems =
+        this.getFormModelOrThrow().getUiPopulateObject(apiSubmissionJson);
+
+      dispatcher(
+        actions.submissionSelected.update(stateContext, {
+          submissionId: apiSubmissionJson.id,
+          submissionUiDataItems: submissionUiDataItems,
+        })
+      );
+    } else {
+      console.log({
+        fetchSubmissionAndSetState: { error: apiSubmissionJson },
+      });
+    }
+  }
+
+  public async getOffFormLogicAndSetState(
+    context: UIStateType,
+    dispatcher: Function
+  ): Promise<void> {
+    const notifications = await this.fetchOffFormLogicItems(
+      'GetNotificationEmailsAsJson',
+      'notificationEmail'
+    );
+
+    const confirmations = await this.fetchOffFormLogicItems(
+      'GetConfirmationEmailsAsJson',
+      'confirmationEmail'
+    );
+
+    const webhooks = await this.fetchOffFormLogicItems(
+      'GetWebhooksAsJson',
+      'webhook'
+    );
+    const formFieldLogic = this.extractFieldLogic();
+
+    const changeActionPayload = {
+      webhooks: webhooks,
+      notificationEmails: notifications,
+      confirmationEmails: confirmations,
+      formLogic: formFieldLogic,
+    };
+
+    dispatcher(actions.offFormLogicLists.update(context, changeActionPayload));
+  }
+
+  public setFormId(formId: string) {
+    this.#formId = formId;
+  }
+
+  private getFormIdOrThrow(): string {
+    if (this.#formId === undefined) {
+      throw new Error(
+        'getFormIdOrThrow() failed because formId is not defined.'
+      );
+    }
+    return this.#formId;
+  }
+
+  private extractFieldLogic(): TOffFormLogicEntity[] {
+    const fieldSummary =
+      this.getFieldLogicServiceOrThrow().getAllFieldSummary();
+    const logicService = this.getFieldLogicServiceOrThrow();
+
+    const formFieldLogic = this.getFieldLogicServiceOrThrow()
+      .getFieldIdsWithLogic()
+      .map((fieldId) => {
+        const statusMessages = logicService.getStatusMessagesFieldId(fieldId);
+        const logicalNodeGraphMap = logicService.getLogicNodeGraphMap(fieldId);
+
+        return {
+          statusMessages,
+          graphMap: logicalNodeGraphMap,
+          id: 'field-' + fieldId,
+          name: `[${fieldId}]` + fieldSummary[fieldId].label,
+          entityType: 'formLogic',
+        } as TOffFormLogicEntity;
+      });
+    return formFieldLogic;
+  }
+
+  private async fetchOffFormLogicItems(
+    backendActionType: string,
+    logicEntityType: OffFormLogicEntityType
+  ): Promise<TOffFormLogicEntity[]> {
+    const apiFieldKey = logicItemEntityToApiFieldKey(logicEntityType);
+    const logicItemJson = (await backendResponse({
+      type: backendActionType,
+      fetchFormId: this.getFormIdOrThrow(),
+      apiKey: this.#apiKey,
+    })) as { [apiFieldKey: string]: IOffFormLogic[] };
+
+    const logicItems = logicItemJson[apiFieldKey].map((logicItem: any) =>
+      transformJsonToOffFormLogic(
+        logicItem,
+        logicEntityType,
+        this.getFormModelOrThrow()
+      )
+    ) as TOffFormLogicEntity[];
+    return logicItems;
+  }
+
+  public getFormAnalyticOrThrow(): FormAnalytics {
+    if (this.#formAnalytics instanceof FormAnalytics) {
+      return this.#formAnalytics;
+    }
+
+    throw new Error(
+      'Tried to access formAnalytics before appController initialized.'
+    );
+  }
+
+  public getFormModelOrThrow(): FsFormModel {
+    if (this.#formModel instanceof FsFormModel) {
+      return this.#formModel;
+    }
+    throw new Error(
+      'Tried to access formModel before appController initialized.'
+    );
+  }
+
+  public getFieldLogicServiceOrThrow(): FieldLogicService {
+    if (this.#fieldLogicService instanceof FieldLogicService) {
+      return this.#fieldLogicService;
+    }
+    throw new Error(
+      'Tried to access fieldLogicService before appController initialized.'
+    );
   }
 
   static getInstance() {

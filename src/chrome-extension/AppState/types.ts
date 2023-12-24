@@ -4,6 +4,7 @@ import {
   TUiEvaluationObject,
 } from '../../formstack/classes/Evaluator/type';
 import { TGraphNode } from '../../formstack/transformers/pojoToD3TableData';
+import { TApiForm } from '../common/type.form';
 
 type FieldFewDetailsType = {
   fieldId: string;
@@ -54,7 +55,7 @@ type UIStateApiResponseFormGetType = {
   allStatusMessages: TStatusRecord[];
   fieldIdsWithLogic: { value: string; label: string }[];
   formHtml: string | null;
-  formJson: null | undefined | string;
+  formJson: null | undefined | string | TApiForm;
   // };
 };
 

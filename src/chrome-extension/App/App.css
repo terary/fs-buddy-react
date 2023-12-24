@@ -1,7 +1,12 @@
 .ContentContainer {
     text-align: left;
     height: 100%;
+    min-width: 300px;
     /* padding: 50px; */
+}
+
+.ContentContainerMinimized {
+    width: 100px
 }
 
 .p-accordion-header{
@@ -37,3 +42,22 @@
     height: auto;
     position: absolute;
 }
+
+@keyframes swingViewportLeft {
+    from {
+        transform: translateX(calc(-100vw));
+    }
+    to {
+        transform: translateX(calc(100vw - 100%));
+    }
+}
+    
+@keyframes swingViewportRight {
+    from {
+        transform: translateX(calc(100vw - 100%));
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+    
