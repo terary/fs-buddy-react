@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import './ExpandedExpressionTreeGraph.css';
 
@@ -28,8 +28,13 @@ interface D3NodeShape {
   y: number;
   data: { nodeContent: any };
 }
-
+type LabelOptionsType = 'label' | 'fieldId' | 'nodeId';
 const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
+  // const [labelToggle, setLabelToggle] = useState('label' as LabelOptionsType);
+  // const handleButtonClick = () => {
+  //   setLabelToggle('fieldId');
+  // };
+
   useEffect(() => {
     props.data && props.data.length > 0 && draw();
     console.log({
@@ -37,6 +42,18 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
     });
   }, [props.data]);
 
+  const effectiveLabel = (nodeContent: any) => {
+    const { fieldId, nodeId, label } = nodeContent;
+
+    switch (props.labelBy) {
+      case 'fieldId':
+        return fieldId;
+      case 'label':
+        return label;
+      case 'nodeId':
+        return nodeId;
+    }
+  };
   const getSvg = () => {
     const htmlContainer = document.getElementById(
       'expandedExpressionTreeGraph'
@@ -63,7 +80,6 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
   };
   const draw = () => {
     const data: any[] = props.data;
-    // (data: any) => {
     const pTreeNodeGTreeNodeMap: { [id: string]: any } = {};
     const circularLinks: any[] = [];
 
@@ -142,7 +158,7 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
     });
     const tmc_note = `
       I think this detects circular references that have exactly the same term - meaning 
-      x=y and y=x,  This should not include those circular referene (bring back mutual in/exclusive?)
+      x=y and y=x,  This should not include those circular reference (bring back mutual in/exclusive?)
 
       Should show only those that are true 'conflict'
 `;
@@ -170,68 +186,90 @@ const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
       .attr('class', 'linkCircular');
 
     // Upper Labels
-    svg
-      .selectAll('text.label')
-      .data(
-        root.descendants() as unknown as { x: number; y: number; data: any }[]
-      )
-      .join('text')
-      .classed('label', true)
-      .attr('x', function (d) {
-        return d.x;
-      })
-      .attr('y', function (d) {
-        return d.y - 15;
-      })
-      .text(function (d) {
-        // console.log({ nodeLabelsD: d });
-        if (!['FsLogicLeafNode'].includes(d.data.nodeContent.nodeType)) {
-          const nodeIdElements = d.data.nodeId.split(':').slice(1).join(':');
-          return `(${nodeIdElements || d.data.nodeId})`;
-        } else {
-          return d.data.nodeContent.fieldId;
-        }
-      });
-
-    // Lower Labels
-    svg
-      .selectAll('text.count-label')
-      .data(
-        root.descendants() as unknown as { x: number; y: number; data: any }[]
-      )
-      .join('text')
-      .call(function (t) {
-        t.each(function (d) {
-          // for each one
-          t.classed('count-label', true);
-          var self = d3.select(this);
-
-          const { nodeContent } = d.data;
-          self.text(''); // clear it out
-          if (Array.isArray(nodeContent.label)) {
-            nodeContent.label.forEach((line: string, index: number) => {
-              self
-                .append('tspan') // insert tspans forEach
-                .attr('x', d.x)
-                .attr('y', d.y + (index + 1) * 15)
-                .text(line);
-            });
+    false &&
+      svg
+        .selectAll('text.label')
+        .data(
+          root.descendants() as unknown as { x: number; y: number; data: any }[]
+        )
+        .join('text')
+        .classed('label', true)
+        .attr('x', function (d) {
+          return d.x;
+        })
+        .attr('y', function (d) {
+          return d.y - 15;
+        })
+        .text(function (d) {
+          // console.log({ nodeLabelsD: d });
+          if (!['FsLogicLeafNode'].includes(d.data.nodeContent.nodeType)) {
+            const nodeIdElements = d.data.nodeId.split(':').slice(1).join(':');
+            return `(${nodeIdElements || d.data.nodeId})`;
           } else {
-            self
-              .text(nodeContent.label)
-              .attr('x', d.x)
-              .attr('y', d.y + 15);
+            return d.data.nodeContent.fieldId;
           }
         });
-      });
-    // };
+
+    // Lower Labels
+    true &&
+      svg
+        .selectAll('text.count-label')
+        .data(
+          root.descendants() as unknown as { x: number; y: number; data: any }[]
+        )
+        .join('text')
+        .call(function (t) {
+          t.each(function (d) {
+            // for each one
+            t.classed('count-label', true);
+            var self = d3.select(this);
+
+            const { nodeContent } = d.data;
+            console.log({ lowerLabel: d });
+            self.text(''); // clear it out
+            // self
+            //   .text(nodeContent.fieldId)
+            //   .attr('x', d.x)
+            //   .attr('y', d.y - 15);
+            const { fieldId, operationLabel, nodeId, label } = nodeContent;
+            [effectiveLabel(nodeContent)]
+              .concat(operationLabel)
+              .forEach((line: string, index: number) => {
+                self
+                  .append('tspan') // insert tspans forEach
+                  .attr('x', d.x)
+                  .attr('y', d.y + (index - 1) * 15)
+                  // .attr('y', d.y + (index + 1) * 15)
+                  .text(line);
+              });
+
+            // if (Array.isArray(nodeContent.label)) {
+            //   nodeContent.label.forEach((line: string, index: number) => {
+            //     self
+            //       .append('tspan') // insert tspans forEach
+            //       .attr('x', d.x)
+            //       .attr('y', d.y + (index - 1) * 15)
+            //       // .attr('y', d.y + (index + 1) * 15)
+            //       .text(line);
+            //   });
+            // } else {
+            //   self
+            //     .text(nodeContent.label)
+            //     .attr('x', d.x)
+            //     .attr('y', d.y - 15);
+            //   // .attr('y', d.y + 15);
+            // }
+          });
+        });
   };
 
   return (
-    <div
-      id="expandedExpressionTreeGraph"
-      className="expandedExpressionTreeGraphContainer"
-    />
+    <div>
+      <div
+        id="expandedExpressionTreeGraph"
+        className="expandedExpressionTreeGraphContainer"
+      />
+    </div>
   );
 };
 
@@ -242,6 +280,7 @@ interface IBasicPieChartProps {
   // right: number;
   // bottom: number;
   // left: number;
+  labelBy: LabelOptionsType;
   data: any[];
 }
 

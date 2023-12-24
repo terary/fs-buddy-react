@@ -15,6 +15,7 @@ import { Config } from '../../config';
 
 import { AppController } from './AppController';
 import { InputSwitch, InputSwitchChangeEvent } from 'primereact/inputswitch';
+import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 
 const formView = new FormView();
 
@@ -132,17 +133,48 @@ const App: React.FC = () => {
     setAppLayout(newAppLayout);
     console.log({ handleMoveLeftRightToggle: { newAppLayout } });
   };
-
   const ExtendedTreeGraphWrapper = () => {
+    type LabelOptionsType = 'label' | 'fieldId' | 'nodeId';
     const { logicalNodeGraphMap } = uiStateContext.logicFieldSelected;
+    const [selectedCategory, setSelectedCategory] = useState(
+      'label' as LabelOptionsType
+    );
 
+    const handleLabelOptionChange = (evt: RadioButtonChangeEvent) => {
+      setSelectedCategory(evt.value.key);
+      console.log({ handleLabelOptionChange: { key: evt.value.key, evt } });
+    };
     const ExpandedTree = () => {
       return (
-        <ExpandedExpressionTreeGraph
-          height={500}
-          width={700}
-          data={uiStateContext.logicFieldSelected.logicalNodeGraphMap || []}
-        />
+        <div>
+          <div className="card flex justify-content-center">
+            <div className="flex flex-column gap-3">
+              {['fieldId', 'nodeId', 'label'].map((labelOption) => {
+                const opt = { key: labelOption, name: labelOption };
+                return (
+                  <div key={opt.key} className="flex align-items-center">
+                    <RadioButton
+                      inputId={opt.key}
+                      name="category"
+                      value={opt}
+                      onChange={handleLabelOptionChange}
+                      checked={selectedCategory === opt.key}
+                    />
+                    <label htmlFor={opt.key} className="ml-2">
+                      {opt.name}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <ExpandedExpressionTreeGraph
+            height={500}
+            width={700}
+            labelBy={selectedCategory}
+            data={uiStateContext.logicFieldSelected.logicalNodeGraphMap || []}
+          />
+        </div>
       );
     };
 

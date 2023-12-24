@@ -1,12 +1,13 @@
-import { TTreePojo } from "predicate-tree-advanced-poc/dist/src";
-import { FsFormModel } from "../classes/subtrees";
-import { AbstractLogicNode } from "../classes/subtrees/trees/FsLogicTreeDeep/LogicNodes/AbstractLogicNode";
+import { TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
+import { FsFormModel } from '../classes/subtrees';
+import { AbstractLogicNode } from '../classes/subtrees/trees/FsLogicTreeDeep/LogicNodes/AbstractLogicNode';
 import {
   FsCircularDependencyNode,
   FsLogicBranchNode,
   FsLogicLeafNode,
-} from "../classes/subtrees/trees/FsLogicTreeDeep";
-import { TFsFieldSection } from "../type.field";
+} from '../classes/subtrees/trees/FsLogicTreeDeep';
+import { TFsFieldSection } from '../type.field';
+import { RuleConflictType } from '../classes/subtrees/trees/FsLogicTreeDeep/LogicNodes/type';
 
 export type TGraphNode = {
   nodeId: string;
@@ -19,8 +20,8 @@ export type TGraphNode = {
   };
 };
 
-const truncate = (text = "", length = 25) =>
-  text.slice(0, length) + (text.length > length ? "..." : "");
+const truncate = (text = '', length = 25) =>
+  text.slice(0, length) + (text.length > length ? '...' : '');
 
 const pojoToD3TableData = (
   pojo: TTreePojo<AbstractLogicNode>,
@@ -36,7 +37,7 @@ const pojoToD3TableData = (
 
     const fieldId =
       // @ts-ignore
-      nodeContent?.ownerFieldId || nodeContent?.fieldId || "_FIELD_ID_";
+      nodeContent?.ownerFieldId || nodeContent?.fieldId || '_FIELD_ID_';
     // @ts-ignore
     pojoNodeContent.fieldId = fieldId;
 
@@ -48,50 +49,59 @@ const pojoToD3TableData = (
     const fieldModel = formModel.getFieldModel(fieldId);
 
     switch (nodeContent.nodeType) {
-      case "FsVirtualRootNode":
-      case "FsLogicBranchNode":
+      case 'FsVirtualRootNode':
+      case 'FsLogicBranchNode':
         const { action, conditional } = nodeContent as FsLogicBranchNode;
         // @ts-ignore
-        pojoNodeContent.label = [
-          `${action || "vRoot"}`,
-          truncate(
-            fieldModel?.fieldType === "section"
-              ? fieldModel.section_heading
-              : fieldModel?.label
-          ),
-          ` if ${conditional}`,
-        ];
+        (pojoNodeContent.label = truncate(
+          fieldModel?.fieldType === 'section'
+            ? fieldModel.section_heading
+            : fieldModel?.label
+        )),
+          //   // @ts-ignore
+          // pojoNodeContent.label = [
+          //   // `${action || 'vRoot'}`,
+          //   truncate(
+          //     fieldModel?.fieldType === 'section'
+          //       ? fieldModel.section_heading
+          //       : fieldModel?.label
+          //   ),
+          //   ` ${action || 'vRoot'} if ${conditional}`,
+          // ];
+          // @ts-ignore
+          (pojoNodeContent.operationLabel = [
+            `${action || 'vRoot'}`,
+            `if ${conditional}`,
+          ]);
 
         break;
 
-      case "FsLogicLeafNode":
+      case 'FsLogicLeafNode':
         const { condition, option } = nodeContent as FsLogicLeafNode;
         // @ts-ignore
-        pojoNodeContent.label = `[${truncate(fieldModel?.label)}]
-        ${condition}
-        '${option}' `;
-
+        // pojoNodeContent.label = `[${truncate(fieldModel?.label)}]
+        // ${condition}
+        // '${option}' `;
         // @ts-ignore
-        pojoNodeContent.label = [
-          truncate(fieldModel?.label),
-          condition,
-          option,
-        ];
+        pojoNodeContent.label = truncate(fieldModel?.label);
+        // // @ts-ignore
+        // pojoNodeContent.label = [
+        //   truncate(fieldModel?.label),
+        //   condition,
+        //   option,
+        // ];
+        // @ts-ignore
+        pojoNodeContent.operationLabel = [`${condition}`, `${option}`];
 
         break;
 
-      case "FsCircularDependencyNode":
+      case 'FsCircularDependencyNode':
         const { sourceFieldId, ruleConflict } =
           nodeContent as FsCircularDependencyNode;
         // @ts-ignore - fieldId not element of pojoNodeContent
         pojoNodeContent.fieldId = sourceFieldId;
         // @ts-ignore - ruleConflict not element of pojoNodeContent
         pojoNodeContent.ruleConflict = ruleConflict;
-        // "sourceFieldId": "148604234",
-        // "sourceNodeId": "148604161:0:2:4:6",
-        // "targetFieldId": "148604236",
-        // "targetNodeId": "148604161:0:2",
-
         // @ts-ignore -
         pojoNodeContent.sourceFieldId = nodeContent.sourceFieldId;
         // @ts-ignore -
@@ -103,39 +113,29 @@ const pojoToD3TableData = (
 
         const sourceFieldModel = formModel.getFieldModel(sourceFieldId);
 
-        // {
-        //   "nodeId": "148509465:0:5",
-        //   "parentId": "148509465:0",
-        //   "nodeContent": {
-        //     "nodeId": "148509465:0:5",
-        //     "nodeType": "FsCircularDependencyNode",
-        //     "fieldId": "148509465",
-        //     "sourceFieldId": "148509465",
-        //     "sourceNodeId": "148509465:0",
-        //     "targetFieldId": "148509465",
-        //     "targetNodeId": "148509465",
-        //     "label": ["", null, null]
-        //   }
-        // },
+        const { conditionalA, conditionalB } = ruleConflict as RuleConflictType;
+
+        // @ts-ignore
+        pojoNodeContent.operationLabel = [
+          'Circular Ref',
+          `A: (${conditionalA.action} / ${conditionalA.condition})`,
+          `B: (${conditionalB.action} / ${conditionalB.condition})`,
+        ];
 
         // @ts-ignore - ruleConflict not element of pojoNodeContent
-        pojoNodeContent.label = [
-          truncate(
-            sourceFieldModel?.label ||
-              (sourceFieldModel?.fieldJson as TFsFieldSection)[
-                "section_heading"
-              ] ||
-              ""
-          ),
-          // @ts-ignore
-          ruleConflict?.conditionalA.condition,
-          // // @ts-ignore
-          // ruleConflict?.conditionalA.option,
-          // @ts-ignore
-          ruleConflict?.conditionalB.condition,
-          // // @ts-ignore
-          // ruleConflict?.conditionalB.option,
-        ];
+        pojoNodeContent.label = truncate(sourceFieldModel?.label);
+
+        // @ts-ignore - ruleConflict not element of pojoNodeContent
+        // pojoNodeContent.label = [
+        //   truncate(
+        //     sourceFieldModel?.label ||
+        //       (sourceFieldModel?.fieldJson as TFsFieldSection)[
+        //         'section_heading'
+        //       ] ||
+        //       ''
+        //   ),
+        //   'circular ref.',
+        // ];
 
         break;
 
@@ -146,7 +146,7 @@ const pojoToD3TableData = (
 
     return {
       nodeId,
-      parentId: nodeBody.parentId === nodeId ? "" : nodeBody.parentId, // root should be empty string
+      parentId: nodeBody.parentId === nodeId ? '' : nodeBody.parentId, // root should be empty string
       nodeContent: pojoNodeContent,
     } as TGraphNode;
   });
