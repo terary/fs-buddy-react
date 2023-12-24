@@ -2,8 +2,29 @@ import { TApiFormJson } from '../formstack/type.form';
 // import { FormstackBuddy } from '../FormstackBuddy/FormstackBuddy';
 import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
 import { transformers } from '../formstack/transformers';
+import { TFsFieldLogicJunctionJson } from '../formstack/classes/subtrees/types';
+
+// type TFsNotificationEmailLogic = {
+// };
+
+type TApiWebHookJson = {
+  logic: TFsFieldLogicJunctionJson; // TFsFieldLogicJunction<TFsJunctionOperators>; // ?
+  name: string;
+  id: string;
+  formId: string;
+};
 
 const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
+  return getFromJsonApi<TApiFormJson>(message);
+};
+
+const getWebhookJsonFromApi = async (
+  message: any
+): Promise<TApiWebHookJson> => {
+  return getFromJsonApi<TApiWebHookJson>(message, '/webhook.json');
+};
+
+const getFromJsonApi = async <T>(message: any, endpoint = ''): Promise<T> => {
   const { apiKey, formId } = message;
 
   return new Promise((resolve, reject) => {
@@ -11,7 +32,8 @@ const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
       throw new Error(`apiKey: '${apiKey}' or formId: '${formId}'.`);
     }
 
-    const formGetUrl = `https://www.formstack.com/api/v2/form/${formId}`;
+    const formGetUrl =
+      `https://www.formstack.com/api/v2/form/${formId}` + endpoint;
 
     var myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${apiKey}`);
@@ -42,6 +64,8 @@ class TreeManager {
   static #instance: TreeManager;
 
   private _formTrees: { [formId: string]: TApiFormJson } = {};
+  private _webhooks: { [formId: string]: TApiWebHookJson } = {};
+
   private _fieldLogicService!: FieldLogicService;
   private constructor() {}
 
@@ -62,11 +86,17 @@ class TreeManager {
       this._fieldLogicService = new FieldLogicService(
         transformers.formJson(formJson)
       );
-      // FormstackBuddy.getInstance().getFieldLogicService(
-      //   formJson.fields || []
-      // );
-
       return this._formTrees[formId];
+    }
+  }
+
+  async getWebhookJson(apiKey: string, formId: string) {
+    if (this._webhooks[formId]) {
+      return Promise.resolve(this._webhooks[formId]);
+    } else {
+      const formJson = await getWebhookJsonFromApi({ apiKey, formId });
+      this._webhooks[formId] = formJson;
+      return this._webhooks[formId];
     }
   }
 

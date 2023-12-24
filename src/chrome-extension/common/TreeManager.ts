@@ -1,9 +1,38 @@
-// import { TApiFormJson } from "../formstack/type.form";
+import { TFsFieldLogicJunctionJson } from '../../formstack/classes/subtrees/types';
 import { TApiFormJson } from './type.form';
-// import { FormstackBuddy } from '../FormstackBuddy/FormstackBuddy';
-// import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
+
+type TApiWebHookJson = {
+  logic: TFsFieldLogicJunctionJson; // TFsFieldLogicJunction<TFsJunctionOperators>; // ?
+  name: string;
+  id: string;
+  formId: string;
+};
+type TApiConfirmationEmailJson = TApiWebHookJson;
+type TApiNotificationEmailJson = TApiWebHookJson;
 
 const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
+  return getFromJsonApi<TApiFormJson>(message);
+};
+
+const getWebhookJsonFromApi = async (
+  message: any
+): Promise<TApiWebHookJson> => {
+  return getFromJsonApi<TApiWebHookJson>(message, '/webhook.json');
+};
+
+const getConfirmationEmailJsonFromApi = async (
+  message: any
+): Promise<TApiWebHookJson> => {
+  return getFromJsonApi<TApiWebHookJson>(message, '/confirmation.json');
+};
+
+const getNotificationEmailJsonFromApi = async (
+  message: any
+): Promise<TApiWebHookJson> => {
+  return getFromJsonApi<TApiWebHookJson>(message, '/notification.json');
+};
+
+const getFromJsonApi = async <T>(message: any, endpoint = ''): Promise<T> => {
   const { apiKey, formId } = message;
 
   return new Promise((resolve, reject) => {
@@ -11,7 +40,8 @@ const getFormJsonFromApi = async (message: any): Promise<TApiFormJson> => {
       throw new Error(`apiKey: '${apiKey}' or formId: '${formId}'.`);
     }
 
-    const formGetUrl = `https://www.formstack.com/api/v2/form/${formId}`;
+    const formGetUrl =
+      `https://www.formstack.com/api/v2/form/${formId}` + endpoint;
 
     var myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${apiKey}`);
@@ -43,6 +73,11 @@ class TreeManager {
   private static instance: TreeManager;
 
   private _formTrees: { [formId: string]: TApiFormJson } = {};
+  private _webhooks: { [formId: string]: TApiWebHookJson } = {};
+  private _notificationEmail: { [formId: string]: TApiNotificationEmailJson } =
+    {};
+  private _confirmationEmail: { [formId: string]: TApiConfirmationEmailJson } =
+    {};
   //  private _fieldLogicService!: FieldLogicService;
   private constructor() {}
 
@@ -66,6 +101,42 @@ class TreeManager {
       //   );
 
       return this._formTrees[formId];
+    }
+  }
+
+  async getWebhookJson(apiKey: string, formId: string) {
+    if (this._webhooks[formId]) {
+      return Promise.resolve(this._webhooks[formId]);
+    } else {
+      const formJson = await getWebhookJsonFromApi({ apiKey, formId });
+      this._webhooks[formId] = formJson;
+      return this._webhooks[formId];
+    }
+  }
+
+  async getConfirmationEmailJson(apiKey: string, formId: string) {
+    if (this._confirmationEmail[formId]) {
+      return Promise.resolve(this._confirmationEmail[formId]);
+    } else {
+      const formJson = await getConfirmationEmailJsonFromApi({
+        apiKey,
+        formId,
+      });
+      this._confirmationEmail[formId] = formJson;
+      return this._confirmationEmail[formId];
+    }
+  }
+
+  async getNotificationEmailJson(apiKey: string, formId: string) {
+    if (this._notificationEmail[formId]) {
+      return Promise.resolve(this._notificationEmail[formId]);
+    } else {
+      const formJson = await getNotificationEmailJsonFromApi({
+        apiKey,
+        formId,
+      });
+      this._notificationEmail[formId] = formJson;
+      return this._notificationEmail[formId];
     }
   }
 

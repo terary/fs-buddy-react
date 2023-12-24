@@ -27,6 +27,7 @@ import { TFsNotificationEmailLogicJson } from '../../formstack/type.notification
 import confirmationEmailJson from './confirmationEmail.json';
 import notificationEmailJson from './notificationEmail.json';
 import webhookJson from './webhook.json';
+import { AppController } from './AppController';
 
 const formView = new FormView();
 
@@ -106,6 +107,17 @@ const App: React.FC = () => {
           });
           return;
         }
+        //     // const TApiFormFromJson = (formJson: TApiFormJson): TApiForm => {
+        const app = AppController.getInstance();
+
+        const formJson = transformers.formJson(apiFormJson);
+        apiParameters.apiKey &&
+          (await app.setStateFromApiJson(
+            apiParameters.apiKey,
+            formJson,
+            uiStateContext,
+            dispatcher
+          ));
 
         await formView.initialize();
 
@@ -118,7 +130,7 @@ const App: React.FC = () => {
         const fieldSummary = fieldLogicService?.getAllFieldSummary();
 
         // ---------------------------
-        if (apiFormJson.id) {
+        if (false && apiFormJson.id) {
           const notifications = notificationEmailJson.notifications.map(
             (notification) => {
               const agTree = formModel.aggregateOffFormLogicJson(

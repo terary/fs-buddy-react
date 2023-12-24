@@ -15,11 +15,6 @@ const LogicFieldSelect = () => {
   const uiStateContext = useContext(UIStateContext);
   const groupedCities = [
     {
-      label: 'Fields',
-      code: 'FIELDS',
-      items: uiStateContext?.offFormLogic.formLogic,
-    },
-    {
       label: 'Notification Emails',
       code: 'NOTIFICATION_EMAILS',
       items: uiStateContext?.offFormLogic.notificationEmails,
@@ -33,6 +28,11 @@ const LogicFieldSelect = () => {
       label: 'Confirmation Emails',
       code: 'CONFIRMATION_EMAILS',
       items: uiStateContext?.offFormLogic.confirmationEmails,
+    },
+    {
+      label: 'Fields',
+      code: 'FIELDS',
+      items: uiStateContext?.offFormLogic.formLogic,
     },
   ];
 

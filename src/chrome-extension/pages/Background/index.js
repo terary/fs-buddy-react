@@ -34,7 +34,43 @@ chrome.runtime.onMessage.addListener(function (
           senderResponse(e);
         });
       break;
-    case "GetSubmissionFromApiRequest":
+      case "GetWebhooksAsJson":
+        TreeManager.getInstance()
+          .getWebhookJson(apiKey, fetchFormId)
+          .then((treeJson) => {
+            senderResponse(treeJson);
+          })
+          .catch((e) => {
+            console.log("Failed to GetWebhooksAsJson");
+            console.log(e);
+            senderResponse(e);
+          });
+        break;
+        case "GetConfirmationEmailsAsJson":
+          TreeManager.getInstance()
+          .getConfirmationEmailJson(apiKey, fetchFormId)
+          .then((treeJson) => {
+            senderResponse(treeJson);
+          })
+          .catch((e) => {
+            console.log("Failed to GetWebhooksAsJson");
+            console.log(e);
+            senderResponse(e);
+          });
+        break;
+        case "GetNotificationEmailsAsJson": 
+        TreeManager.getInstance()
+          .getNotificationEmailJson(apiKey, fetchFormId)
+          .then((treeJson) => {
+            senderResponse(treeJson);
+          })
+          .catch((e) => {
+            console.log("Failed to GetWebhooksAsJson");
+            console.log(e);
+            senderResponse(e);
+          });        break;
+
+      case "GetSubmissionFromApiRequest":
       const { submissionId } = message;
       console.log({submissionId}); 
       SubmissionManager.getInstance()
