@@ -1,5 +1,5 @@
-import { TApiForm, TApiFormJson, TSubmissionJson } from '../common/type.form';
-import { actions, UIStateContext, UIStateDispatch } from '../AppState';
+import { TApiFormJson, TSubmissionJson } from '../../formstack';
+import { actions } from '../AppState';
 import { filterStatusMessages, keyIn } from '../../common/functions';
 import { FsFormModel } from '../../formstack';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
