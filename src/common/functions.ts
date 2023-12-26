@@ -1,5 +1,4 @@
-import { TStatusRecord } from '../components/StatusMessageListContainer/type';
-import { TStatusMessageSeverity } from '../formstack/classes/Evaluator/type';
+import type { TStatusMessageSeverity, TStatusRecord } from '../formstack';
 
 const filterStatusMessages = (
   statusMessages: TStatusRecord[] = [],
@@ -10,15 +9,7 @@ const filterStatusMessages = (
     logLevels.includes(statusMessage.severity)
   );
 
-  // if (searchText !== undefined) {
-  //   const searchRegExp = new RegExp(searchText.replace(/[\W\S]/, ''), 'i');
-  //   return filteredMessages.filter((statusMessage) => {
-  //     const isMatch = searchRegExp.test(JSON.stringify(statusMessage));
-  //     return isMatch;
-  //   });
-  // }
   return filteredMessages;
-  // return statusMessages;
 };
 
 const keyIn = (key: string, obj: any) => obj !== undefined && key in obj;

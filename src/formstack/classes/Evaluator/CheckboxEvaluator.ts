@@ -1,6 +1,6 @@
-import { TUiEvaluationObject } from "./type";
-import { isFunctions } from "../../../common/isFunctions";
-import { AbstractSelectOptionEvaluator } from "./AbstractSelectOptionEvaluator";
+import { TUiEvaluationObject } from './type';
+import { isFunctions } from '../../../common/isFunctions';
+import { AbstractSelectOptionEvaluator } from './AbstractSelectOptionEvaluator';
 
 class CheckboxEvaluator extends AbstractSelectOptionEvaluator {
   isCorrectType<T>(submissionDatum: T): boolean {
@@ -14,7 +14,7 @@ class CheckboxEvaluator extends AbstractSelectOptionEvaluator {
   }
 
   private parseToSelectedValuesArray(submissionDatum?: string): string[] {
-    const splitValues = (submissionDatum || "").split("\n");
+    const splitValues = (submissionDatum || '').split('\n');
     return splitValues;
   }
 
@@ -25,17 +25,17 @@ class CheckboxEvaluator extends AbstractSelectOptionEvaluator {
       if (this.isRequired) {
         return this.getUiPopulateObjectsEmptyAndRequired(statusMessages);
       }
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     if (!this.isCorrectType(submissionDatum)) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "error",
+          'error',
           `_BAD_DATA_TYPE_' type: '${typeof submissionDatum}', value: '${submissionDatum}'.`
         )
       );
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     const uiFields: TUiEvaluationObject[] = [];
@@ -52,14 +52,14 @@ class CheckboxEvaluator extends AbstractSelectOptionEvaluator {
       } else {
         statusMessages.push(
           this.wrapAsStatusMessage(
-            "warn",
+            'warn',
             this.invalidSelectedOptionMessage(selectedOption)
           )
         );
       }
     });
 
-    uiFields.push(this.wrapAsUiObject(null, "", statusMessages));
+    uiFields.push(this.wrapAsUiObject(null, '', statusMessages));
     return uiFields;
   }
 }

@@ -1,5 +1,5 @@
-import { ApiWebhookCacheManager } from '../common/ApiWebhookCacheManager';
-import { ApiFormCacheManager } from '../common/ApiFormCacheManager';
+import { ApiWebhookCacheManager } from '../api/ApiWebhookCacheManager';
+import { ApiFormCacheManager } from '../api/ApiFormCacheManager';
 import { FsFormModel, FsLogicTreeDeep } from '../formstack';
 
 const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';

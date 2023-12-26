@@ -1,6 +1,6 @@
-import { TUiEvaluationObject } from "./type";
-import { isFunctions } from "../../../common/isFunctions";
-import { AbstractSelectOptionEvaluator } from "./AbstractSelectOptionEvaluator";
+import { TUiEvaluationObject } from './type';
+import { isFunctions } from '../../../common/isFunctions';
+import { AbstractSelectOptionEvaluator } from './AbstractSelectOptionEvaluator';
 
 class SelectEvaluator extends AbstractSelectOptionEvaluator {
   private isValueInSelectOptions(value: string): boolean {
@@ -25,7 +25,7 @@ class SelectEvaluator extends AbstractSelectOptionEvaluator {
     if (!submissionDatum) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           this.invalidSelectedOptionMessage(submissionDatum as string)
         )
       );
@@ -33,7 +33,7 @@ class SelectEvaluator extends AbstractSelectOptionEvaluator {
       if (this.isRequired) {
         return this.getUiPopulateObjectsEmptyAndRequired(statusMessages);
       }
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     if (!this.isCorrectType(submissionDatum)) {
@@ -41,9 +41,9 @@ class SelectEvaluator extends AbstractSelectOptionEvaluator {
         `_BAD_DATA_TYPE_' type: '${typeof submissionDatum}', value: '` +
         JSON.stringify(submissionDatum).slice(0, 100) +
         "'";
-      statusMessages.push(this.wrapAsStatusMessage("warn", message));
+      statusMessages.push(this.wrapAsStatusMessage('warn', message));
 
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     // override parseValues
@@ -52,11 +52,11 @@ class SelectEvaluator extends AbstractSelectOptionEvaluator {
     if (!this.isValueInSelectOptions(selectedValue)) {
       statusMessages.push(
         this.wrapAsStatusMessage(
-          "warn",
+          'warn',
           this.invalidSelectedOptionMessage(selectedValue)
         )
       );
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     return [

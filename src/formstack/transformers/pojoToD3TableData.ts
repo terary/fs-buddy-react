@@ -6,22 +6,8 @@ import {
   FsLogicBranchNode,
   FsLogicLeafNode,
 } from '../classes/subtrees/trees/FsLogicTreeDeep';
-import { TFsFieldSection } from '../type.field';
 import { RuleConflictType } from '../classes/subtrees/trees/FsLogicTreeDeep/LogicNodes/type';
-
-export type TGraphNode = {
-  nodeId: string;
-  parentId: string;
-  nodeContent: {
-    fieldId: string;
-    nodeId: string;
-    label: string;
-    operationLabel?: string[];
-    operand?: string; // TFLeafOperator | TFJunctionOperator
-    nodeType: keyof AbstractLogicNode;
-  };
-};
-
+import { TGraphNode } from '../type';
 const truncate = (text = '', length = 25) =>
   text.slice(0, length) + (text.length > length ? '...' : '');
 

@@ -1,6 +1,6 @@
 import { FsFormAsDirectedGraph } from './FsFormAsDirectedGraph';
-import { ApiNotificationEmailCacheManager } from '../common/ApiNotificationEmailCacheManager';
-import { ApiFormCacheManager } from '../common/ApiFormCacheManager';
+import { ApiNotificationEmailCacheManager } from '../api/ApiNotificationEmailCacheManager';
+import { ApiFormCacheManager } from '../api/ApiFormCacheManager';
 import { FsFormModel, FsLogicTreeDeep } from '../formstack';
 import { TFsFieldLogicJunctionJson } from '../formstack/classes/subtrees/types';
 

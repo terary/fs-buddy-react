@@ -1,6 +1,6 @@
-import { AbstractEvaluator } from "./AbstractEvaluator";
-import { TStatusRecord, TUiEvaluationObject } from "./type";
-import { isFunctions } from "../../../common/isFunctions";
+import { AbstractEvaluator } from './AbstractEvaluator';
+import { TStatusRecord, TUiEvaluationObject } from './type';
+import { isFunctions } from '../../../common/isFunctions';
 class ScalarEvaluator extends AbstractEvaluator {
   parseValues<S = string, T = string>(submissionDatum?: S): T {
     return submissionDatum as T;
@@ -22,7 +22,7 @@ class ScalarEvaluator extends AbstractEvaluator {
       if (this.isRequired) {
         return this.getUiPopulateObjectsEmptyAndRequired(statusMessages);
       }
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     if (!this.isCorrectType(datum)) {
@@ -30,8 +30,8 @@ class ScalarEvaluator extends AbstractEvaluator {
         `_BAD_DATA_TYPE_' type: '${typeof datum}', value: '` +
         JSON.stringify(datum).slice(0, 100) +
         "'";
-      statusMessages.push(this.wrapAsStatusMessage("warn", message));
-      return [this.wrapAsUiObject(null, "", statusMessages)];
+      statusMessages.push(this.wrapAsStatusMessage('warn', message));
+      return [this.wrapAsUiObject(null, '', statusMessages)];
     }
 
     return [this.wrapAsUiObject(`field${this.fieldId}`, datum, statusMessages)];

@@ -12,7 +12,7 @@ import {
   TLogicTreeDeepStatisticCountRecord,
   TLogicTreeDeepStatisticCountField,
 } from '../formstack/classes/subtrees/trees/FsLogicTreeDeep';
-import { TGraphNode } from '../formstack/transformers/pojoToD3TableData';
+import { TGraphNode } from '../formstack';
 
 class FieldLogicService {
   // FsLogicTreeDeep
