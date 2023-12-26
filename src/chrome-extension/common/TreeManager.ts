@@ -1,5 +1,4 @@
-import { TFsFieldLogicJunctionJson } from '../../formstack/classes/subtrees/types';
-import { TApiFormJson } from './type.form';
+import type { TFsFieldLogicJunctionJson, TApiFormJson } from '../../formstack';
 
 type TApiWebHookJson = {
   logic: TFsFieldLogicJunctionJson; // TFsFieldLogicJunction<TFsJunctionOperators>; // ?

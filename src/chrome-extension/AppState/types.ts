@@ -1,10 +1,11 @@
-import {
+// import { TUiEvaluationObject } from '../../formstack/classes/Evaluator/type';
+import type {
+  TUiEvaluationObject,
+  TGraphNode,
+  TApiForm,
   TStatusMessageSeverity,
   TStatusRecord,
-  TUiEvaluationObject,
-} from '../../formstack/classes/Evaluator/type';
-import { TGraphNode } from '../../formstack/transformers/pojoToD3TableData';
-import { TApiForm } from '../common/type.form';
+} from '../../formstack';
 
 type FieldFewDetailsType = {
   fieldId: string;

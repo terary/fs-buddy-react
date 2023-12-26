@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { TStatusRecord } from '../../../../formstack/classes/Evaluator/type';
+import type { TStatusRecord } from '../../../../formstack';
 import './FormView.css';
 import { UIStateContext } from '../../../AppState';
 const fetchTreeFormId = '5375703';

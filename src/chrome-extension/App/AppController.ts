@@ -4,7 +4,7 @@ import { filterStatusMessages, keyIn } from '../../common/functions';
 import { FsFormModel } from '../../formstack';
 import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
 import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
-import { transformers } from '../../formstack/transformers';
+import { transformers } from '../../formstack';
 import {
   TOffFormLogicEntity,
   UIStateApiResponseFormGetType,
