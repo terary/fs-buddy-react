@@ -9,6 +9,8 @@ import { PrimeReactProvider } from 'primereact/api';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
+import { ExpandedExpressionTreeWrapper } from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeWrapper';
+
 import { FormView } from '../pages/Content/FormView/FormView';
 import { InputText } from 'primereact/inputtext';
 import { Config } from '../../config';
@@ -47,15 +49,6 @@ const App: React.FC = () => {
     submissionId: Config.get('submissionId'),
   } as apiParametersType);
 
-  const handleFetchSubmissionClick = () => {
-    apiParameters.submissionId &&
-      AppController.getInstance().fetchSubmissionAndSetState(
-        apiParameters.submissionId,
-        uiStateContext,
-        dispatcher
-      );
-  };
-
   useEffect(() => {
     apiParameters.apiKey &&
       AppController.getInstance().setApiKey(apiParameters.apiKey);
@@ -69,6 +62,15 @@ const App: React.FC = () => {
         dispatcher
       );
   }, []);
+
+  const handleFetchSubmissionClick = () => {
+    apiParameters.submissionId &&
+      AppController.getInstance().fetchSubmissionAndSetState(
+        apiParameters.submissionId,
+        uiStateContext,
+        dispatcher
+      );
+  };
 
   const handleApiGetFormRequestClick = async () => {
     apiParameters.formId &&
@@ -133,67 +135,7 @@ const App: React.FC = () => {
     setAppLayout(newAppLayout);
     console.log({ handleMoveLeftRightToggle: { newAppLayout } });
   };
-  const ExtendedTreeGraphWrapper = () => {
-    type LabelOptionsType = 'label' | 'fieldId' | 'nodeId';
-    const { logicalNodeGraphMap } = uiStateContext.logicFieldSelected;
-    const [selectedCategory, setSelectedCategory] = useState(
-      'label' as LabelOptionsType
-    );
 
-    const handleLabelOptionChange = (evt: RadioButtonChangeEvent) => {
-      setSelectedCategory(evt.value.key);
-      console.log({ handleLabelOptionChange: { key: evt.value.key, evt } });
-    };
-    const ExpandedTree = () => {
-      return (
-        <div>
-          <div className="card flex justify-content-center">
-            <div className="flex flex-column gap-3">
-              {['fieldId', 'nodeId', 'label'].map((labelOption) => {
-                const opt = { key: labelOption, name: labelOption };
-                return (
-                  <div key={opt.key} className="flex align-items-center">
-                    <RadioButton
-                      inputId={opt.key}
-                      name="category"
-                      value={opt}
-                      onChange={handleLabelOptionChange}
-                      checked={selectedCategory === opt.key}
-                    />
-                    <label htmlFor={opt.key} className="ml-2">
-                      {opt.name}
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <ExpandedExpressionTreeGraph
-            height={500}
-            width={700}
-            labelBy={selectedCategory}
-            data={uiStateContext.logicFieldSelected.logicalNodeGraphMap || []}
-          />
-        </div>
-      );
-    };
-
-    const EmptyTree = () => {
-      return (
-        <div style={{ paddingTop: '10px' }}>
-          <span>No Logic Available.</span>
-        </div>
-      );
-    };
-
-    return logicalNodeGraphMap &&
-      Array.isArray(logicalNodeGraphMap) &&
-      logicalNodeGraphMap.length > 0 ? (
-      <ExpandedTree />
-    ) : (
-      <EmptyTree />
-    );
-  };
   const LeftRightToggle = () => {
     return (
       <>
@@ -217,6 +159,7 @@ const App: React.FC = () => {
       </>
     );
   };
+
   return (
     <PrimeReactProvider>
       <div className="ContentContainer">
@@ -254,7 +197,7 @@ const App: React.FC = () => {
                   }}
                 >
                   <LogicFieldSelect />
-                  <ExtendedTreeGraphWrapper />
+                  <ExpandedExpressionTreeWrapper />
                 </p>
               </AccordionTab>
               <AccordionTab header="Status Messages">

@@ -98,18 +98,34 @@ class FsFormModel extends AbstractExpressionTree<
   }
 
   private _make_new_logic_tree(
-    field: FsFieldModel,
-    check: TFsFieldLogicCheckLeaf
+    //    fieldId: string, // FsFieldModel,
+    check: TFsFieldLogicCheckLeaf,
+    conditional: TFsJunctionOperators
   ) {
+    const { fieldId, condition, option } = check;
     const tree = new FsLogicTreeDeep(
-      field.fieldId,
-      new FsVirtualRootNode(field.fieldId)
+      fieldId,
+      new FsVirtualRootNode(fieldId, conditional)
+    );
+    tree.appendChildNodeWithContent(
+      tree.rootFieldId, // I think this should be deepTreeParentNodeId
+      new FsLogicLeafNode(fieldId, condition, option)
     );
 
-    tree.appendChildNodeWithContent(
-      tree.rootNodeId,
-      new FsLogicLeafNode(check.fieldId, check.condition, check.option)
+    FsLogicTreeDeep.offFormDeepLogic(
+      fieldId,
+      this, // model
+      tree,
+      tree.rootFieldId
     );
+
+    // const firstNode =
+    //   this.aggregateLogicTree(field.fieldId) ||
+    //   new FsLogicLeafNode(check.fieldId, check.condition, check.option);
+    // tree.appendChildNodeWithContent(
+    //   tree.rootNodeId,
+    //   new FsLogicLeafNode(check.fieldId, check.condition, check.option)
+    // );
     return tree;
   }
 
@@ -118,20 +134,31 @@ class FsFormModel extends AbstractExpressionTree<
   ): FsLogicTreeDeep | null {
     const { action, conditional, checks } =
       transformers.notificationEmailLogicJson(logic);
-    // this.transformNotificationJson(logic);
-
-    const firstCheck = (checks || []).pop();
-    if (!firstCheck) {
+    if (!Array.isArray(checks) || checks.length == 0) {
+      // is this a leaf?
+      // is it the case there will be branches without leaves? (yes, but there shouldn't be.)
       return null;
     }
-    const fModel = this.getFieldModel(firstCheck?.fieldId || '_FIELD_ID_');
+    const firstCheck = checks.pop();
+    // if (!firstCheck) {
+    //   return null;
+    // }
+    // const fModel = this.getFieldModel(firstCheck?.fieldId || '_FIELD_ID_');
+    const offFormLogicTree = this._make_new_logic_tree(
+      // @ts-ignore - possible null
+      firstCheck, // ? fModel as FsFieldModel,
+      // @ts-ignore, this isn't being used any more
+      //      null, //firstCheck as TFsFieldLogicCheckLeaf,
+      conditional
+    );
 
-    const offFormLogicTree =
-      this.aggregateLogicTree(firstCheck?.fieldId || '_FIELD_ID_') ||
-      this._make_new_logic_tree(
-        fModel as FsFieldModel,
-        firstCheck as TFsFieldLogicCheckLeaf
-      );
+    // const offFormLogicTree =
+    //   this.aggregateLogicTree(firstCheck?.fieldId || '_FIELD_ID_') ||
+    //   this._make_new_logic_tree(
+    //     fModel as FsFieldModel,
+    //     firstCheck as TFsFieldLogicCheckLeaf,
+    //     conditional
+    //   );
 
     (checks || []).forEach((check: any) => {
       FsLogicTreeDeep.offFormDeepLogic(

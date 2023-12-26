@@ -85,8 +85,16 @@ class TreeManager {
     this._formTrees[fieldId] = formJson;
   }
 
-  // getFieldLogicService() {
-  //   return this._fieldLogicService;
+  clearCache(): void {
+    // this.deleteAllKeyValues( this._formTrees)
+    this._formTrees = {};
+    this._webhooks = {};
+    this._notificationEmail = {};
+    this._confirmationEmail = {};
+  }
+
+  // private deleteAllKeyValues(obj: { [id: string]: any }) {
+  //   Object.keys(obj).forEach((key) => delete obj[key]);
   // }
 
   async getTree(apiKey: string, formId: string): Promise<TApiFormJson> {

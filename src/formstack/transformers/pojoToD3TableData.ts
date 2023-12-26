@@ -16,6 +16,8 @@ export type TGraphNode = {
     fieldId: string;
     nodeId: string;
     label: string;
+    operationLabel?: string[];
+    operand?: string; // TFLeafOperator | TFJunctionOperator
     nodeType: keyof AbstractLogicNode;
   };
 };
@@ -41,8 +43,6 @@ const pojoToD3TableData = (
     // @ts-ignore
     pojoNodeContent.fieldId = fieldId;
 
-    // @ts-ignore
-    pojoNodeContent.fieldId = fieldId;
     // finish with this label business
     // Probably want "label", "fieldId", "nodeID"
     // also how to present (operator value subject)?
@@ -55,44 +55,28 @@ const pojoToD3TableData = (
         // @ts-ignore
         (pojoNodeContent.label = truncate(
           fieldModel?.fieldType === 'section'
-            ? fieldModel.section_heading
+            ? // is 'section_heading' valid?
+              fieldModel?.label || fieldModel.section_heading
             : fieldModel?.label
         )),
-          //   // @ts-ignore
-          // pojoNodeContent.label = [
-          //   // `${action || 'vRoot'}`,
-          //   truncate(
-          //     fieldModel?.fieldType === 'section'
-          //       ? fieldModel.section_heading
-          //       : fieldModel?.label
-          //   ),
-          //   ` ${action || 'vRoot'} if ${conditional}`,
-          // ];
           // @ts-ignore
           (pojoNodeContent.operationLabel = [
             `${action || 'vRoot'}`,
             `if ${conditional}`,
           ]);
+        // @ts-ignore
+        pojoNodeContent.operand = conditional;
 
         break;
 
       case 'FsLogicLeafNode':
         const { condition, option } = nodeContent as FsLogicLeafNode;
         // @ts-ignore
-        // pojoNodeContent.label = `[${truncate(fieldModel?.label)}]
-        // ${condition}
-        // '${option}' `;
-        // @ts-ignore
         pojoNodeContent.label = truncate(fieldModel?.label);
-        // // @ts-ignore
-        // pojoNodeContent.label = [
-        //   truncate(fieldModel?.label),
-        //   condition,
-        //   option,
-        // ];
         // @ts-ignore
         pojoNodeContent.operationLabel = [`${condition}`, `${option}`];
-
+        // @ts-ignore
+        pojoNodeContent.operand = condition;
         break;
 
       case 'FsCircularDependencyNode':
@@ -112,7 +96,6 @@ const pojoToD3TableData = (
         pojoNodeContent.targetNodeId = nodeContent.targetNodeId;
 
         const sourceFieldModel = formModel.getFieldModel(sourceFieldId);
-
         const { conditionalA, conditionalB } = ruleConflict as RuleConflictType;
 
         // @ts-ignore
@@ -124,19 +107,6 @@ const pojoToD3TableData = (
 
         // @ts-ignore - ruleConflict not element of pojoNodeContent
         pojoNodeContent.label = truncate(sourceFieldModel?.label);
-
-        // @ts-ignore - ruleConflict not element of pojoNodeContent
-        // pojoNodeContent.label = [
-        //   truncate(
-        //     sourceFieldModel?.label ||
-        //       (sourceFieldModel?.fieldJson as TFsFieldSection)[
-        //         'section_heading'
-        //       ] ||
-        //       ''
-        //   ),
-        //   'circular ref.',
-        // ];
-
         break;
 
       default:
@@ -146,7 +116,9 @@ const pojoToD3TableData = (
 
     return {
       nodeId,
-      parentId: nodeBody.parentId === nodeId ? '' : nodeBody.parentId, // root should be empty string
+      parentId:
+        nodeContent.nodeType === 'FsVirtualRootNode' ? '' : nodeBody.parentId, // root should be empty string
+      // parentId: nodeBody.parentId === nodeId ? '' : nodeBody.parentId, // root should be empty string
       nodeContent: pojoNodeContent,
     } as TGraphNode;
   });

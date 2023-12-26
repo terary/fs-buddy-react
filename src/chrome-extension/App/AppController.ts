@@ -21,22 +21,6 @@ type OffFormLogicEntityType =
   | 'notificationEmail'
   | 'confirmationEmail'
   | 'webhook';
-type TOffFormLogicEntityTag = 'NE' | 'CE' | 'WH' | '??';
-
-const logicItemEntityToTag = (
-  entityType: OffFormLogicEntityType
-): TOffFormLogicEntityTag => {
-  switch (entityType) {
-    case 'confirmationEmail':
-      return 'CE';
-    case 'notificationEmail':
-      return 'NE';
-    case 'webhook':
-      return 'WH';
-    default:
-      return '??';
-  }
-};
 
 // the API returns response {[APILogicEntityFieldKeys]: ArrayOfLogicItems}
 type APILogicEntityFieldKeys = 'confirmations' | 'notifications' | 'webhooks';
@@ -55,34 +39,14 @@ const logicItemEntityToApiFieldKey = (
   }
 };
 
-const transformJsonToOffFormLogic = (
-  offFormLogicJson: IOffFormLogic,
-  entityType: OffFormLogicEntityType,
-  formModel: FsFormModel
-): TOffFormLogicEntity => {
-  const entityTag = logicItemEntityToTag(entityType);
-  const agTree = formModel.aggregateOffFormLogicJson(offFormLogicJson.logic);
-  const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
-  const graphMap = transformers.pojoToD3TableData(pojo, formModel);
-  return {
-    id: `${entityTag}-` + offFormLogicJson.id,
-    name: `[${entityTag}]` + offFormLogicJson.name,
-    graphMap,
-    statusMessages: agTree?.getStatusMessage() || [],
-    entityType,
-  };
-};
-
 const backendResponse = <T>(backendMessage: any): Promise<T> => {
-  // const webhooksAsPromised = () => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(backendMessage, async (apiJson) => {
-      // need reject somewhere, probably?
+      // need reject somewhere, probably? (lastError ?)
       resolve(apiJson);
       return true; // I think this needs to be here?
     });
   });
-  //   };
 };
 
 class AppController {
@@ -98,12 +62,20 @@ class AppController {
     this.#apiKey = apiKey;
   }
 
+  private async clearCache() {
+    await backendResponse<TApiFormJson>({
+      type: 'ClearCache',
+    });
+  }
+
   public async fetchFormAndSetState(
     // apiKey: string,
     formId: string,
     context: UIStateType, // Context<UIStateType>,
     dispatcher: Function
   ) {
+    await this.clearCache();
+
     this.setFormId(formId);
     const apiFormJson = await backendResponse<TApiFormJson>({
       type: 'GetFormAsJson',
@@ -223,6 +195,7 @@ class AppController {
       'GetWebhooksAsJson',
       'webhook'
     );
+    console.log({ getOffFormLogicAndSetState: { webhooks, confirmations } });
     const formFieldLogic = this.extractFieldLogic();
 
     const changeActionPayload = {
@@ -250,8 +223,8 @@ class AppController {
 
   private extractFieldLogic(): TOffFormLogicEntity[] {
     const fieldSummary =
-      this.getFieldLogicServiceOrThrow().getAllFieldSummary();
-    const logicService = this.getFieldLogicServiceOrThrow();
+      this.getFieldLogicServiceOrThrow().getAllFieldSummary(); // do you need to call these every time?
+    const logicService = this.getFieldLogicServiceOrThrow(); // do you need to call these every time?
 
     const formFieldLogic = this.getFieldLogicServiceOrThrow()
       .getFieldIdsWithLogic()
@@ -275,6 +248,7 @@ class AppController {
     logicEntityType: OffFormLogicEntityType
   ): Promise<TOffFormLogicEntity[]> {
     const apiFieldKey = logicItemEntityToApiFieldKey(logicEntityType);
+
     const logicItemJson = (await backendResponse({
       type: backendActionType,
       fetchFormId: this.getFormIdOrThrow(),
@@ -282,7 +256,7 @@ class AppController {
     })) as { [apiFieldKey: string]: IOffFormLogic[] };
 
     const logicItems = logicItemJson[apiFieldKey].map((logicItem: any) =>
-      transformJsonToOffFormLogic(
+      transformers.offFormLogicJsonToLogic(
         logicItem,
         logicEntityType,
         this.getFormModelOrThrow()

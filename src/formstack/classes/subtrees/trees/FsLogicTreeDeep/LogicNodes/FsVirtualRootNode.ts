@@ -1,23 +1,24 @@
-import { TNodePojo } from "predicate-tree-advanced-poc/dist/src";
-import { AbstractLogicNode } from "./AbstractLogicNode";
-import type { TStatusRecord } from "../../../../Evaluator/type";
-import { TFsFieldLogicJunction, TFsJunctionOperators } from "../../../types";
+import { TNodePojo } from 'predicate-tree-advanced-poc/dist/src';
+import { AbstractLogicNode } from './AbstractLogicNode';
+import type { TStatusRecord } from '../../../../Evaluator/type';
+import { TFsFieldLogicJunction, TFsJunctionOperators } from '../../../types';
 
 class FsVirtualRootNode extends AbstractLogicNode {
-  protected _nodeType = "FsVirtualRootNode";
+  protected _nodeType = 'FsVirtualRootNode';
 
   private _fieldId: string;
-  private _conditional: TFsJunctionOperators = "all";
-  constructor(fieldId: string) {
+  private _conditional: TFsJunctionOperators = 'all';
+  constructor(fieldId: string, conditional: TFsJunctionOperators = 'all') {
     super();
     this._fieldId = fieldId;
+    this._conditional = conditional;
   }
 
   get fieldId() {
     return this._fieldId;
   }
 
-  get conditional() {
+  get conditional(): TFsJunctionOperators {
     return this._conditional;
   }
 
@@ -37,7 +38,7 @@ class FsVirtualRootNode extends AbstractLogicNode {
     const statusMessage: TStatusRecord[] = [];
 
     const debugMessage = JSON.stringify({
-      nodeType: "FsLogicBranchNode",
+      nodeType: 'FsLogicBranchNode',
       // fieldId: node.fieldId,
       fieldId: this.fieldId,
       // rootFieldId: this.rootFieldId,
@@ -46,23 +47,23 @@ class FsVirtualRootNode extends AbstractLogicNode {
       // json: this.fieldJson,
     });
 
-    const message = "Virtual Branch";
+    const message = 'Virtual Branch';
     statusMessage.push({
-      severity: "debug",
+      severity: 'debug',
       fieldId: this.fieldId,
       message: debugMessage,
     });
 
     if (this.fieldId === rootFieldId) {
       statusMessage.push({
-        severity: "logic",
+        severity: 'logic',
         fieldId: this.fieldId,
         message,
         relatedFieldIds: dependentChainFieldIds,
       });
     } else {
       statusMessage.push({
-        severity: "logic",
+        severity: 'logic',
         fieldId: this.fieldId,
         message: `${rootFieldId} virtual node.`,
         relatedFieldIds: dependentChainFieldIds,

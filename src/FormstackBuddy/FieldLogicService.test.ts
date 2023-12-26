@@ -1,7 +1,11 @@
 import { FieldLogicService } from './FieldLogicService';
 import circularAndInterdependentJson from '../test-dev-resources/form-json/5375703.json';
 import formJson5469299 from '../test-dev-resources/form-json/5469299.json';
-import { TFsFieldAnyJson } from '../formstack';
+import formJson5375703 from '../test-dev-resources/form-json/5375703.json';
+import confirmationJson5375703 from '../test-dev-resources/confirmation-json/5375703.json';
+import notificationJson5375703 from '../test-dev-resources/notification-json/5375703.json';
+import webhookJson5375703 from '../test-dev-resources/webhook-json/5375703.json';
+import { FsFormModel, TFsFieldAnyJson } from '../formstack';
 import { transformers } from '../formstack/transformers';
 import { TApiFormJson } from '../formstack/type.form';
 import formJson5488291 from '../test-dev-resources/form-json/5488291.json';
@@ -28,6 +32,87 @@ describe('FieldLogicService', () => {
           circularAndInterdependentJson as unknown as TApiFormJson
         )
       );
+      const graphMap = fieldLogicService.getLogicNodeGraphMap('148604161');
+      const statusMessages = fieldLogicService.getFormLogicStatusMessages();
+      expect(statusMessages).toStrictEqual([
+        {
+          severity: 'info',
+          fieldId: null,
+          message:
+            "Checked all fieldIds in logic expression are contained in this form (don't laugh, it happens).<br />",
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'info',
+          fieldId: null,
+          message:
+            'Field Leaf Usage (field actual in leaf expression): <pre><code>{\n  "148509474": 7,\n  "148509475": 7,\n  "148509477": 7,\n  "148509478": 7,\n  "148604239": 4,\n  "151678347": 7,\n  "152139063": 1,\n  "152139064": 1,\n  "152139066": 1,\n  "152139068": 1\n}</code></pre>',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'info',
+          fieldId: null,
+          message:
+            'Logic composition: <pre><code>{\n  "totalNodes": 153,\n  "totalCircularLogicNodes": 24,\n  "totalCircularExclusiveLogicNodes": 0,\n  "totalCircularInclusiveLogicNodes": 0,\n  "totalUnclassifiedNodes": 0,\n  "totalLeafNodes": 43,\n  "totalBranchNodes": 67,\n  "totalRootNodes": 19,\n  "leafToNodeRatio": "0.2810",\n  "branchToNodeRatio": "0.4379",\n  "leafToBranchRatio": "0.6418"\n}</code></pre>\n      <ul>\n        <li>totalNodes - Each time a field involved in a logic expression. If a field is used twice this will be reflected in this number</li>\n        <li>totalCircularLogicNodes - Logic conflict at the branch level.</li>\n        <li>totalCircularExclusiveLogicNodes - Logic conflict at the leaf level, non-resolvable.</li>\n        <li>totalCircularInclusiveLogicNodes - Logic conflict at the leaf level, resolvable.</li>\n        <li>totalLeafNodes - Logic terms (the actual "x equal _SOMETHING_").</li>\n        <li>totalBranchNodes - Logic branch (something like: "Show" if _ANY_...).</li>\n        <li>totalRootNodes - The field that owns the logic expression.</li>\n        <li>Note: Circular nodes indicates invalid logic expression. If an expression is invalid these counts may not be accurate.</li>\n        <li>branchToNodeRatio - higher number indicates need to break into multiple forms.</li>\n        <li>leafToBranchRatio - higher number indicates good usage of logic .</li>\n      </ul>\n    ',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'info',
+          fieldId: null,
+          message: 'Number of fields with root logic:  15',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'info',
+          fieldId: null,
+          message: 'Number of fields without root logic:  14',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'warn',
+          fieldId: null,
+          message: 'Number of fields with circular references:  17',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'info',
+          fieldId: null,
+          message: 'Number of fields with general logic errors:  0',
+          relatedFieldIds: [],
+        },
+      ]);
+    });
+    it.only('dev/debug webhook treeGraph', () => {
+      const WK_TWO_CIRCULAR = 2;
+      const NE_TWO_CIRCULAR = 2;
+      const fieldLogicService = new FieldLogicService(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      // const agTree156919669 = formModel5375703.aggregateLogicTree('156919669');
+      // const map = fieldLogicService.getLogicNodeGraphMap('156919669');
+
+      const webhookSwitzerland = transformers.offFormLogicJsonToLogic(
+        webhookJson5375703.webhooks[1],
+        'webhook',
+        formModel5375703
+      );
+      const webhooks = webhookJson5375703.webhooks.map((hookSchema) => {
+        return transformers.offFormLogicJsonToLogic(
+          hookSchema,
+          'webhook',
+          formModel5375703
+        )['graphMap'];
+      });
+
+      const notificationTwoCircular = transformers.offFormLogicJsonToLogic(
+        notificationJson5375703.notifications[2],
+        'notificationEmail',
+        formModel5375703
+      );
+
       const graphMap = fieldLogicService.getLogicNodeGraphMap('148604161');
       const statusMessages = fieldLogicService.getFormLogicStatusMessages();
       expect(statusMessages).toStrictEqual([

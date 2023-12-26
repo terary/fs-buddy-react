@@ -46,6 +46,11 @@ chrome.runtime.onMessage.addListener(function (
             senderResponse(e);
           });
         break;
+        case "ClearCache":
+          TreeManager.getInstance().clearCache();
+          senderResponse({status: 'ok'})
+          break;
+
         case "GetConfirmationEmailsAsJson":
           TreeManager.getInstance()
           .getConfirmationEmailJson(apiKey, fetchFormId)
