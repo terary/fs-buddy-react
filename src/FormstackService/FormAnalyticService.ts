@@ -10,7 +10,7 @@ import { TApiForm } from '../formstack/type.form';
 import { Evaluator } from '../formstack/classes/Evaluator';
 import { TFsFieldAny } from '../formstack/type.field';
 
-class FormAnalytics {
+class FormAnalyticService {
   private _fieldJson: TApiForm;
   private _fieldCollection: FsFormModel;
 
@@ -185,4 +185,4 @@ class FormAnalytics {
   }
 }
 
-export { FormAnalytics };
+export { FormAnalyticService };

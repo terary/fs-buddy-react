@@ -1,5 +1,5 @@
 import { TSubmissionJson } from '../formstack/type.form';
-import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
+import { FieldLogicService } from '../FormstackService/FieldLogicService';
 
 const getSubmissionJsonFromApi = async (
   message: any

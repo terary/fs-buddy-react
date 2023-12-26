@@ -1,6 +1,6 @@
 import { TApiFormJson } from '../formstack/type.form';
 // import { FormstackBuddy } from '../FormstackBuddy/FormstackBuddy';
-import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
+import { FieldLogicService } from '../FormstackService/FieldLogicService';
 import { transformers } from '../formstack/transformers';
 import { TFsFieldLogicJunctionJson } from '../formstack/classes/subtrees/types';
 

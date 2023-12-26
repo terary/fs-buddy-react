@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { FsFormModel, TFsFieldAnyJson } from '../../../formstack';
-import { FieldLogicService } from '../../../FormstackBuddy/FieldLogicService';
-import { FormAnalytics } from '../../../FormstackBuddy/FormAnalytics';
+import {
+  FieldLogicService,
+  FormAnalyticService,
+} from '../../../FormstackService';
 import { FormView } from './FormView/FormView';
 import './ContentScript.css';
 import { App } from '../../App';
 
 let fieldLogicService: FieldLogicService | null = null;
-let formAnalytic: FormAnalytics | null = null;
+let formAnalytic: FormAnalyticService | null = null;
 let currentFieldCollection: FsFormModel;
 const formView = new FormView();
 
