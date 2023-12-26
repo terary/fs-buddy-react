@@ -2,14 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import 'primereact/resources/themes/mira/theme.css';
 import { UIStateContext, UIStateDispatch } from '../AppState';
 import './App.css';
-import { MessageFilter } from '../../components/MessageFilter';
+import { MessageFilter } from '../components/MessageFilter';
 import { ApiKeyContainer } from '../pages/Content/ApiKeyContainer';
 import { LogicFieldSelect } from '../pages/Content/LogicFieldSelect';
 import { PrimeReactProvider } from 'primereact/api';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
-import ExpandedExpressionTreeGraph from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeGraph';
-import { ExpandedExpressionTreeWrapper } from '../../components/ExpandedExpressionTreeGraph/ExpandedExpressionTreeWrapper';
+import { ExpandedExpressionTreeView } from '../components/ExpandedExpressionTreeView';
 
 import { FormView } from '../pages/Content/FormView/FormView';
 import { InputText } from 'primereact/inputtext';
@@ -17,7 +16,6 @@ import { Config } from '../../config';
 
 import { AppController } from './AppController';
 import { InputSwitch, InputSwitchChangeEvent } from 'primereact/inputswitch';
-import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 
 const formView = new FormView();
 
@@ -197,7 +195,7 @@ const App: React.FC = () => {
                   }}
                 >
                   <LogicFieldSelect />
-                  <ExpandedExpressionTreeWrapper />
+                  <ExpandedExpressionTreeView />
                 </p>
               </AccordionTab>
               <AccordionTab header="Status Messages">

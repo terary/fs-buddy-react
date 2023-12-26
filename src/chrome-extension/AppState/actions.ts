@@ -1,4 +1,3 @@
-import { TStatusRecord } from '../../components/StatusMessageListContainer/type';
 import {
   TOffFormLogicEntity,
   UIStateApiResponseFormGetType,
