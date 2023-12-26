@@ -7,8 +7,8 @@ import {
   TGenericNodeContent,
   TNodePojo,
   TTreePojo,
-} from "predicate-tree-advanced-poc/dist/src";
-import { TFsFieldAnyJson } from "../../types";
+} from 'predicate-tree-advanced-poc/dist/src';
+import { TFsFieldAnyJson } from '../../types';
 import type {
   TFsFieldLogicCheckLeaf,
   TFsFieldLogicCheckLeafJson,
@@ -18,10 +18,10 @@ import type {
   TFsLogicNodeJson,
   TFsVisibilityModes,
   TFsJunctionOperators,
-} from "../types";
-import { AbstractFsFieldLogicModel } from "./AbstractFsFieldLogicModel";
-import { transformers } from "../../../transformers";
-import { NegateVisitor } from "./NegateVisitor";
+} from '../types';
+import { AbstractFsFieldLogicModel } from './AbstractFsFieldLogicModel';
+import { transformers } from '../../../transformers';
+import { NegateVisitor } from './NegateVisitor';
 const andReducer = (prev: boolean | null, cur: boolean | null) => {
   return prev && cur;
 };
@@ -41,7 +41,7 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
   protected defaultJunction(nodeId: string): TFsFieldLogicNode {
     // @ts-ignore - doesn't match shape of proper junction (no fieldJson or fieldId).  But this is
     // only used for creating 'virtual' trees with field and panel logic, hence no nodeContent or then 'all'
-    return { conditional: "all", fieldJson: {} };
+    return { conditional: 'all', fieldJson: {} };
   }
 
   getDependantFieldIds() {
@@ -87,19 +87,19 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
 
     const evaluatedChildren = children.map((child) => {
       switch (child.condition) {
-        case "==":
+        case '==':
           return values[child.fieldId] === child.option;
-        case "gt":
+        case 'gt':
           // guard against null/undefined
           return child.option && values[child.fieldId] > child.option;
       }
     });
 
-    if (conditional === "all") {
+    if (conditional === 'all') {
       // @ts-ignore - not happy about typing of 'andReducer'
       return evaluatedChildren.reduce(andReducer, true) as T;
     }
-    if (conditional === "any") {
+    if (conditional === 'any') {
       // @ts-ignore - not happy about typing of 'orReducer'
       return evaluatedChildren.reduce(orReducer, false) as T;
     }
@@ -114,7 +114,7 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
   private x_demote_and_negate() {
     const { action } = this;
     // @ts-ignore - TFsVisibilityMode should be upcase, does transformer need fixed? or datatype?
-    if (action === "hide") {
+    if (action === 'hide') {
       // This works - but it should be in visibilityNode
       // or ... make 'negateTree' a method of LogicTree ?
 
@@ -129,8 +129,8 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
 
       this.replaceNodeContent(this.rootNodeId, {
         // @ts-ignore
-        virtualBranch: "something",
-        junctionOperator: "$not",
+        virtualBranch: 'something',
+        junctionOperator: '$not',
       });
 
       const newBranchNodeId = this.appendChildNodeWithContent(
@@ -186,7 +186,7 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
     // );
 
     if (!genericTree) {
-      throw new Error("No Generic Tree");
+      throw new Error('No Generic Tree');
     }
     const fsTree = new FsFieldLogicModel(
       rootFieldId,
@@ -235,23 +235,26 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
 
     const logicJson: TFsLogicNodeJson =
       fieldJson.logic as TFsFieldLogicJunctionJson;
+    if (!logicJson) {
+      console.log({ fromFieldJson: { debug: true, logicJson } });
+    }
     const { action, conditional, checks } = logicJson;
     const rootNode = {
-      fieldId: fieldJson.id || "__MISSING_ID__",
+      fieldId: fieldJson.id || '__MISSING_ID__',
       conditional,
-      action: action || "Show", // *tmc* shouldn't be implementing business logic here
+      action: action || 'Show', // *tmc* shouldn't be implementing business logic here
       logicJson,
       checks,
     };
 
     const tree = new FsFieldLogicModel(
-      fieldJson.id || "_calc_tree_",
+      fieldJson.id || '_calc_tree_',
       // @ts-ignore - there is a little confuse about a tree node and a logic node
       rootNode as TFsFieldLogicNode
     );
     tree._action = action || null;
     tree._fieldJson = logicJson;
-    tree._ownerFieldId = fieldJson.id || "_calc_tree_";
+    tree._ownerFieldId = fieldJson.id || '_calc_tree_';
 
     const { leafExpressions } = transformLogicLeafJsonToLogicLeafs(
       tree.fieldJson as TFsFieldLogicJunctionJson
@@ -334,13 +337,13 @@ const transformLogicLeafJsonToLogicLeafs = (
   logicJson: TFsFieldLogicJunctionJson
 ) => {
   const { action, conditional, checks } = logicJson || {};
-  const op = conditional === "all" ? "$and" : "$or";
+  const op = conditional === 'all' ? '$and' : '$or';
 
   const leafExpressions = (checks || []).map((check) => {
     const { condition, field, option } =
       check as unknown as TFsFieldLogicCheckLeafJson;
     return {
-      fieldId: field + "" || "__MISSING_ID__",
+      fieldId: field + '' || '__MISSING_ID__',
       fieldJson: check,
       condition: convertFsOperatorToOp(
         check as unknown as TFsFieldLogicCheckLeafJson

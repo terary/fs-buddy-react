@@ -477,19 +477,25 @@ class FsLogicTreeDeep {
     deepTree: FsLogicTreeDeep,
     deepTreeParentNodeId?: string
   ): FsLogicTreeDeep | null {
+    // This is not parsing as expected
+    // Look at webhook Two Conflicting Panel
+
     const field = formModel.getFieldModelOrThrow(fieldId);
     const logicTree = field.getLogicTree() || null;
     const visualTree = field.getVisibilityLogicTree();
     const m = formModel.aggregateLogicTree(field.fieldId);
-    const q = FsFieldLogicModel.fromFieldJson(field.fieldJson);
+    const q = field.fieldJson.logic
+      ? FsFieldLogicModel.fromFieldJson(field.fieldJson)
+      : null;
     if (!logicTree && !visualTree) {
       //       { fieldId, condition, option } as TFsFieldLogicCheckLeaf
       // const { fieldId, condition, option } = {}
 
-      deepTree.appendChildNodeWithContent(
-        deepTree.rootFieldId,
-        new FsLogicLeafNode('fieldId', 'equals', 'option')
-      );
+      // what leaf is this supposed to be
+      // deepTree.appendChildNodeWithContent(
+      //   deepTree.rootFieldId, // I think this should be deepTreeParentNodeId
+      //   new FsLogicLeafNode(fieldId, 'equals', 'option')
+      // );
       return deepTree;
     }
 

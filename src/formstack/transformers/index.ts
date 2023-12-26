@@ -3,6 +3,7 @@ import { TFsFieldAnyFromJson } from './TFsFieldAnyFromJson';
 import { TFsFieldLogicJunctionFromJson } from './TFsFieldLogicJunctionFromJson';
 import { pojoToD3TableData } from './pojoToD3TableData';
 import { transformNotificationEmailLogicJson } from './transformNotificationEmailLogicJson';
+import { transformLogicJsonToOffFormLogic } from './transformLogicJsonToOffFormLogic';
 import { Utility } from './Utility';
 import {
   TFsFieldLogicNodeToPojo,
@@ -12,6 +13,7 @@ export const transformers = {
   fieldJson: TFsFieldAnyFromJson,
   formJson: TApiFormFromJson,
   logicJunctionJson: TFsFieldLogicJunctionFromJson,
+  offFormLogicJsonToLogic: transformLogicJsonToOffFormLogic,
   notificationEmailLogicJson: transformNotificationEmailLogicJson,
   TFsFieldLogicNode: {
     fromPojo: TFsFieldLogicNodeFromPojo,

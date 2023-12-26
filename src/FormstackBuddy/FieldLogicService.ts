@@ -39,7 +39,10 @@ class FieldLogicService {
       const fieldId = node.fieldId;
       fieldSummaries[fieldId] = {
         fieldId: fieldId,
-        label: node.field.label,
+        label:
+          node.field.label ||
+          node.field.section_heading ||
+          ' (' + node.field.fieldType + ') ',
         type: node.field.fieldType,
       };
     });

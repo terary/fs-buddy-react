@@ -4,6 +4,7 @@
   "description": "Formstack FsBuddy (a glitch sniffer)",
   "license": "MIT",
   "scripts": {
+    "test": "jest",
     "build": "node utils/build.js",
     "build:prod": "NODE_ENV=production npm run build",
     "start": "node utils/webserver.js",

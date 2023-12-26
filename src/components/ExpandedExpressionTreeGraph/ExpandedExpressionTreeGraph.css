@@ -1,4 +1,19 @@
 circle {
+  /* fill: green; */
+  fill: steelblue;
+  stroke: none;
+}
+.greenCircle {
+  fill: green;
+  /* fill: steelblue; */
+  stroke: none;
+}
+.blueCircle {
+ /* fill: #5E81AC; */
+  fill: blue;
+  stroke: none;
+}
+.greyCircle {
   fill: steelblue;
   stroke: none;
 }
