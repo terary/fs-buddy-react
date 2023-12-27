@@ -1,5 +1,5 @@
-import { isFunctions } from "../../../common/isFunctions";
-import { ScalarEvaluator } from "./ScalarEvaluator";
+import { isFunctions } from '../../../common/isFunctions';
+import { ScalarEvaluator } from './ScalarEvaluator';
 
 class NumberEvaluator extends ScalarEvaluator {
   parseValues<S = string, T = string>(submissionDatum?: S): T;

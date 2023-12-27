@@ -1,8 +1,8 @@
-import { AbstractEvaluator } from "./AbstractEvaluator";
-import { TStatusRecord, TUiEvaluationObject } from "./type";
+import { AbstractEvaluator } from './AbstractEvaluator';
+import { TStatusRecord, TUiEvaluationObject } from './type';
 
-import { isFunctions } from "../../../common/isFunctions";
-import type { TSimpleDictionary } from "./type";
+import { isFunctions } from '../../../common/isFunctions';
+import type { TSimpleDictionary } from './type';
 type TComplexDatumField = TSimpleDictionary<string>;
 
 abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator {
@@ -20,7 +20,7 @@ abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator
 
     // should we check if all keys are valid?
     return (
-      typeof parseSubmittedData === "object" &&
+      typeof parseSubmittedData === 'object' &&
       parseSubmittedData !== null &&
       Object.keys(parseSubmittedData).length > 0
     );
@@ -41,16 +41,16 @@ abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator
       return {};
     }
 
-    if (!submissionDatum.match("\n")) {
+    if (!submissionDatum.match('\n')) {
       return {};
     }
 
-    const records = submissionDatum.split("\n");
+    const records = submissionDatum.split('\n');
     return records.reduce((prev, cur, i, a) => {
-      const [subfieldIdRaw, valueRaw] = cur.split("=");
-      const subfieldId = (subfieldIdRaw || "").trim();
-      const value = (valueRaw || "").trim();
-      if (subfieldId !== "" || value !== "") {
+      const [subfieldIdRaw, valueRaw] = cur.split('=');
+      const subfieldId = (subfieldIdRaw || '').trim();
+      const value = (valueRaw || '').trim();
+      if (subfieldId !== '' || value !== '') {
         prev[subfieldId] = value;
       }
 
@@ -69,12 +69,12 @@ abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator
       return {};
     }
 
-    const records = submissionDatum.split("\n");
+    const records = submissionDatum.split('\n');
     return records.reduce((prev, cur, i, a) => {
-      const [subfieldIdRaw, valueRaw] = cur.split("=");
-      const subfieldId = (subfieldIdRaw || "").trim();
-      const value = (valueRaw || "").trim();
-      if (subfieldId !== "" || value !== "") {
+      const [subfieldIdRaw, valueRaw] = cur.split('=');
+      const subfieldId = (subfieldIdRaw || '').trim();
+      const value = (valueRaw || '').trim();
+      if (subfieldId !== '' || value !== '') {
         prev[subfieldId] = value;
       }
 
@@ -85,11 +85,11 @@ abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator
   protected createStatusMessageArrayWithStoredValue<T>(
     submissionDatum?: T | undefined
   ): TStatusRecord[] {
-    let message = "";
+    let message = '';
     if (isFunctions.isString(submissionDatum)) {
-      message = `Stored value: '${((submissionDatum as string) || "").replace(
+      message = `Stored value: '${((submissionDatum as string) || '').replace(
         /\n/g,
-        "\\n"
+        '\\n'
       )}'.`;
     } else if (submissionDatum === undefined) {
       message = `Stored value: '${super.getStoredValue<string>(
@@ -101,7 +101,7 @@ abstract class AbstractComplexSubmissionDatumEvaluator extends AbstractEvaluator
 
     return [
       {
-        severity: "info",
+        severity: 'info',
         fieldId: this.fieldId,
         message,
         relatedFieldIds: [],

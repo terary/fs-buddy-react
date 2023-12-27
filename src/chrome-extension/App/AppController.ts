@@ -1,10 +1,13 @@
-import { TApiForm, TApiFormJson, TSubmissionJson } from '../common/type.form';
-import { actions, UIStateContext, UIStateDispatch } from '../AppState';
+import type { TApiFormJson, TSubmissionJson } from '../../formstack';
+import { actions } from '../AppState';
 import { filterStatusMessages, keyIn } from '../../common/functions';
-import { FsFormModel } from '../../formstack';
-import { FormAnalytics } from '../../FormstackBuddy/FormAnalytics';
-import { FieldLogicService } from '../../FormstackBuddy/FieldLogicService';
-import { transformers } from '../../formstack/transformers';
+import {
+  transformers,
+  FsFormModel,
+  FormAnalyticService,
+  FieldLogicService,
+} from '../../formstack';
+
 import {
   TOffFormLogicEntity,
   UIStateApiResponseFormGetType,
@@ -55,7 +58,7 @@ class AppController {
   #apiKey!: string;
   #formModel!: FsFormModel;
   #fieldLogicService!: FieldLogicService;
-  #formAnalytics!: FormAnalytics;
+  #FormAnalyticService!: FormAnalyticService;
   #formId!: string;
 
   public setApiKey(apiKey: string) {
@@ -93,7 +96,7 @@ class AppController {
     }
 
     const formJson = transformers.formJson(apiFormJson);
-    this.#formAnalytics = new FormAnalytics(formJson);
+    this.#FormAnalyticService = new FormAnalyticService(formJson);
     this.#formModel = FsFormModel.fromApiFormJson(formJson);
     this.#fieldLogicService = new FieldLogicService(formJson);
 
@@ -265,13 +268,13 @@ class AppController {
     return logicItems;
   }
 
-  public getFormAnalyticOrThrow(): FormAnalytics {
-    if (this.#formAnalytics instanceof FormAnalytics) {
-      return this.#formAnalytics;
+  public getFormAnalyticOrThrow(): FormAnalyticService {
+    if (this.#FormAnalyticService instanceof FormAnalyticService) {
+      return this.#FormAnalyticService;
     }
 
     throw new Error(
-      'Tried to access formAnalytics before appController initialized.'
+      'Tried to access FormAnalyticService before appController initialized.'
     );
   }
 

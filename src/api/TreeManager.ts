@@ -1,11 +1,5 @@
-import { TApiFormJson } from '../formstack/type.form';
-// import { FormstackBuddy } from '../FormstackBuddy/FormstackBuddy';
-import { FieldLogicService } from '../FormstackBuddy/FieldLogicService';
-import { transformers } from '../formstack/transformers';
-import { TFsFieldLogicJunctionJson } from '../formstack/classes/subtrees/types';
-
-// type TFsNotificationEmailLogic = {
-// };
+import type { TApiFormJson, TFsFieldLogicJunctionJson } from '../formstack';
+import { FieldLogicService, transformers } from '../formstack';
 
 type TApiWebHookJson = {
   logic: TFsFieldLogicJunctionJson; // TFsFieldLogicJunction<TFsJunctionOperators>; // ?

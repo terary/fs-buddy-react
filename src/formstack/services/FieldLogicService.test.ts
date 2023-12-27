@@ -1,14 +1,12 @@
 import { FieldLogicService } from './FieldLogicService';
-import circularAndInterdependentJson from '../test-dev-resources/form-json/5375703.json';
-import formJson5469299 from '../test-dev-resources/form-json/5469299.json';
-import formJson5375703 from '../test-dev-resources/form-json/5375703.json';
-import confirmationJson5375703 from '../test-dev-resources/confirmation-json/5375703.json';
-import notificationJson5375703 from '../test-dev-resources/notification-json/5375703.json';
-import webhookJson5375703 from '../test-dev-resources/webhook-json/5375703.json';
-import { FsFormModel, TFsFieldAnyJson } from '../formstack';
-import { transformers } from '../formstack/transformers';
-import { TApiFormJson } from '../formstack/type.form';
-import formJson5488291 from '../test-dev-resources/form-json/5488291.json';
+import circularAndInterdependentJson from '../../test-dev-resources/form-json/5375703.json';
+import formJson5469299 from '../../test-dev-resources/form-json/5469299.json';
+import formJson5375703 from '../../test-dev-resources/form-json/5375703.json';
+import notificationJson5375703 from '../../test-dev-resources/notification-json/5375703.json';
+import webhookJson5375703 from '../../test-dev-resources/webhook-json/5375703.json';
+import { FsFormModel, transformers } from '..';
+import type { TApiFormJson } from '..';
+import formJson5488291 from '../../test-dev-resources/form-json/5488291.json';
 
 describe('FieldLogicService', () => {
   describe('.getFormLogicStatusMessages()', () => {

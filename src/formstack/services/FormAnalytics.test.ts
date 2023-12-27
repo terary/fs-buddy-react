@@ -1,17 +1,15 @@
-import { FormAnalytics } from './FormAnalytics';
-import formJson5456371 from '../test-dev-resources/form-json/5456371.json';
-import formJson5568576 from '../test-dev-resources/form-json/5568576.json';
+import { FormAnalyticService } from './FormAnalyticService';
+import formJson5456371 from '../../test-dev-resources/form-json/5456371.json';
+import formJson5568576 from '../../test-dev-resources/form-json/5568576.json';
 
-import formJsonCaseAssist5483176 from '../test-dev-resources/form-json/caseAssist5483176.json';
-import workflowJson5456833 from '../test-dev-resources/form-json/5456833.json';
-import { transformers as jsonTransformers } from '../formstack/transformers';
-import { TApiForm, TApiFormJson } from '../formstack/type.form';
-import { RadioEvaluator } from '../formstack/classes/Evaluator/RadioEvaluator';
+import workflowJson5456833 from '../../test-dev-resources/form-json/5456833.json';
+import { transformers as jsonTransformers } from '..';
+import type { TApiFormJson } from '..';
 
-describe('FormAnalytics', () => {
+describe('FormAnalyticService', () => {
   describe('.getLabelsWithAssociatedFieldIds()', () => {
     it('Should return an TSimpleDictionary<string[]> where label is key and an array fieldIds.', () => {
-      const formAnalytic = new FormAnalytics(
+      const formAnalytic = new FormAnalyticService(
         jsonTransformers.formJson(formJson5456371 as unknown as TApiFormJson)
       );
 
@@ -27,7 +25,7 @@ describe('FormAnalytics', () => {
   describe('Case Assist, troubleshooting.', () => {
     //import formJson5488291 from "../test-dev-resources/form-json/5488291.json";
     it.skip('Should have a status message about duplicate labels', () => {
-      const formAnalytic = new FormAnalytics(
+      const formAnalytic = new FormAnalyticService(
         jsonTransformers.formJson(formJson5568576 as unknown as TApiFormJson)
       );
       const x = formAnalytic.findKnownSetupIssues();
@@ -36,7 +34,7 @@ describe('FormAnalytics', () => {
   });
   describe.skip('.findKnownSetupIssues()', () => {
     it('Should return messages for all known form issues.', () => {
-      const formAnalytic = new FormAnalytics(
+      const formAnalytic = new FormAnalyticService(
         jsonTransformers.formJson(formJson5456371 as unknown as TApiFormJson)
       );
       const x = formAnalytic.findKnownSetupIssues();
@@ -82,7 +80,7 @@ describe('FormAnalytics', () => {
     it('Should return messages for all known form issues.', () => {
       //TApiFormFromJson
 
-      const formAnalytic = new FormAnalytics(
+      const formAnalytic = new FormAnalyticService(
         jsonTransformers.formJson(
           workflowJson5456833 as unknown as TApiFormJson
         )

@@ -1,5 +1,5 @@
-import { ApiConfirmationEmailManager } from '../common/ApiConfirmationEmailManager';
-import { ApiFormCacheManager } from '../common/ApiFormCacheManager';
+import { ApiConfirmationEmailManager } from '../api/ApiConfirmationEmailManager';
+import { ApiFormCacheManager } from '../api/ApiFormCacheManager';
 import { FsFormModel, FsLogicTreeDeep } from '../formstack';
 
 const apiKey = 'cc17435f8800943cc1abd3063a8fe44f';

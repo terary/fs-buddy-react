@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { FsFormModel, TFsFieldAnyJson } from '../../../formstack';
-import { FieldLogicService } from '../../../FormstackBuddy/FieldLogicService';
-import { FormAnalytics } from '../../../FormstackBuddy/FormAnalytics';
+import React from 'react';
+import {
+  FsFormModel,
+  FieldLogicService,
+  FormAnalyticService,
+} from '../../../formstack';
 import { FormView } from './FormView/FormView';
 import './ContentScript.css';
 import { App } from '../../App';
 
+// *tmc* these shouldn't be used any more?  They should be in AppController ?
 let fieldLogicService: FieldLogicService | null = null;
-let formAnalytic: FormAnalytics | null = null;
+let formAnalytic: FormAnalyticService | null = null;
 let currentFieldCollection: FsFormModel;
 const formView = new FormView();
 

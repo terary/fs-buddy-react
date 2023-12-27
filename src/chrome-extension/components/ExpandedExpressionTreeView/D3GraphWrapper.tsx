@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import * as d3 from 'd3';
-import './ExpandedExpressionTreeGraph.css';
+import './D3GraphWrapper.css';
 
 interface D3NodeEnvelopeShape {
   //
@@ -29,7 +29,7 @@ interface D3NodeShape {
   data: { nodeContent: any };
 }
 type LabelOptionsType = 'label' | 'fieldId' | 'nodeId' | 'nodeIdExt';
-const ExpandedExpressionTreeGraph = (props: IBasicPieChartProps) => {
+const D3GraphWrapper = (props: IBasicPieChartProps) => {
   useEffect(() => {
     props.data && props.data.length > 0 && draw();
     console.log({
@@ -248,4 +248,4 @@ interface IBasicPieChartProps {
   data: any[];
 }
 
-export default ExpandedExpressionTreeGraph;
+export { D3GraphWrapper };

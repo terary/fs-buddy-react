@@ -1,20 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
-import {
-  UIStateContext,
-  UIStateDispatch,
-  actions,
-} from '../../chrome-extension/AppState';
+import { UIStateContext, UIStateDispatch, actions } from '../../AppState';
+
 import { Button } from 'primereact/button';
-// import { FormView } from '../pages/Content/FormView/FormView';
-import { FormView } from '../../chrome-extension/pages/Content/FormView/FormView';
+import { FormView } from '../../pages/Content/FormView/FormView';
 
 import './MessageFilter.module.css';
-import { TStatusRecord } from '../StatusMessageListContainer/type';
-import { StatusMessageContainer } from '../StatusMessageListContainer/StatusMessageContainer';
 import { StatusMessageListContainer } from '../StatusMessageListContainer';
 import { CheckboxArray } from '../CheckboxArray';
-import { TStatusMessageSeverity } from '../../formstack/classes/Evaluator/type';
+import type { TStatusMessageSeverity, TStatusRecord } from '../../../formstack';
 
 type LogFilterType = {
   label: string;

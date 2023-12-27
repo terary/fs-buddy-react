@@ -1,6 +1,6 @@
 import React from 'react';
 import './StatusMessage.css';
-import { TStatusRecord } from '../../../formstack/classes/Evaluator/type';
+import type { TStatusRecord } from '../../../formstack';
 
 interface Props {
   statusMessages?: TStatusRecord[];

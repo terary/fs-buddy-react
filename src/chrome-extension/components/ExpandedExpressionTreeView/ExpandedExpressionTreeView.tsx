@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import ExpandedExpressionTreeGraph from './ExpandedExpressionTreeGraph';
+import { D3GraphWrapper } from './D3GraphWrapper';
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
 
-import {
-  UIStateContext,
-  UIStateDispatch,
-} from '../../chrome-extension/AppState';
+import { UIStateContext, UIStateDispatch } from '../../AppState';
 type LabelOptionsType = 'label' | 'fieldId' | 'nodeId' | 'nodeIdExt';
 
-const ExpandedExpressionTreeWrapper = () => {
+const ExpandedExpressionTreeView = () => {
   const dispatcher = useContext(UIStateDispatch);
   const uiStateContext = useContext(UIStateContext);
 
@@ -50,7 +47,7 @@ const ExpandedExpressionTreeWrapper = () => {
             })}
           </div>
         </div>
-        <ExpandedExpressionTreeGraph
+        <D3GraphWrapper
           height={500}
           width={700}
           labelBy={nodeLabelType}
@@ -77,6 +74,4 @@ const EmptyTree = () => {
   );
 };
 
-export { ExpandedExpressionTreeWrapper };
-
-const ExtendedTreeGraphWrapper = () => {};
+export { ExpandedExpressionTreeView };
