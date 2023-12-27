@@ -1,9 +1,13 @@
-import { TApiFormJson, TSubmissionJson } from '../../formstack';
+import type { TApiFormJson, TSubmissionJson } from '../../formstack';
 import { actions } from '../AppState';
 import { filterStatusMessages, keyIn } from '../../common/functions';
-import { FsFormModel } from '../../formstack';
-import { FormAnalyticService, FieldLogicService } from '../../FormstackService';
-import { transformers } from '../../formstack';
+import {
+  transformers,
+  FsFormModel,
+  FormAnalyticService,
+  FieldLogicService,
+} from '../../formstack';
+
 import {
   TOffFormLogicEntity,
   UIStateApiResponseFormGetType,

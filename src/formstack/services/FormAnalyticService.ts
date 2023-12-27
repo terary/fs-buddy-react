@@ -1,14 +1,14 @@
-import { FsFormModel, TTreeFieldNode } from '../formstack';
-import { FsFieldModel } from '../formstack/classes/subtrees/trees';
-import { FsFormRootNode } from '../formstack/classes/subtrees/trees/nodes';
+import { FsFormModel, TTreeFieldNode } from '..';
+import { FsFieldModel } from '../classes/subtrees/trees';
+import { FsFormRootNode } from '../classes/subtrees/trees/nodes';
 import {
   TSimpleDictionary,
   TStatusMessageSeverity,
   TStatusRecord,
-} from '../formstack/classes/Evaluator/type';
-import { TApiForm } from '../formstack/type.form';
-import { Evaluator } from '../formstack/classes/Evaluator';
-import { TFsFieldAny } from '../formstack/type.field';
+} from '../classes/Evaluator/type';
+import { TApiForm } from '../type.form';
+import { Evaluator } from '../classes/Evaluator';
+import { TFsFieldAny } from '../type.field';
 
 class FormAnalyticService {
   private _fieldJson: TApiForm;

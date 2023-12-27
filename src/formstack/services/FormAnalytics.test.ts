@@ -1,12 +1,10 @@
 import { FormAnalyticService } from './FormAnalyticService';
-import formJson5456371 from '../test-dev-resources/form-json/5456371.json';
-import formJson5568576 from '../test-dev-resources/form-json/5568576.json';
+import formJson5456371 from '../../test-dev-resources/form-json/5456371.json';
+import formJson5568576 from '../../test-dev-resources/form-json/5568576.json';
 
-import formJsonCaseAssist5483176 from '../test-dev-resources/form-json/caseAssist5483176.json';
-import workflowJson5456833 from '../test-dev-resources/form-json/5456833.json';
-import { transformers as jsonTransformers } from '../formstack/transformers';
-import { TApiForm, TApiFormJson } from '../formstack/type.form';
-import { RadioEvaluator } from '../formstack/classes/Evaluator/RadioEvaluator';
+import workflowJson5456833 from '../../test-dev-resources/form-json/5456833.json';
+import { transformers as jsonTransformers } from '..';
+import type { TApiFormJson } from '..';
 
 describe('FormAnalyticService', () => {
   describe('.getLabelsWithAssociatedFieldIds()', () => {

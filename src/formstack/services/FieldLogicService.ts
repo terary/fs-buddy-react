@@ -1,18 +1,18 @@
-import { FsFormModel, TTreeFieldNode } from '../formstack';
-import { FsFieldModel } from '../formstack/classes/subtrees/trees';
-import { FsFormRootNode } from '../formstack/classes/subtrees/trees/nodes';
-import { TApiForm } from '../formstack/type.form';
-import { transformers } from '../formstack/transformers';
-import {
+import { FsFormModel, TTreeFieldNode } from '..';
+import { FsFieldModel } from '../classes/subtrees/trees';
+import { FsFormRootNode } from '../classes/subtrees/trees/nodes';
+import type { TApiForm } from '../type.form';
+import { transformers } from '../transformers';
+import type {
   TSimpleDictionary,
   TStatusMessageSeverity,
   TStatusRecord,
-} from '../formstack/classes/Evaluator/type';
-import {
+} from '../classes/Evaluator/type';
+import type {
   TLogicTreeDeepStatisticCountRecord,
   TLogicTreeDeepStatisticCountField,
-} from '../formstack/classes/subtrees/trees/FsLogicTreeDeep';
-import { TGraphNode } from '../formstack';
+} from '../classes/subtrees/trees/FsLogicTreeDeep';
+import type { TGraphNode } from '../type';
 
 class FieldLogicService {
   // FsLogicTreeDeep

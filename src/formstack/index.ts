@@ -1,3 +1,5 @@
+export { FsFieldModel } from './classes/subtrees/trees';
+
 export { TUiEvaluationObject } from './classes/Evaluator/type';
 
 export { FsLogicTreeDeep } from './classes/subtrees';
@@ -16,4 +18,5 @@ export type {
 } from './classes/subtrees/types';
 export type { TSubmissionJson, TApiFormJson, TApiForm } from './type.form';
 export type { TGraphNode } from './type';
-/// TUiEvaluationObject
+
+export { FieldLogicService, FormAnalyticService } from './services';
