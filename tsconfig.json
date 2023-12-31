@@ -2,7 +2,7 @@
   "compilerOptions": {
 
     "module": "commonjs",
-    "target": "es6",
+    "target": "ESNext",
 
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
@@ -15,7 +15,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noEmit": false,
-    "jsx": "react"
+    "jsx": "react",
+    "types": ["@testing-library/jest-dom"],
+    
   },
   "include": ["src"],
   "exclude": ["build", "node_modules", "src/**/*.test.ts", "src/**/*.test.tsx" ]
