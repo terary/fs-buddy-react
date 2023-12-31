@@ -1,11 +1,12 @@
-import React from "react";
-import styles from "./Checkbox.module.css";
-interface CheckboxProps {
+import React, { ReactNode } from 'react';
+import styles from './Checkbox.module.css';
+interface Props {
   label: string;
   valueKey: string; // will emit {[valueKey]: true | false}
   value?: boolean;
 
   initialValue?: boolean;
+  //children: ReactNode; // as React.FC declares it for you, just delete this line
   onChange?: ({
     valueKey,
     isChecked,
@@ -13,15 +14,24 @@ interface CheckboxProps {
     valueKey: string;
     isChecked: boolean;
   }) => void;
+  children?: any;
 }
 
-const Checkbox = ({
+// const ApiKeyContainer: React.FC<Props> = ({
+//   apiKey,
+//   formId,
+//   onChange,
+// }: Props) => {
+
+// const App: React.FC = () => {
+const Checkbox: React.FC<Props> = ({
   label,
   valueKey,
   onChange,
   value,
   initialValue = true,
-}: CheckboxProps) => {
+  children,
+}: Props) => {
   const [isChecked, setIsChecked] = React.useState(initialValue);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
