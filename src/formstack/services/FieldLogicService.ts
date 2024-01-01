@@ -50,9 +50,9 @@ class FieldLogicService {
     return fieldSummaries;
   }
 
-  getExtendTreeForFieldId(fieldId: string) {
-    return this._formModel.getDeepLogicTreeByFieldId(fieldId);
-  }
+  // getExtendTreeForFieldId(fieldId: string) {
+  //   return this._formModel.getDeepLogicTreeByFieldId(fieldId);
+  // }
 
   getFormLogicStatusMessages(): TStatusRecord[] {
     const statusMessages: TStatusRecord[] = [];

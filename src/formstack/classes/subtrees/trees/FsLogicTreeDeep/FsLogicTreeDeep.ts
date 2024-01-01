@@ -411,17 +411,19 @@ class FsLogicTreeDeep {
     return newTree;
   }
 
-  // if (["hide", "Hide"].includes(action || "")) {
-  //   return simpleLogicTree.getNegatedClone();
-  // }
-
   static fromFormModel(
     fieldId: string,
     formModel: FsFormModel,
     deepTree?: FsLogicTreeDeep,
     deepTreeParentNodeId?: string
   ): FsLogicTreeDeep | null {
-    const field = formModel.getFieldModelOrThrow(fieldId);
+    //    const field = formModel.getFieldModelOrThrow(fieldId);
+    const field = formModel.getFieldModel(fieldId);
+    if (field === null || field === undefined) {
+      // This would be cases where the logic expression references a field that is no on form (bad fieldId, deleted fields)
+      return null;
+    }
+
     const logicTree = field.getLogicTree() || null;
     const visualTree = field.getVisibilityLogicTree();
 

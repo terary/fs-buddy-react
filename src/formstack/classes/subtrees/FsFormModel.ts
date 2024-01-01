@@ -5,11 +5,8 @@ import { FsFieldModel } from './trees/FsFieldModel';
 import { FsFieldVisibilityLinkNode, FsFormRootNode } from './trees/nodes';
 import type {
   TFsFieldLogicCheckLeaf,
-  TFsFieldLogicCheckLeafJson,
-  TFsFieldLogicJunction,
   TFsFieldLogicJunctionJson,
   TFsJunctionOperators,
-  TFsLeafOperators,
   TSimpleDictionary,
   TTreeFieldNode,
 } from './types';
@@ -210,9 +207,14 @@ class FsFormModel extends AbstractExpressionTree<
   getFieldIdsWithLogicError(): string[] {
     const allFieldIds = Object.keys(this._fieldIdNodeMap);
     return allFieldIds.filter((fieldId) => {
-      const agTree = this.aggregateLogicTree(fieldId);
-      if (agTree) {
-        return agTree.getLogicErrorNodes().length > 0;
+      try {
+        const agTree = this.aggregateLogicTree(fieldId);
+        if (agTree) {
+          return agTree.getLogicErrorNodes().length > 0;
+        }
+      } catch (e) {
+        console.log({ e });
+        console.log('Found it');
       }
       // return false; // necessary?
     });

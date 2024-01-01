@@ -1,5 +1,4 @@
 import { FieldLogicService } from './FieldLogicService';
-import circularAndInterdependentJson from '../../test-dev-resources/form-json/5375703.json';
 import formJson5469299 from '../../test-dev-resources/form-json/5469299.json';
 import formJson5375703 from '../../test-dev-resources/form-json/5375703.json';
 import notificationJson5375703 from '../../test-dev-resources/notification-json/5375703.json';
@@ -9,163 +8,85 @@ import type { TApiFormJson } from '..';
 import formJson5488291 from '../../test-dev-resources/form-json/5488291.json';
 
 describe('FieldLogicService', () => {
-  describe('.getFormLogicStatusMessages()', () => {
-    it('Should find fieldIds not in form.', () => {
-      // What is the simple way to determine if a fieldId is not in-form
-      // Do we only include leaves ?
+  describe('.getAllFieldSummary()', () => {
+    it('Should return a list of field summaries', () => {
+      const fieldLogic = new FieldLogicService(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
 
-      // formJson5488291
+      const fieldSummaryList = fieldLogic.getAllFieldSummary();
+
+      expect(fieldSummaryList).toStrictEqual(fieldSummaryformJson5375703);
+    });
+  });
+  describe('.getFormLogicStatusMessages()', () => {
+    it('Should find fieldId in logic that are not in the form.', () => {
       const fieldLogicService = new FieldLogicService(
         transformers.formJson(formJson5488291 as unknown as TApiFormJson)
       );
 
-      const x = fieldLogicService.getFieldIdsWithLogicError();
-      expect(fieldLogicService.getFieldIdsWithLogicError()).toStrictEqual([
-        '153112633',
-      ]);
-    });
-    it.skip('dev/debug', () => {
-      const fieldLogicService = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
-      );
-      const graphMap = fieldLogicService.getLogicNodeGraphMap('148604161');
       const statusMessages = fieldLogicService.getFormLogicStatusMessages();
       expect(statusMessages).toStrictEqual([
         {
-          severity: 'info',
+          severity: 'error',
+          fieldId: null,
+          message:
+            'Found fieldId used in logic but not in form. fieldId: "9153115414". ',
+          relatedFieldIds: [],
+        },
+        {
+          severity: 'logic',
           fieldId: null,
           message:
             "Checked all fieldIds in logic expression are contained in this form (don't laugh, it happens).<br />",
           relatedFieldIds: [],
         },
         {
-          severity: 'info',
+          severity: 'logic',
           fieldId: null,
           message:
-            'Field Leaf Usage (field actual in leaf expression): <pre><code>{\n  "148509474": 7,\n  "148509475": 7,\n  "148509477": 7,\n  "148509478": 7,\n  "148604239": 4,\n  "151678347": 7,\n  "152139063": 1,\n  "152139064": 1,\n  "152139066": 1,\n  "152139068": 1\n}</code></pre>',
+            'Field Leaf Usage (field actual in leaf expression): <pre><code>{\n  "153115729": 1,\n  "9153115414": 1\n}</code></pre>',
           relatedFieldIds: [],
         },
         {
-          severity: 'info',
+          severity: 'logic',
           fieldId: null,
           message:
-            'Logic composition: <pre><code>{\n  "totalNodes": 153,\n  "totalCircularLogicNodes": 24,\n  "totalCircularExclusiveLogicNodes": 0,\n  "totalCircularInclusiveLogicNodes": 0,\n  "totalUnclassifiedNodes": 0,\n  "totalLeafNodes": 43,\n  "totalBranchNodes": 67,\n  "totalRootNodes": 19,\n  "leafToNodeRatio": "0.2810",\n  "branchToNodeRatio": "0.4379",\n  "leafToBranchRatio": "0.6418"\n}</code></pre>\n      <ul>\n        <li>totalNodes - Each time a field involved in a logic expression. If a field is used twice this will be reflected in this number</li>\n        <li>totalCircularLogicNodes - Logic conflict at the branch level.</li>\n        <li>totalCircularExclusiveLogicNodes - Logic conflict at the leaf level, non-resolvable.</li>\n        <li>totalCircularInclusiveLogicNodes - Logic conflict at the leaf level, resolvable.</li>\n        <li>totalLeafNodes - Logic terms (the actual "x equal _SOMETHING_").</li>\n        <li>totalBranchNodes - Logic branch (something like: "Show" if _ANY_...).</li>\n        <li>totalRootNodes - The field that owns the logic expression.</li>\n        <li>Note: Circular nodes indicates invalid logic expression. If an expression is invalid these counts may not be accurate.</li>\n        <li>branchToNodeRatio - higher number indicates need to break into multiple forms.</li>\n        <li>leafToBranchRatio - higher number indicates good usage of logic .</li>\n      </ul>\n    ',
+            'Logic composition: <pre><code>{\n  "totalNodes": 7,\n  "totalCircularLogicNodes": 1,\n  "totalUnclassifiedNodes": 0,\n  "totalLeafNodes": 2,\n  "totalBranchNodes": 2,\n  "totalRootNodes": 2,\n  "leafToNodeRatio": "0.2857",\n  "branchToNodeRatio": "0.2857",\n  "leafToBranchRatio": "1.0000"\n}</code></pre>\n      <ul>\n        <li>totalNodes - Each time a field involved in a logic expression. If a field is used twice this will be reflected in this number</li>\n        <li>totalCircularLogicNodes - Logic conflict at the branch level.</li>\n        <li>totalCircularExclusiveLogicNodes - Logic conflict at the leaf level, non-resolvable.</li>\n        <li>totalCircularInclusiveLogicNodes - Logic conflict at the leaf level, resolvable.</li>\n        <li>totalLeafNodes - Logic terms (the actual "x equal _SOMETHING_").</li>\n        <li>totalBranchNodes - Logic branch (something like: "Show" if _ANY_...).</li>\n        <li>totalRootNodes - The field that owns the logic expression.</li>\n        <li>Note: Circular nodes indicates invalid logic expression. If an expression is invalid these counts may not be accurate.</li>\n        <li>branchToNodeRatio - higher number indicates need to break into multiple forms.</li>\n        <li>leafToBranchRatio - higher number indicates good usage of logic .</li>\n      </ul>\n    ',
           relatedFieldIds: [],
         },
         {
-          severity: 'info',
+          severity: 'logic',
           fieldId: null,
-          message: 'Number of fields with root logic:  15',
-          relatedFieldIds: [],
+          message: 'Number of fields with root logic:  2',
+          relatedFieldIds: ['153112633', '153115729'],
         },
         {
-          severity: 'info',
+          severity: 'logic',
           fieldId: null,
-          message: 'Number of fields without root logic:  14',
+          message: 'Number of fields without root logic:  3',
           relatedFieldIds: [],
         },
         {
           severity: 'warn',
           fieldId: null,
-          message: 'Number of fields with circular references:  17',
-          relatedFieldIds: [],
+          message: 'Number of fields with circular references:  1',
+          relatedFieldIds: ['153115729'],
         },
         {
-          severity: 'info',
+          severity: 'logic',
           fieldId: null,
           message: 'Number of fields with general logic errors:  0',
           relatedFieldIds: [],
         },
       ]);
     });
-    it.skip('dev/debug webhook treeGraph', () => {
-      const WK_TWO_CIRCULAR = 2;
-      const NE_TWO_CIRCULAR = 2;
-      const fieldLogicService = new FieldLogicService(
-        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
-      );
-      const formModel5375703 = FsFormModel.fromApiFormJson(
-        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
-      );
-      // const agTree156919669 = formModel5375703.aggregateLogicTree('156919669');
-      // const map = fieldLogicService.getLogicNodeGraphMap('156919669');
 
-      const webhookSwitzerland = transformers.offFormLogicJsonToLogic(
-        webhookJson5375703.webhooks[1],
-        'webhook',
-        formModel5375703
-      );
-      const webhooks = webhookJson5375703.webhooks.map((hookSchema) => {
-        return transformers.offFormLogicJsonToLogic(
-          hookSchema,
-          'webhook',
-          formModel5375703
-        )['graphMap'];
-      });
-
-      const notificationTwoCircular = transformers.offFormLogicJsonToLogic(
-        notificationJson5375703.notifications[2],
-        'notificationEmail',
-        formModel5375703
-      );
-
-      const graphMap = fieldLogicService.getLogicNodeGraphMap('148604161');
-      const statusMessages = fieldLogicService.getFormLogicStatusMessages();
-      expect(statusMessages).toStrictEqual([
-        {
-          severity: 'info',
-          fieldId: null,
-          message:
-            "Checked all fieldIds in logic expression are contained in this form (don't laugh, it happens).<br />",
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'info',
-          fieldId: null,
-          message:
-            'Field Leaf Usage (field actual in leaf expression): <pre><code>{\n  "148509474": 7,\n  "148509475": 7,\n  "148509477": 7,\n  "148509478": 7,\n  "148604239": 4,\n  "151678347": 7,\n  "152139063": 1,\n  "152139064": 1,\n  "152139066": 1,\n  "152139068": 1\n}</code></pre>',
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'info',
-          fieldId: null,
-          message:
-            'Logic composition: <pre><code>{\n  "totalNodes": 153,\n  "totalCircularLogicNodes": 24,\n  "totalCircularExclusiveLogicNodes": 0,\n  "totalCircularInclusiveLogicNodes": 0,\n  "totalUnclassifiedNodes": 0,\n  "totalLeafNodes": 43,\n  "totalBranchNodes": 67,\n  "totalRootNodes": 19,\n  "leafToNodeRatio": "0.2810",\n  "branchToNodeRatio": "0.4379",\n  "leafToBranchRatio": "0.6418"\n}</code></pre>\n      <ul>\n        <li>totalNodes - Each time a field involved in a logic expression. If a field is used twice this will be reflected in this number</li>\n        <li>totalCircularLogicNodes - Logic conflict at the branch level.</li>\n        <li>totalCircularExclusiveLogicNodes - Logic conflict at the leaf level, non-resolvable.</li>\n        <li>totalCircularInclusiveLogicNodes - Logic conflict at the leaf level, resolvable.</li>\n        <li>totalLeafNodes - Logic terms (the actual "x equal _SOMETHING_").</li>\n        <li>totalBranchNodes - Logic branch (something like: "Show" if _ANY_...).</li>\n        <li>totalRootNodes - The field that owns the logic expression.</li>\n        <li>Note: Circular nodes indicates invalid logic expression. If an expression is invalid these counts may not be accurate.</li>\n        <li>branchToNodeRatio - higher number indicates need to break into multiple forms.</li>\n        <li>leafToBranchRatio - higher number indicates good usage of logic .</li>\n      </ul>\n    ',
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'info',
-          fieldId: null,
-          message: 'Number of fields with root logic:  15',
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'info',
-          fieldId: null,
-          message: 'Number of fields without root logic:  14',
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'warn',
-          fieldId: null,
-          message: 'Number of fields with circular references:  17',
-          relatedFieldIds: [],
-        },
-        {
-          severity: 'info',
-          fieldId: null,
-          message: 'Number of fields with general logic errors:  0',
-          relatedFieldIds: [],
-        },
-      ]);
-    });
-    it.only('Should separate different circular reference', () => {
+    it('Should separate different circular reference', () => {
       const fieldLogicService = new FieldLogicService(
         transformers.formJson(
           formJson5469299 as unknown as TApiFormJson
-          // circularAndInterdependentJson as unknown as TApiFormJson
+          // formJson5375703 as unknown as TApiFormJson
         )
       );
 
@@ -257,27 +178,34 @@ describe('FieldLogicService', () => {
   describe('.getFieldIdsWithLogic() (aka branches)', () => {
     it('Should return all fieldIds for fields with logic', () => {
       const fieldLogic = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
-      expect(fieldLogic.getFieldIdsWithLogic().sort()).toStrictEqual(
+      const fieldIds = fieldLogic.getFieldIdsWithLogic();
+      expect(fieldIds.sort()).toStrictEqual(
         [
+          '151701616',
+          '156919669',
           '148456734',
-          '148456739',
-          '148456740',
-          '148456741',
           '148456742',
+          '148456741',
+          '148456740',
+          '148456739',
+          '153051795',
+          '153051796',
+          '154795680',
+          '154795826',
           '148509465',
           '148509470',
           '148509476',
-          '148604161',
-          '148604234',
-          '148604235',
-          '148604236',
-          '151701616',
+          '154328256',
           '152139062',
           '152139065',
+          '148604161',
+          '148604236',
+          '148604235',
+          '148604234',
+          '156917123',
+          '156917124',
         ].sort()
       );
     });
@@ -285,26 +213,36 @@ describe('FieldLogicService', () => {
   describe('.getFieldIdsWithoutLogic() (aka leaves)', () => {
     it('Should return all fieldIds for fields with logic', () => {
       const fieldLogic = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
-      expect(fieldLogic.getFieldIdsWithoutLogic().sort()).toStrictEqual(
+      const fieldIds = fieldLogic.getFieldIdsWithoutLogic();
+      expect(fieldIds.sort()).toStrictEqual(
         [
-          '148456700',
-          '148509474',
-          '148509475',
-          '148509477',
-          '148509478',
-          '148604159',
-          '148604239',
-          '151678347',
+          '154796590',
+          '156906187',
+          '154795678',
           '151702085',
+          '148456700',
+          '151678347',
+          '148509478',
+          '148509477',
+          '148509475',
+          '148509474',
+          '154328257',
+          '154328258',
+          '154328259',
+          '154328260',
+          '154328261',
+          '154328262',
           '152139061',
           '152139063',
           '152139064',
           '152139066',
           '152139068',
+          '148604159',
+          '148604239',
+          '156917750',
+          '156917751',
         ].sort()
       );
     });
@@ -312,13 +250,16 @@ describe('FieldLogicService', () => {
   describe('.getFieldIdsAll()', () => {
     it('Should return all fieldIds for fields with logic', () => {
       const fieldLogic = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
-      expect(fieldLogic.getFieldIdsAll().sort()).toStrictEqual(
+      const fieldIds = fieldLogic.getFieldIdsAll();
+      expect(fieldIds.sort()).toStrictEqual(
         [
           '151701616',
+          '156919669',
+          '154796590',
+          '156906187',
+          '154795678',
           '151702085',
           '148456734',
           '148456742',
@@ -327,6 +268,10 @@ describe('FieldLogicService', () => {
           '148456739',
           '148456700',
           '151678347',
+          '153051795',
+          '153051796',
+          '154795680',
+          '154795826',
           '148509465',
           '148509470',
           '148509478',
@@ -334,6 +279,13 @@ describe('FieldLogicService', () => {
           '148509476',
           '148509475',
           '148509474',
+          '154328256',
+          '154328257',
+          '154328258',
+          '154328259',
+          '154328260',
+          '154328261',
+          '154328262',
           '152139061',
           '152139062',
           '152139063',
@@ -347,6 +299,10 @@ describe('FieldLogicService', () => {
           '148604235',
           '148604234',
           '148604239',
+          '156917123',
+          '156917750',
+          '156917124',
+          '156917751',
         ].sort()
       );
     });
@@ -354,25 +310,11 @@ describe('FieldLogicService', () => {
   describe('.getFieldIdsExtendedLogicOf(fieldId)', () => {
     it('Should return all fieldIds for fields with logic', () => {
       const fieldLogic = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
-      expect(
-        fieldLogic.getFieldIdsExtendedLogicOf('148509465').sort()
-      ).toStrictEqual(
-        [
-          '148509465',
-          '148509470',
-          '148509478',
-          '148509475',
-          '148509465',
-          '148509476',
-          '148509477',
-          '148509474',
-          '148509465',
-          '151678347',
-        ].sort()
+      const fieldIds = fieldLogic.getFieldIdsExtendedLogicOf('148509465');
+      expect(fieldIds.sort()).toStrictEqual(
+        ['148509465', '148509470', '148509476'].sort()
       );
     });
   });
@@ -380,9 +322,7 @@ describe('FieldLogicService', () => {
   describe('.getCircularReferenceFieldIds()', () => {
     it('Should return an array of field ids with circular logic', () => {
       const fieldLogicService = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
 
       expect(
@@ -393,13 +333,10 @@ describe('FieldLogicService', () => {
   describe('.getFieldIdsWithCircularReferences()', () => {
     it('Should return an array of field ids with circular logic', () => {
       const fieldLogicService = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
-      expect(
-        fieldLogicService.getFieldIdsWithCircularReferences()
-      ).toStrictEqual([
+      const fieldIds = fieldLogicService.getFieldIdsWithCircularReferences();
+      expect(fieldIds).toStrictEqual([
         '148456734',
         '148456739',
         '148456740',
@@ -417,15 +354,20 @@ describe('FieldLogicService', () => {
         '148604235',
         '148604236',
         '151701616',
+        '154328256',
+        '154328257',
+        '154328258',
+        '154328259',
+        '154328260',
+        '154328261',
+        '154328262',
       ]);
     });
   });
   describe('.wrapFieldIdsIntoLabelOptionList(...)', () => {
     it('Should return a list of value/label pairs.', () => {
       const fieldLogic = new FieldLogicService(
-        transformers.formJson(
-          circularAndInterdependentJson as unknown as TApiFormJson
-        )
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
       );
 
       const labelValueList = fieldLogic.wrapFieldIdsIntoLabelOptionList([
@@ -435,11 +377,257 @@ describe('FieldLogicService', () => {
 
       expect(labelValueList).toStrictEqual([
         {
-          label: '(Error) (section) Inter-dependent (not so much circular)',
           value: '148509465',
+          label: '(Error) (section) Inter-dependent (not so much circular)',
         },
-        { label: '(Error) A.0', value: '148509478' },
+        {
+          value: '148509478',
+          label: '(Error) A.0 (inter-dependent)',
+        },
       ]);
     });
   });
 });
+
+const fieldSummaryformJson5375703 = {
+  '148456700': {
+    fieldId: '148456700',
+    label: ' (section) ',
+    type: 'section',
+  },
+  '148456734': {
+    fieldId: '148456734',
+    label: '(A) A->B->C-D->E->A (logic)',
+    type: 'checkbox',
+  },
+  '148456739': {
+    fieldId: '148456739',
+    label: '(E) A->B->C-D->E->A (logic)',
+    type: 'checkbox',
+  },
+  '148456740': {
+    fieldId: '148456740',
+    label: '(D) A->B->C-D->E->A (logic)',
+    type: 'checkbox',
+  },
+  '148456741': {
+    fieldId: '148456741',
+    label: '(C) A->B->C-D->E->A (logic)',
+    type: 'checkbox',
+  },
+  '148456742': {
+    fieldId: '148456742',
+    label: '(B) A->B->C-D->E->A (logic)',
+    type: 'checkbox',
+  },
+  '148509465': {
+    fieldId: '148509465',
+    label: 'Inter-dependent (not so much circular)',
+    type: 'section',
+  },
+  '148509470': {
+    fieldId: '148509470',
+    label: 'A (inter-dependent) ',
+    type: 'checkbox',
+  },
+  '148509474': {
+    fieldId: '148509474',
+    label: 'B.1 (inter-dependent)',
+    type: 'checkbox',
+  },
+  '148509475': {
+    fieldId: '148509475',
+    label: 'B.0 (inter-dependent)',
+    type: 'checkbox',
+  },
+  '148509476': {
+    fieldId: '148509476',
+    label: 'B (inter-dependent)',
+    type: 'checkbox',
+  },
+  '148509477': {
+    fieldId: '148509477',
+    label: 'A.1 (inter-dependent)',
+    type: 'checkbox',
+  },
+  '148509478': {
+    fieldId: '148509478',
+    label: 'A.0 (inter-dependent)',
+    type: 'checkbox',
+  },
+  '148604159': {
+    fieldId: '148604159',
+    label: 'Big Dipper + Leaf',
+    type: 'section',
+  },
+  '148604161': {
+    fieldId: '148604161',
+    label: '(A) Big Dipper A->B->C->D->(B ^ E) ',
+    type: 'checkbox',
+  },
+  '148604234': {
+    fieldId: '148604234',
+    label: '(D) Big Dipper A->B->C->D->(B ^ E)',
+    type: 'checkbox',
+  },
+  '148604235': {
+    fieldId: '148604235',
+    label: '(C) Big Dipper A->B->C->D->(B ^ E)',
+    type: 'checkbox',
+  },
+  '148604236': {
+    fieldId: '148604236',
+    label: '(B) Big Dipper A->B->C->D->(B ^ E)',
+    type: 'checkbox',
+  },
+  '148604239': {
+    fieldId: '148604239',
+    label: '(E) Leaf Node',
+    type: 'number',
+  },
+  '151678347': {
+    fieldId: '151678347',
+    label: 'Switzerland',
+    type: 'radio',
+  },
+  '151701616': {
+    fieldId: '151701616',
+    label: ' (richtext) ',
+    type: 'richtext',
+  },
+  '151702085': {
+    fieldId: '151702085',
+    label: ' (richtext) ',
+    type: 'richtext',
+  },
+  '152139061': {
+    fieldId: '152139061',
+    label: 'Triangle - ideal use',
+    type: 'section',
+  },
+  '152139062': {
+    fieldId: '152139062',
+    label: 'A (ideal)',
+    type: 'checkbox',
+  },
+  '152139063': {
+    fieldId: '152139063',
+    label: 'A.0 (ideal)',
+    type: 'checkbox',
+  },
+  '152139064': {
+    fieldId: '152139064',
+    label: 'A.1 (ideal)',
+    type: 'checkbox',
+  },
+  '152139065': {
+    fieldId: '152139065',
+    label: 'B (ideal)',
+    type: 'checkbox',
+  },
+  '152139066': {
+    fieldId: '152139066',
+    label: 'B.0 (ideal)',
+    type: 'checkbox',
+  },
+  '152139068': {
+    fieldId: '152139068',
+    label: 'B.1 (ideal)',
+    type: 'checkbox',
+  },
+  '153051795': {
+    fieldId: '153051795',
+    label: 'Conflict with show/hide, panel/field (parent panel)',
+    type: 'section',
+  },
+  '153051796': {
+    fieldId: '153051796',
+    label: 'Short Answer',
+    type: 'text',
+  },
+  '154328256': {
+    fieldId: '154328256',
+    label: 'Inter-dependent (not so much circular) no internal logic',
+    type: 'section',
+  },
+  '154328257': {
+    fieldId: '154328257',
+    label: 'A (no internal logic)',
+    type: 'checkbox',
+  },
+  '154328258': {
+    fieldId: '154328258',
+    label: 'A.0 (no internal logic)',
+    type: 'checkbox',
+  },
+  '154328259': {
+    fieldId: '154328259',
+    label: 'A.1 (no internal logic)',
+    type: 'checkbox',
+  },
+  '154328260': {
+    fieldId: '154328260',
+    label: 'B (no internal logic)',
+    type: 'checkbox',
+  },
+  '154328261': {
+    fieldId: '154328261',
+    label: 'B.0 (no internal logic)',
+    type: 'checkbox',
+  },
+  '154328262': {
+    fieldId: '154328262',
+    label: 'B.1 (no internal logic)',
+    type: 'checkbox',
+  },
+  '154795678': {
+    fieldId: '154795678',
+    label: 'binary',
+    type: 'checkbox',
+  },
+  '154795680': {
+    fieldId: '154795680',
+    label: 'Conflict with show/hide, panel/field - (Child panel)',
+    type: 'section',
+  },
+  '154795826': {
+    fieldId: '154795826',
+    label: 'The Number',
+    type: 'number',
+  },
+  '154796590': {
+    fieldId: '154796590',
+    label: 'Some Number',
+    type: 'number',
+  },
+  '156906187': {
+    fieldId: '156906187',
+    label: 'Email (for Confirmation)',
+    type: 'email',
+  },
+  '156917123': {
+    fieldId: '156917123',
+    label: 'Two Panel With Conflicting Logic (A)',
+    type: 'section',
+  },
+  '156917124': {
+    fieldId: '156917124',
+    label: 'Two Panel With Conflicting Logic (B)',
+    type: 'section',
+  },
+  '156917750': {
+    fieldId: '156917750',
+    label: 'AlwaysTrueRadioButton',
+    type: 'radio',
+  },
+  '156917751': {
+    fieldId: '156917751',
+    label: 'AlwaysFalseRadioButton',
+    type: 'radio',
+  },
+  '156919669': {
+    fieldId: '156919669',
+    label: 'Two Panel With Conflicting Logic (Control Field)',
+    type: 'text',
+  },
+};
