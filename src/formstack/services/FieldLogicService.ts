@@ -217,9 +217,9 @@ class FieldLogicService {
     return this._formModel.getFieldIdsWithLogicError();
   }
 
-  getCircularReferenceNodes(fieldId: string) {
-    return this._formModel.aggregateLogicTree(fieldId).getCircularLogicNodes();
-  }
+  // getCircularReferenceNodes(fieldId: string) {
+  //   return this._formModel.aggregateLogicTree(fieldId).getCircularLogicNodes();
+  // }
 
   getCircularReferenceFieldIds(fieldId: string) {
     return this._formModel
@@ -248,7 +248,7 @@ class FieldLogicService {
     return this._formModel.aggregateLogicTree(fieldId).getDependentFieldIds();
   }
 
-  getStatusMessagesFieldId(fieldId: string) {
+  getStatusMessagesByFieldId(fieldId: string) {
     const agTree = this._formModel.aggregateLogicTree(fieldId);
     return agTree.getStatusMessage();
   }

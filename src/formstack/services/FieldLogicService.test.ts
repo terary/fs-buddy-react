@@ -19,6 +19,27 @@ describe('FieldLogicService', () => {
       expect(fieldSummaryList).toStrictEqual(fieldSummaryformJson5375703);
     });
   });
+  describe('.getStatusMessagesByFieldId()', () => {
+    it('Should return a list of status messages for a field', () => {
+      const fieldLogic = new FieldLogicService(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+
+      const statusMessages = fieldLogic.getStatusMessagesByFieldId('148456742');
+
+      expect(statusMessages).toStrictEqual(statusMessages148456742);
+    });
+  });
+  describe('.getLogicNodeGraphMap()', () => {
+    it('Should return a field logic map to be used for d3 hierarchy graph.', () => {
+      const fieldLogic = new FieldLogicService(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+
+      const logicNodeGraphMap = fieldLogic.getLogicNodeGraphMap('148456742');
+      expect(logicNodeGraphMap).toStrictEqual(graphMap148456742);
+    });
+  });
   describe('.getFormLogicStatusMessages()', () => {
     it('Should find fieldId in logic that are not in the form.', () => {
       const fieldLogicService = new FieldLogicService(
@@ -373,6 +394,7 @@ describe('FieldLogicService', () => {
       const labelValueList = fieldLogic.wrapFieldIdsIntoLabelOptionList([
         '148509465',
         '148509478',
+        '151702085',
       ]);
 
       expect(labelValueList).toStrictEqual([
@@ -383,6 +405,10 @@ describe('FieldLogicService', () => {
         {
           value: '148509478',
           label: '(Error) A.0 (inter-dependent)',
+        },
+        {
+          value: '151702085',
+          label: '(richtext)',
         },
       ]);
     });
@@ -631,3 +657,396 @@ const fieldSummaryformJson5375703 = {
     type: 'text',
   },
 };
+
+const graphMap148456742 = [
+  {
+    nodeId: '148456742',
+    parentId: '',
+    nodeContent: {
+      nodeId: '148456742',
+      nodeType: 'FsVirtualRootNode',
+      fieldId: '148456742',
+      label: '(B) A->B->C-D->E->A (logi...',
+      operationLabel: ['vRoot', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0',
+    parentId: '148456742',
+    nodeContent: {
+      nodeId: '148456742:0',
+      nodeType: 'FsLogicBranchNode',
+      fieldId: '148456742',
+      label: '(B) A->B->C-D->E->A (logi...',
+      operationLabel: ['show', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0:1',
+    parentId: '148456742:0',
+    nodeContent: {
+      nodeId: '148456742:0:1',
+      nodeType: 'FsLogicLeafNode',
+      fieldId: '148456741',
+      label: '(C) A->B->C-D->E->A (logi...',
+      operationLabel: ['equals', 'OptionA'],
+      operand: 'equals',
+    },
+  },
+  {
+    nodeId: '148456742:0:2',
+    parentId: '148456742:0',
+    nodeContent: {
+      nodeId: '148456742:0:2',
+      nodeType: 'FsLogicBranchNode',
+      fieldId: '148456741',
+      label: '(C) A->B->C-D->E->A (logi...',
+      operationLabel: ['show', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:3',
+    parentId: '148456742:0:2',
+    nodeContent: {
+      nodeId: '148456742:0:2:3',
+      nodeType: 'FsLogicLeafNode',
+      fieldId: '148456740',
+      label: '(D) A->B->C-D->E->A (logi...',
+      operationLabel: ['equals', 'OptionA'],
+      operand: 'equals',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4',
+    parentId: '148456742:0:2',
+    nodeContent: {
+      nodeId: '148456742:0:2:4',
+      nodeType: 'FsLogicBranchNode',
+      fieldId: '148456740',
+      label: '(D) A->B->C-D->E->A (logi...',
+      operationLabel: ['show', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:5',
+    parentId: '148456742:0:2:4',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:5',
+      nodeType: 'FsLogicLeafNode',
+      fieldId: '148456739',
+      label: '(E) A->B->C-D->E->A (logi...',
+      operationLabel: ['equals', 'OptionA'],
+      operand: 'equals',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:6',
+    parentId: '148456742:0:2:4',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:6',
+      nodeType: 'FsLogicBranchNode',
+      fieldId: '148456739',
+      label: '(E) A->B->C-D->E->A (logi...',
+      operationLabel: ['show', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:6:7',
+    parentId: '148456742:0:2:4:6',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:6:7',
+      nodeType: 'FsLogicLeafNode',
+      fieldId: '148456734',
+      label: '(A) A->B->C-D->E->A (logi...',
+      operationLabel: ['equals', 'OptionA'],
+      operand: 'equals',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:6:8',
+    parentId: '148456742:0:2:4:6',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:6:8',
+      nodeType: 'FsLogicBranchNode',
+      fieldId: '148456734',
+      label: '(A) A->B->C-D->E->A (logi...',
+      operationLabel: ['show', 'if all'],
+      operand: 'all',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:6:8:9',
+    parentId: '148456742:0:2:4:6:8',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:6:8:9',
+      nodeType: 'FsLogicLeafNode',
+      fieldId: '148456742',
+      label: '(B) A->B->C-D->E->A (logi...',
+      operationLabel: ['equals', 'OptionA'],
+      operand: 'equals',
+    },
+  },
+  {
+    nodeId: '148456742:0:2:4:6:8:10',
+    parentId: '148456742:0:2:4:6:8',
+    nodeContent: {
+      nodeId: '148456742:0:2:4:6:8:10',
+      nodeType: 'FsCircularDependencyNode',
+      fieldId: '148456734',
+      ruleConflict: {
+        conditionalA: {
+          condition: 'all',
+          action: 'show',
+        },
+        conditionalB: {
+          condition: 'all',
+          action: 'show',
+        },
+      },
+      sourceFieldId: '148456734',
+      sourceNodeId: '148456742:0',
+      targetFieldId: '148456742',
+      targetNodeId: '148456742:0:2:4:6:8:10',
+      operationLabel: ['Circular Ref', 'A: (show / all)', 'B: (show / all)'],
+      label: '(A) A->B->C-D->E->A (logi...',
+    },
+  },
+];
+
+const statusMessages148456742 = [
+  {
+    severity: 'debug',
+    fieldId: '148456742',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicBranchNode",\n  "ownerFieldId": "148456742",\n  "action": "show",\n  "conditional": "all",\n  "json": {\n    "action": "show",\n    "conditional": "all",\n    "checks": [\n      {\n        "field": "148456741",\n        "condition": "equals",\n        "option": "OptionA"\n      }\n    ]\n  }\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456742',
+    message:
+      'action: \'show\', conditional: \'all\', checks(1): \'<pre><code>{\n  "action": "show",\n  "conditional": "all",\n  "checks": [\n    {\n      "field": "148456741",\n      "condition": "equals",\n      "option": "OptionA"\n    }\n  ]\n}</code></pre>\'.',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456741',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicLeafNode",\n  "fieldId": "148456741",\n  "condition": "equals",\n  "option": "OptionA"\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456741',
+    message:
+      "logic: (root fieldId: 148456742) requires  this field to 'equals' ->  'OptionA' ",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456741',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicBranchNode",\n  "ownerFieldId": "148456741",\n  "action": "show",\n  "conditional": "all",\n  "json": {\n    "action": "show",\n    "conditional": "all",\n    "checks": [\n      {\n        "field": 148456740,\n        "condition": "equals",\n        "option": "OptionA"\n      }\n    ]\n  }\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456741',
+    message: '148456742 depends on the visibility of this field.',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456740',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicLeafNode",\n  "fieldId": "148456740",\n  "condition": "equals",\n  "option": "OptionA"\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456740',
+    message:
+      "logic: (root fieldId: 148456742) requires  this field to 'equals' ->  'OptionA' ",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456740',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicBranchNode",\n  "ownerFieldId": "148456740",\n  "action": "show",\n  "conditional": "all",\n  "json": {\n    "action": "show",\n    "conditional": "all",\n    "checks": [\n      {\n        "field": 148456739,\n        "condition": "equals",\n        "option": "OptionA"\n      }\n    ]\n  }\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456740',
+    message: '148456742 depends on the visibility of this field.',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456739',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicLeafNode",\n  "fieldId": "148456739",\n  "condition": "equals",\n  "option": "OptionA"\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456739',
+    message:
+      "logic: (root fieldId: 148456742) requires  this field to 'equals' ->  'OptionA' ",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456739',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicBranchNode",\n  "ownerFieldId": "148456739",\n  "action": "show",\n  "conditional": "all",\n  "json": {\n    "action": "show",\n    "conditional": "all",\n    "checks": [\n      {\n        "field": "148456734",\n        "condition": "equals",\n        "option": "OptionA"\n      }\n    ]\n  }\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456739',
+    message: '148456742 depends on the visibility of this field.',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456734',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicLeafNode",\n  "fieldId": "148456734",\n  "condition": "equals",\n  "option": "OptionA"\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456734',
+    message:
+      "logic: (root fieldId: 148456742) requires  this field to 'equals' ->  'OptionA' ",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456734',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicBranchNode",\n  "ownerFieldId": "148456734",\n  "action": "show",\n  "conditional": "all",\n  "json": {\n    "action": "show",\n    "conditional": "all",\n    "checks": [\n      {\n        "field": 148456742,\n        "condition": "equals",\n        "option": "OptionA"\n      }\n    ]\n  }\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456734',
+    message: '148456742 depends on the visibility of this field.',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456742',
+    message:
+      '<pre><code>{\n  "nodeType": "FsLogicLeafNode",\n  "fieldId": "148456742",\n  "condition": "equals",\n  "option": "OptionA"\n}</code></pre>',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456742',
+    message:
+      "logic: (root fieldId: 148456742) requires  this field to 'equals' ->  'OptionA' ",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456742',
+    message:
+      "circular reference. root field: '148456742', logic of source field '148456742' attempted to add logic for fieldId: '148456742' which is already in the dependency chain. dependency chain: \"'148456742', '148456741', '148456740', '148456739', '148456734'\".",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'error',
+    fieldId: '148456742',
+    message:
+      "circular reference. root field: '148456742', logic of source field '148456742' attempted to add logic for fieldId: '148456742' which is already in the dependency chain. dependency chain: \"'148456742', '148456741', '148456740', '148456739', '148456734'\".",
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+  {
+    severity: 'debug',
+    fieldId: '148456742',
+    message:
+      '{"nodeType":"FsLogicBranchNode","fieldId":"148456742","conditional":"all"}',
+  },
+  {
+    severity: 'logic',
+    fieldId: '148456742',
+    message: 'Virtual Branch',
+    relatedFieldIds: [
+      '148456742',
+      '148456741',
+      '148456740',
+      '148456739',
+      '148456734',
+    ],
+  },
+];

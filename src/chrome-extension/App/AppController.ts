@@ -232,7 +232,7 @@ class AppController {
     const formFieldLogic = this.getFieldLogicServiceOrThrow()
       .getFieldIdsWithLogic()
       .map((fieldId) => {
-        const statusMessages = logicService.getStatusMessagesFieldId(fieldId);
+        const statusMessages = logicService.getStatusMessagesByFieldId(fieldId);
         const logicalNodeGraphMap = logicService.getLogicNodeGraphMap(fieldId);
 
         return {
