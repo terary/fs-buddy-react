@@ -1,16 +1,18 @@
-import { TFsFieldAnyJson } from "../classes/types";
-import { TFsFieldAny } from "../type.field";
-import { TApiForm, TApiFormJson } from "../type.form";
-import { TFsFieldAnyFromJson } from "./TFsFieldAnyFromJson";
+import { TFsFieldAnyJson } from '../classes/types';
+import { TFsFieldAny } from '../type.field';
+import { TApiForm, TApiFormJson } from '../type.form';
+import { TFsFieldAnyFromJson } from './TFsFieldAnyFromJson';
 
 const TApiFormFromJson = (formJson: TApiFormJson): TApiForm => {
   // @ts-ignore - TApiForm and TApiFormJson are incompatible.
   const theForm: TApiForm = { ...formJson };
-  theForm.inactive = formJson.inactive == "false" ? false : true;
+  theForm.inactive =
+    // @ts-ignore doesn't like the typing of "inactive"
+    formJson.inactive == 'false' || formJson.inactive === false ? false : true;
   theForm.is_workflow_form =
-    formJson.is_workflow_form == "true" || formJson.is_workflow_form == true;
+    formJson.is_workflow_form == 'true' || formJson.is_workflow_form == true;
   theForm.is_workflow_published =
-    formJson.is_workflow_published == "true" ||
+    formJson.is_workflow_published == 'true' ||
     formJson.is_workflow_published == true;
 
   theForm.fields = (formJson.fields || []).map((fieldJson: TFsFieldAnyJson) =>

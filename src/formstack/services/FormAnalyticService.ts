@@ -25,7 +25,7 @@ class FormAnalyticService {
   }
 
   get isActive() {
-    return this._fieldJson.inactive !== false;
+    return this._fieldJson.inactive !== true;
   }
 
   get isWorkflow() {
