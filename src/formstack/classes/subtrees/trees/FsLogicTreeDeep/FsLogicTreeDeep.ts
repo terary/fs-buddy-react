@@ -56,6 +56,11 @@ class FsLogicTreeDeep {
     return this._fsDeepLogicTree.countTotalNodes();
   }
 
+  getChildrenNodeIdsOf(nodeId: string) {
+    // this is exposed for testing only
+    return this._fsDeepLogicTree.getChildrenNodeIdsOf(nodeId);
+  }
+
   getDependentChainFieldIds() {
     return this._fsDeepLogicTree.getDependantFieldIds() || [];
   }
@@ -90,14 +95,6 @@ class FsLogicTreeDeep {
     }
     return this._fsDeepLogicTree.isExistInDependencyChain(field);
   }
-
-  // get ownerFieldId() {
-  //   return this._fsDeepLogicTree.ownerFieldId;
-  // }
-
-  // set ownerFieldId(ownerFieldId: string) {
-  //   this._fsDeepLogicTree.ownerFieldId = ownerFieldId;
-  // }
 
   get rootNodeId() {
     return this._fsDeepLogicTree.rootNodeId;
