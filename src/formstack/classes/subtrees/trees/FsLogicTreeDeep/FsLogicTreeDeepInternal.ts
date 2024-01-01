@@ -8,19 +8,19 @@ import {
   TGenericNodeContent,
   TNodePojo,
   TTreePojo,
-} from "predicate-tree-advanced-poc/dist/src";
-import { TSimpleDictionary } from "../../types";
+} from 'predicate-tree-advanced-poc/dist/src';
+import { TSimpleDictionary } from '../../types';
 
-import { FsCircularDependencyNode } from "./LogicNodes/FsCircularDependencyNode";
-import { FsLogicBranchNode } from "./LogicNodes/FsLogicBranchNode";
-import { FsLogicLeafNode } from "./LogicNodes/FsLogicLeafNode";
-import { FsFieldModel } from "../FsFieldModel";
-import { AbstractLogicNode } from "./LogicNodes/AbstractLogicNode";
-import { FsVirtualRootNode } from "./LogicNodes/FsVirtualRootNode";
-import { FsLogicErrorNode } from "./LogicNodes/FsLogicErrorNode";
-import { AbstractLogicTree } from "./AbstractLogicTree";
-import { NegateVisitor } from "../NegateVisitor";
-import { GenericDirectedGraph } from "predicate-tree-advanced-poc/dist/src/DirectedGraph";
+import { FsCircularDependencyNode } from './LogicNodes/FsCircularDependencyNode';
+import { FsLogicBranchNode } from './LogicNodes/FsLogicBranchNode';
+import { FsLogicLeafNode } from './LogicNodes/FsLogicLeafNode';
+import { FsFieldModel } from '../FsFieldModel';
+import { AbstractLogicNode } from './LogicNodes/AbstractLogicNode';
+import { FsVirtualRootNode } from './LogicNodes/FsVirtualRootNode';
+import { FsLogicErrorNode } from './LogicNodes/FsLogicErrorNode';
+import { AbstractLogicTree } from './AbstractLogicTree';
+import { NegateVisitor } from '../NegateVisitor';
+import { GenericDirectedGraph } from 'predicate-tree-advanced-poc/dist/src/DirectedGraph';
 // class FsLogicTreeDeepInternal extends AbstractLogicTree<AbstractLogicNode> {
 class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
   private _dependantFieldIdsInOrder: string[] = [];
@@ -66,29 +66,6 @@ class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
     this._dependantFieldIdsInOrder.push(fieldId);
   }
 
-  createSubtreeAt<Q extends IDirectedGraph<AbstractLogicNode>>(
-    parentNodeId: string
-  ): Q {
-    const subtree = new FsLogicTreeDeepInternal("_subtree_");
-
-    const subtreeParentNodeId = this.appendChildNodeWithContent(
-      parentNodeId,
-      // @ts-ignore - tree is not LogicNode
-      subtree
-    );
-
-    AbstractExpressionTree.reRootTreeAt<AbstractLogicNode>(
-      // @ts-ignore - Logic tree not AbstractExpression, reRoot is poorly typed and doesn't require most properties
-      subtree,
-      subtree.rootNodeId,
-      subtreeParentNodeId
-    );
-    subtree._rootNodeId = subtreeParentNodeId;
-    subtree._incrementor = this._incrementor;
-
-    return subtree as unknown as Q;
-  }
-
   private get dependantFieldIds() {
     return this._dependantFieldIdsInOrder.slice();
   }
@@ -98,7 +75,7 @@ class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
   ): string {
     const fieldId = this.extractFieldIdFromNodeContent(nodeContent);
     if (fieldId === null) {
-      throw new Error("Failed to extract fieldId from nodeContent.");
+      throw new Error('Failed to extract fieldId from nodeContent.');
     }
     return fieldId;
   }
@@ -198,30 +175,6 @@ class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
     // return FsLogicTreeDeepInternal.fromPojo(pojo) as T;
   }
 
-  // static fromPojo<P extends object, Q>(
-  //   srcPojoTree: TTreePojo<P>,
-  //   transform?: (nodeContent: TNodePojo<P>) => TGenericNodeContent<P>
-  // ): FsLogicTreeDeepInternal;
-  // static fromPojo<P extends object, Q>(
-  //   srcPojoTree: TTreePojo<P>,
-  //   transform?: (nodeContent: TNodePojo<P>) => TGenericNodeContent<P>
-  // ): IDirectedGraph<P>;
-  // static fromPojo<P extends object, Q = FsLogicTreeDeepInternal>(
-  //   srcPojoTree: TTreePojo<P>,
-  //   transform?: (nodeContent: TNodePojo<P>) => TGenericNodeContent<P>
-  // ): Q {
-  //   const aTree = AbstractDirectedGraph.fromPojo(
-  //     srcPojoTree,
-  //     transform
-  //   ) as unknown as FsLogicTreeDeepInternal; // to silence ts error
-
-  //   const tree = new FsLogicTreeDeepInternal(aTree.rootNodeId);
-  //   tree._incrementor = aTree._incrementor;
-  //   tree._nodeDictionary = aTree._nodeDictionary;
-
-  //   return AbstractDirectedGraph.fromPojo(srcPojoTree, transform) as Q;
-  // }
-
   getNegatedCloneAt(nodeId: string): FsLogicTreeDeepInternal {
     const visitor = new NegateVisitor();
     const clone = this.cloneAt();
@@ -252,11 +205,10 @@ class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
   ): TTreePojo<AbstractLogicNode> {
     const transformer = (nodeContent: AbstractLogicNode) => {
       try {
-        return nodeContent && "toPojo" in nodeContent
+        return nodeContent && 'toPojo' in nodeContent
           ? nodeContent.toPojo()
           : nodeContent;
       } catch (e) {
-        console.log({ e });
         return nodeContent;
       }
     };
