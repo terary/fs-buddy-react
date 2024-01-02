@@ -93,6 +93,8 @@ class FsLogicTreeDeepInternal extends AbstractDirectedGraph<AbstractLogicNode> {
       return nodeContent.fieldId;
     } else if (nodeContent instanceof FsCircularDependencyNode) {
       return nodeContent._targetFieldId; // + "-circular";
+    } else if ('fieldId' in nodeContent) {
+      return nodeContent.fieldId + ''; // force string to comply with return type
     }
 
     return null;

@@ -22,7 +22,7 @@ import { FsLogicErrorNode } from './LogicNodes/FsLogicErrorNode';
 import { NegateVisitor } from '../NegateVisitor';
 
 class FsLogicTreeDeep {
-  static readonly MAX_TOTAL_NODES = 50;
+  static readonly _MAX_TOTAL_NODES = 50;
   private _fsDeepLogicTree: FsLogicTreeDeepInternal;
   private _rootFieldId: string;
 
@@ -32,6 +32,10 @@ class FsLogicTreeDeep {
       rootNodeId,
       nodeContent
     );
+  }
+
+  private static get MAX_TOTAL_NODES() {
+    return FsLogicTreeDeep._MAX_TOTAL_NODES;
   }
 
   public appendChildNodeWithContent(
@@ -133,24 +137,6 @@ class FsLogicTreeDeep {
     );
   }
 
-  public getAllLogicStatusMessages(): TStatusRecord[] {
-    const statusMessages: TStatusRecord[] = [];
-
-    const logicNodes = this._fsDeepLogicTree
-      .getTreeContentAt(this._fsDeepLogicTree.rootNodeId)
-      .filter((nodeContent) => {
-        nodeContent instanceof AbstractLogicNode;
-      }) as AbstractLogicNode[];
-
-    logicNodes.forEach((logicNode) => {
-      // const s = logicNodes;
-      // statusMessages.push(...logicNode.getStatusMessage(this.ownerFieldId, []));
-      statusMessages.push(...logicNode.getStatusMessage(this.rootFieldId, []));
-    });
-
-    return statusMessages;
-  }
-
   private static getCircularReferenceNode(
     targetFieldId: string,
     deepTree: FsLogicTreeDeep,
@@ -209,13 +195,12 @@ class FsLogicTreeDeep {
     const countRecords: TLogicTreeDeepStatisticCountRecord = {
       totalNodes: 0,
       totalCircularLogicNodes: 0,
-      // totalCircularExclusiveLogicNodes: 0,
-      // totalCircularInclusiveLogicNodes: 0,
       totalUnclassifiedNodes: 0,
       totalLeafNodes: 0,
       totalBranchNodes: 0,
       totalRootNodes: 0,
     };
+
     this._fsDeepLogicTree.getTreeContentAt().forEach((nodeContent) => {
       countRecords.totalNodes++;
       switch (true) {
@@ -230,9 +215,8 @@ class FsLogicTreeDeep {
         case nodeContent instanceof FsLogicLeafNode:
           countRecords.totalLeafNodes++;
           break;
+
         case nodeContent instanceof FsVirtualRootNode:
-          // need to verify each Deep tree has virtual root.  It may be the case
-          // that only deepTrees with both visualTree and logicTree will have virtual tree
           countRecords.totalRootNodes++;
           break;
 
@@ -243,23 +227,6 @@ class FsLogicTreeDeep {
     });
     return countRecords;
   }
-
-  // to circumvent scope resolution
-  // public static _dev_debug_appendFieldTreeNodeToLogicDeep(
-  //   fieldLogicModel: FsFieldLogicModel,
-  //   fieldLogicNodeId: string,
-  //   deepTree: FsLogicTreeDeep,
-  //   deepTreeNodeId: string,
-  //   fieldCollection: FsFormModel
-  // ): FsLogicTreeDeep | null {
-  //   return FsLogicTreeDeep.appendFieldTreeNodeToLogicDeep(
-  //     fieldLogicModel,
-  //     fieldLogicNodeId,
-  //     deepTree,
-  //     deepTreeNodeId,
-  //     fieldCollection
-  //   );
-  // }
 
   private static appendFieldTreeNodeToLogicDeep(
     fieldLogicModel: FsFieldLogicModel,
@@ -284,7 +251,12 @@ class FsLogicTreeDeep {
       deepTree._fsDeepLogicTree.countTotalNodes() >
       FsLogicTreeDeep.MAX_TOTAL_NODES
     ) {
-      throw new Error('What - too many nodes');
+      // 'What - too many nodes'
+      throw new Error(
+        `Exceed MAX_TOTAL_NODES. Current node count: '${deepTree._fsDeepLogicTree.countTotalNodes()}',  MAX_TOTAL_NODES: '${
+          FsLogicTreeDeep.MAX_TOTAL_NODES
+        }'.`
+      );
     }
 
     if (
@@ -390,23 +362,24 @@ class FsLogicTreeDeep {
     return deepTree;
   }
 
-  private static getNegatedClone(
-    sourceTree: FsLogicTreeDeepInternal
-  ): FsLogicTreeDeep {
-    const newTree = new FsLogicTreeDeep(
-      sourceTree.rootNodeId,
-      sourceTree.getChildrenContentOf(
-        sourceTree.rootNodeId
-      ) as unknown as FsVirtualRootNode
-    );
+  // I think this is done on the internal tree
+  // private static getNegatedClone(
+  //   sourceTree: FsLogicTreeDeepInternal
+  // ): FsLogicTreeDeep {
+  //   const newTree = new FsLogicTreeDeep(
+  //     sourceTree.rootNodeId,
+  //     sourceTree.getChildrenContentOf(
+  //       sourceTree.rootNodeId
+  //     ) as unknown as FsVirtualRootNode
+  //   );
 
-    const visitor = new NegateVisitor();
-    const clone = sourceTree.cloneAt();
-    clone.visitAllAt(visitor);
-    newTree._fsDeepLogicTree = clone;
+  //   const visitor = new NegateVisitor();
+  //   const clone = sourceTree.cloneAt();
+  //   clone.visitAllAt(visitor);
+  //   newTree._fsDeepLogicTree = clone;
 
-    return newTree;
-  }
+  //   return newTree;
+  // }
 
   static fromFormModel(
     fieldId: string,
@@ -487,21 +460,10 @@ class FsLogicTreeDeep {
       ? FsFieldLogicModel.fromFieldJson(field.fieldJson)
       : null;
     if (!logicTree && !visualTree) {
-      //       { fieldId, condition, option } as TFsFieldLogicCheckLeaf
-      // const { fieldId, condition, option } = {}
-
-      // what leaf is this supposed to be
-      // deepTree.appendChildNodeWithContent(
-      //   deepTree.rootFieldId, // I think this should be deepTreeParentNodeId
-      //   new FsLogicLeafNode(fieldId, 'equals', 'option')
-      // );
       return deepTree;
     }
 
     const tree = deepTree;
-    // const tree =
-    //   deepTree ||
-    //   new FsLogicTreeDeep(field.fieldId, new FsVirtualRootNode(fieldId));
 
     const parentNodeId = deepTreeParentNodeId || tree.rootNodeId;
 

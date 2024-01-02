@@ -6,5 +6,6 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   moduleNameMapper: {'^.+\\.(css|less)$': '<rootDir>/config/CSSStub.js'}, // to import css, example: "import './style.css';"
   testEnvironment: 'node',  // to be able to use structuredClone
+  clearMocks: true,
 };
 

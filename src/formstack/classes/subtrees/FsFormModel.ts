@@ -115,14 +115,6 @@ class FsFormModel extends AbstractExpressionTree<
       tree,
       tree.rootFieldId
     );
-
-    // const firstNode =
-    //   this.aggregateLogicTree(field.fieldId) ||
-    //   new FsLogicLeafNode(check.fieldId, check.condition, check.option);
-    // tree.appendChildNodeWithContent(
-    //   tree.rootNodeId,
-    //   new FsLogicLeafNode(check.fieldId, check.condition, check.option)
-    // );
     return tree;
   }
 

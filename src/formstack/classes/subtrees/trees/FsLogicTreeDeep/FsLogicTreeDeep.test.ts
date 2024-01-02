@@ -1,6 +1,7 @@
 import { FsLogicTreeDeep } from './FsLogicTreeDeep';
 import formJson5375703 from '../../../../../test-dev-resources/form-json/5375703.json';
 import formJson5469299 from '../../../../../test-dev-resources/form-json/5469299.json';
+import webhookJson5375703 from '../../../../../test-dev-resources/webhook-json/5375703.json';
 import formJson5487084 from '../../../../../test-dev-resources/form-json/5487084.json';
 import formJson5488291 from '../../../../../test-dev-resources/form-json/5488291.json';
 import expectSnapshotJson from './FsLogicTreeDeep.snapshot.json';
@@ -14,6 +15,9 @@ import { TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
 import { AbstractLogicNode } from './LogicNodes/AbstractLogicNode';
 
 describe('FsLogicTreeDeep', () => {
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
   describe('Pojo Smoke test.', () => {
     it('Smoke Test', () => {
       const tree5469299 = FsFormModel.fromApiFormJson(
@@ -103,6 +107,7 @@ describe('FsLogicTreeDeep', () => {
       expect(pojo).toStrictEqual(dev_debug_pojo_smoke_test);
     });
   });
+
   describe('.getParentNodeId()', () => {
     it('Should return nodeId of root, if given rootNodeId (if self == parent then self is root).', () => {
       const tree5469299 = FsFormModel.fromApiFormJson(
@@ -128,6 +133,7 @@ describe('FsLogicTreeDeep', () => {
       );
     });
   });
+
   describe('.countTotalNodes()', () => {
     it('Should return total nodes in tree.', () => {
       const tree5469299 = FsFormModel.fromApiFormJson(
@@ -137,6 +143,7 @@ describe('FsLogicTreeDeep', () => {
       expect(agTree152297010.countTotalNodes()).toStrictEqual(4);
     });
   });
+
   describe('.isExistInDependencyChain()', () => {
     it('Should return true if node exists in dependency chain.', () => {
       const tree5469299 = FsFormModel.fromApiFormJson(
@@ -159,6 +166,155 @@ describe('FsLogicTreeDeep', () => {
       expect(
         agTree152297010.isExistInDependencyChain(fieldModel)
       ).toStrictEqual(false);
+    });
+  });
+
+  describe('.getStatisticCounts()', () => {
+    it('Should return total nodes in tree.', () => {
+      const tree5469299 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5469299 as unknown as TApiFormJson)
+      );
+      const unclassifiedNode = {
+        fieldId: '152297010',
+        type: 'unclassified',
+        note: 'a node that is not a leaf, branch, vRoot, or circular.',
+      };
+      const agTree152297010 = tree5469299.aggregateLogicTree('152297010');
+      agTree152297010.appendChildNodeWithContent(
+        agTree152297010.rootNodeId,
+        // @ts-ignore - the purpose of the test
+        unclassifiedNode
+      );
+      const statsRecord = agTree152297010.getStatisticCounts();
+      expect(statsRecord).toStrictEqual({
+        totalNodes: 5,
+        totalCircularLogicNodes: 0,
+        totalUnclassifiedNodes: 1,
+        totalLeafNodes: 2,
+        totalBranchNodes: 1,
+        totalRootNodes: 1,
+      });
+    });
+  });
+
+  describe('.appendNodeWithContent()', () => {
+    it('Should append node to tree.', () => {
+      const tree5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree153051795 = tree5375703.aggregateLogicTree('153051795'); //Conflict with show/hide, panel/field (parent panel)
+
+      const nodeContent = {
+        nodeType: 'FsLogicLeafNode', // AI generated.  This should be a LeafNode but AI's object seems to work also. Kinda neat
+        fieldId: '152297010',
+        condition: 'equals',
+        option: 'Zero',
+      };
+      const nodeId = agTree153051795.appendChildNodeWithContent(
+        agTree153051795.rootNodeId,
+        // @ts-ignore
+        nodeContent
+      );
+      expect(agTree153051795.getChildContentAt(nodeId)).toStrictEqual(
+        nodeContent
+      );
+    });
+    it('Should Throw error when appending to invalid parentId.', () => {
+      const tree5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree153051795 = tree5375703.aggregateLogicTree('153051795'); //Conflict with show/hide, panel/field (parent panel)
+
+      const nodeContent = {
+        nodeType: 'FsLogicLeafNode', // AI generated.  This should be a LeafNode but AI's object seems to work also. Kinda neat
+        fieldId: '152297010',
+        condition: 'equals',
+        option: 'Zero',
+      };
+      const willThrow = () => {
+        const nodeId = agTree153051795.appendChildNodeWithContent(
+          '_DOES_NOT_EXIST_',
+          // @ts-ignore
+          nodeContent
+        );
+      };
+      expect(willThrow).toThrow(
+        new Error(
+          "parentNodeId does not exists. parentNodeId: '_DOES_NOT_EXIST_'."
+        )
+      );
+    });
+    it('Should throw error when MAX_TOTAL_NODES is exceeded.', () => {
+      const tree5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const spy = jest
+        .spyOn(FsLogicTreeDeep as any, 'MAX_TOTAL_NODES', 'get')
+        .mockReturnValue(1);
+
+      const willThrow = () => {
+        tree5375703.aggregateLogicTree('153051795');
+      };
+      expect(willThrow).toThrow(
+        new Error(
+          "Exceed MAX_TOTAL_NODES. Current node count: '4',  MAX_TOTAL_NODES: '1'."
+        )
+      );
+      spy.mockRestore(); // for some reason, afterAll and jest.config does not work, because it's a static member?
+    });
+  });
+  describe('FsLogicTreeDeep.offFormDeepLogic)', () => {
+    it('Should return a new tree with all nodes from Off-Form logic expression.', () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      // const agTree152297010 = formModel5375703.aggregateLogicTree('152297010');
+
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[0].logic //"Circular Logic"
+      );
+      expect(agTree?.countTotalNodes()).toStrictEqual(13);
+    });
+    it("Should return simple tree if the off-form logic has no recursive logic (eg only the field's logic).", () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[1].logic //Swtizerland
+      );
+      expect(agTree?.countTotalNodes()).toEqual(2);
+    });
+    it('Should simple tree if only field logic (test coverage).', () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[2].logic //"Two mutually Exclusive Trees (both with circular logic)"
+      );
+      expect(agTree?.countTotalNodes()).toEqual(19);
+    });
+    it('Should null if logic is empty.', () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[3].logic //no logic (logic == [])
+      );
+      expect(agTree).toBeNull();
+    });
+    it('Should simple tree if only field logic (test coverage).', () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[4].logic //"Two Panel With Conflicting Logic"
+      );
+      expect(agTree?.countTotalNodes()).toEqual(6);
     });
   });
 });
