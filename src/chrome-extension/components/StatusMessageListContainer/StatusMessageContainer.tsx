@@ -1,8 +1,7 @@
 import React from 'react';
 // @ts-ignore - can't find this module but it compiles as expected
 import styles from './StatusMessageContainer.module.css';
-
-import { TStatusMessageSeverity, TStatusRecord } from './type';
+import { TStatusMessageSeverity, TStatusRecord } from '../../../formstack';
 
 interface Props {
   statusMessage: TStatusRecord;

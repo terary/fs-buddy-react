@@ -197,6 +197,7 @@ class FormView {
 }
 
 function getChildFrameHtml() {
+  // @ts-ignore - chrome is not defined
   const url = chrome.runtime.getURL('form-view-helper.html');
 
   return fetch(url).then((response) => {

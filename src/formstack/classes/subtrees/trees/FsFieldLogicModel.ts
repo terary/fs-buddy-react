@@ -3,7 +3,6 @@ import {
   AbstractExpressionTree,
   AbstractTree,
   IExpressionTree,
-  ITree,
   TGenericNodeContent,
   TNodePojo,
   TTreePojo,
@@ -21,7 +20,7 @@ import type {
 } from '../types';
 import { AbstractFsFieldLogicModel } from './AbstractFsFieldLogicModel';
 import { transformers } from '../../../transformers';
-import { NegateVisitor } from './NegateVisitor';
+
 const andReducer = (prev: boolean | null, cur: boolean | null) => {
   return prev && cur;
 };
@@ -38,7 +37,7 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
     return new FsFieldLogicModel();
   }
 
-  protected defaultJunction(nodeId: string): TFsFieldLogicNode {
+  protected defaultJunction(): TFsFieldLogicNode {
     // @ts-ignore - doesn't match shape of proper junction (no fieldJson or fieldId).  But this is
     // only used for creating 'virtual' trees with field and panel logic, hence no nodeContent or then 'all'
     return { conditional: 'all', fieldJson: {} };
@@ -58,13 +57,6 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
     return childContent as T;
   }
 
-  // getNegatedClone(): FsFieldLogicModel {
-  //   const visitor = new NegateVisitor();
-  //   const clone = this.cloneAt();
-  //   clone.visitAllAt(visitor);
-  //   return clone;
-  // }
-
   getShallowDependantFieldIds(): string[] {
     const children = this.getChildrenContentOf(
       this.rootNodeId
@@ -73,10 +65,9 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
       // @ts-ignore - fieldId, ownerId not on type TFsLogic...
       child.fieldId ? child.fieldId : child.ownerFieldId
     );
-    return [];
   }
 
-  evaluateWithValues<T>(values: { [fieldId: string]: any }): T | undefined {
+  x_evaluateWithValues<T>(values: { [fieldId: string]: any }): T | undefined {
     const parent = this.getChildContentAt(
       this.rootNodeId
     ) as unknown as TFsFieldLogicJunction<TFsJunctionOperators>;
@@ -107,51 +98,8 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
     // we'll return undefined if something goes wrong
   }
 
-  evaluateShowHide(values: { [fieldId: string]: any }): TFsVisibilityModes {
-    return this.evaluateWithValues<boolean>(values) ? this.action : null;
-  }
-
-  private x_demote_and_negate() {
-    const { action } = this;
-    // @ts-ignore - TFsVisibilityMode should be upcase, does transformer need fixed? or datatype?
-    if (action === 'hide') {
-      // This works - but it should be in visibilityNode
-      // or ... make 'negateTree' a method of LogicTree ?
-
-      // subtree incrementor is not working correctly.
-      // I think it fails to update new nodes count so the count is off and
-      // nodes get overwritten (or just needs to iternate same number of subtree iterator)
-      // this should be "Hide", dev/debug
-      const previousRootNodeContent = this.getChildContentAt(this.rootNodeId);
-      const previousChildrenNodeIds = this.getChildrenNodeIdsOf(
-        this.rootNodeId
-      );
-
-      this.replaceNodeContent(this.rootNodeId, {
-        // @ts-ignore
-        virtualBranch: 'something',
-        junctionOperator: '$not',
-      });
-
-      const newBranchNodeId = this.appendChildNodeWithContent(
-        this.rootNodeId,
-        previousRootNodeContent
-      );
-      previousChildrenNodeIds.forEach((childId) => {
-        this.move(childId, newBranchNodeId);
-      });
-    }
-    console.log({ logicTree: this });
-
-    return this;
-  }
-  static x_fromPojo<P extends object, Q>(
-    srcPojoTree: TTreePojo<TFsFieldLogicNode>,
-    transform?:
-      | ((nodeContent: TNodePojo<P>) => TGenericNodeContent<P>)
-      | undefined
-  ): IExpressionTree<TFsFieldLogicNode> {
-    return super.fromPojo(srcPojoTree);
+  x_evaluateShowHide(values: { [fieldId: string]: any }): TFsVisibilityModes {
+    return this.x_evaluateWithValues<boolean>(values) ? this.action : null;
   }
 
   static fromPojo<FsFieldLogicModel, TFsFieldLogicNode>(
@@ -180,17 +128,11 @@ class FsFieldLogicModel extends AbstractFsFieldLogicModel<TFsFieldLogicNode> {
       srcPojoTree as TTreePojo<TFsFieldLogicNode>,
       transformers.TFsFieldLogicNode.fromPojo
     );
-    // const genericTree = AbstractExpressionTree.fromPojo(
-    //   srcPojoTree as TTreePojo<TFsFieldLogicNode>,
-    //   transformers.TFsFieldLogicNode.fromPojo
-    // );
-
     if (!genericTree) {
       throw new Error('No Generic Tree');
     }
     const fsTree = new FsFieldLogicModel(
       rootFieldId,
-      // genericTree.rootNodeId,
       genericTree.getChildContentAt(genericTree.rootNodeId) as TFsFieldLogicNode
     );
 
@@ -357,13 +299,6 @@ const transformLogicLeafJsonToLogicLeafs = (
 export { FsFieldLogicModel };
 
 const convertFsOperatorToOp = (check: TFsFieldLogicCheckLeafJson) => {
-  // if (check.condition === "equals") {
-  //   return "$eq";
-  // }
-  // if (check.condition === "greaterThan") {
-  //   return "$gt";
-  // }
-
   return check.condition;
 };
 
@@ -388,3 +323,9 @@ const parseCandidateRootNodeId = <T>(treeObject: TTreePojo<T>): string[] => {
   });
   return candidateRootIds;
 };
+
+const testables = {
+  orReducer,
+  andReducer,
+};
+export { testables };

@@ -165,11 +165,10 @@ const App: React.FC = () => {
           // onTabOpen={handleMainTabOpen}
           // onTabClose={handleMainTabClose}
           multiple
-          activeIndex={[0]}
+          activeIndex={[]}
         >
           <AccordionTab headerTemplate={LeftRightToggle}>
-            {/* <p className="m-0"> */}
-            <Accordion multiple activeIndex={[5]}>
+            <Accordion multiple activeIndex={[0]}>
               <AccordionTab header="API">
                 <p className="m-0">
                   <ApiKeyContainer

@@ -1,8 +1,7 @@
 import React from 'react';
-// @ts-ignore doesn't like the import but it seems to compile fine
 import styles from './StatusMessageListContainer.module.css';
-import { TStatusRecord } from './type';
 import { StatusMessageContainer } from './StatusMessageContainer';
+import { TStatusRecord } from '../../../formstack';
 
 interface Props {
   statusMessages?: TStatusRecord[];

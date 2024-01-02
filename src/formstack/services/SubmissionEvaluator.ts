@@ -1,5 +1,6 @@
-// private _fieldCollection: FsFormModel;
-import type { TSubmissionJson } from "../formstack/type.form";
+import type { TFsFieldAny, TSubmissionJson } from '../../formstack';
+
+import { FsFormModel, Evaluator } from '../../formstack';
 
 type TUiSubmissionDataItem = {
   uiid: string;
@@ -7,17 +8,6 @@ type TUiSubmissionDataItem = {
   fieldType: string; // known type
   value: string;
 };
-
-// return {
-//     uiid: "field" + submissionData.field,
-//     fieldId: submissionData.field,
-//     fieldType: submissionData.type,
-//     value: submissionData.value,
-//   };
-
-import { FsFormModel } from "../formstack";
-import { Evaluator } from "../formstack/classes/Evaluator";
-import { TFsFieldAny } from "../formstack/type.field";
 
 class SubmissionEvaluator {
   private _fieldCollection: FsFormModel;

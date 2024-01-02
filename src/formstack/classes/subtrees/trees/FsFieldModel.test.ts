@@ -5,14 +5,11 @@ import type { TFsFieldAny, TFsFieldType } from '../../../type.field';
 // TFsFieldType
 import { MultipleLogicTreeError } from '../../../errors';
 import { FsTreeCalcString } from './FsTreeCalcString';
-import badCircuitFormJson from '../../../../test-dev-resources/form-json/5353031.json';
 import allFieldTypesFormJson from '../../../../test-dev-resources/form-json/allFields.json';
 
 import fifthDegreeBadCircuitFormJson from '../../../../test-dev-resources/form-json/5375703.json'; // 5353031
 import manyCalcLogicOperators from '../../../../test-dev-resources/form-json/5389250.json'; // 5353031
-import { transform } from 'typescript';
 import { transformers } from '../../../transformers';
-// import { InvalidEvaluation } from "../../InvalidEvaluation";
 type RelationshipCategoryTypes =
   | 'Dependency'
   | 'mutualExclusive'

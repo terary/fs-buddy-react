@@ -1,32 +1,22 @@
 import {
   AbstractExpressionTree,
   IExpressionTree,
-  ITree,
-} from "predicate-tree-advanced-poc/dist/src";
-import { TFsFieldAnyJson, TFsNode } from "../../types";
-import { FsTreeCalcString } from "./FsTreeCalcString";
-import { FsFieldLogicModel } from "./FsFieldLogicModel";
-import { FsFieldVisibilityLinkNode } from "./nodes/FsFieldVisibilityLinkNode";
-import { AbstractFsTreeGeneric } from "./AbstractFsTreeGeneric";
+} from 'predicate-tree-advanced-poc/dist/src';
+import { TFsFieldAnyJson, TFsNode } from '../../types';
+import { FsTreeCalcString } from './FsTreeCalcString';
+import { FsFieldLogicModel } from './FsFieldLogicModel';
+import { FsFieldVisibilityLinkNode } from './nodes/FsFieldVisibilityLinkNode';
+import { AbstractFsTreeGeneric } from './AbstractFsTreeGeneric';
 import {
   TFsFieldLogicJunction,
   TFsJunctionOperators,
   TFsVisibilityModes,
-} from "../types";
-import { MultipleLogicTreeError } from "../../../errors/MultipleLogicTreeError";
-import { FsCircularDependencyNode } from "./FsLogicTreeDeep";
-import { AbstractNode } from "./nodes/AbstractNode";
-import {
-  TFsFieldAny,
-  TFsFieldCheckbox,
-  TFsFieldRadio,
-  TFsFieldSection,
-  TFsFieldSelect,
-} from "../../../type.field";
-// import { InvalidEvaluation } from "../../InvalidEvaluation";
-import { Evaluator } from "../../Evaluator";
-
-type TSelectFields = TFsFieldRadio | TFsFieldSelect | TFsFieldCheckbox;
+} from '../types';
+import { MultipleLogicTreeError } from '../../../errors/MultipleLogicTreeError';
+import { FsCircularDependencyNode } from './FsLogicTreeDeep';
+import { AbstractNode } from './nodes/AbstractNode';
+import { TFsFieldAny, TFsFieldSection } from '../../../type.field';
+import { Evaluator } from '../../Evaluator';
 
 type TSubtrees = FsTreeCalcString | FsFieldLogicModel;
 
@@ -44,7 +34,7 @@ class FsFieldModel extends AbstractFsTreeGeneric<TFsFieldTreeNodeTypes> {
   createSubtreeAt(
     targetNodeId: string
   ): IExpressionTree<TFsFieldTreeNodeTypes> {
-    const subtree = new FsFieldModel("_subtree_");
+    const subtree = new FsFieldModel('_subtree_');
 
     const subtreeParentNodeId = this.appendChildNodeWithContent(
       targetNodeId,
@@ -71,15 +61,15 @@ class FsFieldModel extends AbstractFsTreeGeneric<TFsFieldTreeNodeTypes> {
   }
 
   get fieldType() {
-    return (this._fieldJson as TFsFieldAny)["type"];
+    return (this._fieldJson as TFsFieldAny)['type'];
   }
 
   get section_heading() {
-    return (this._fieldJson as TFsFieldSection)["section_heading"];
+    return (this._fieldJson as TFsFieldSection)['section_heading'];
   }
 
   get label() {
-    return this.fieldJson["label"];
+    return this.fieldJson['label'];
   }
 
   private getNodesOfType<T extends AbstractFsTreeGeneric<any> | AbstractNode>(
@@ -133,38 +123,6 @@ class FsFieldModel extends AbstractFsTreeGeneric<TFsFieldTreeNodeTypes> {
     ) as TFsFieldLogicJunction<TFsJunctionOperators>;
     const { action } = rootNodeContent;
 
-    // if (["hide", "Hide"].includes(action || "")) {
-    //   return simpleLogicTree.getNegatedClone();
-    // }
-
-    return simpleLogicTree;
-  }
-
-  public x_getLogicTree(): FsFieldLogicModel | null {
-    const simpleLogicTree =
-      this.getSingleTreeOfType<FsFieldLogicModel>(FsFieldLogicModel);
-    const visualLogicTree = this.getVisibilityLogicTree();
-
-    let newTree: FsFieldLogicModel;
-    if (visualLogicTree) {
-      const visibilityFieldId = this.getVisibilityNode()?.parentNode?.fieldId;
-
-      // the result tree doe not look correct. It appears there is root -> uknonwn node -> visualLogic
-      // also this uses 'defaultJunction'  which works but dont have values for fieldJson etc
-      // meaning this is calling a junction once after we create the tree - hence two junctions when we one only 1
-
-      // @ts-ignore - conditional all is not a leaf
-      newTree = new FsFieldLogicModel(this.fieldId, {
-        conditional: "all",
-        fieldJson: {}, //
-        fieldId: visibilityFieldId || "_MISSING_FIELD_ID_",
-      });
-      newTree.appendTreeAt(newTree.rootNodeId, visualLogicTree);
-      simpleLogicTree &&
-        newTree.appendTreeAt(newTree.rootNodeId, simpleLogicTree);
-      //  .appendTree(...)   "appears" to work, but the nodeId look like 'root:0:0:appendTree:3'
-      return newTree;
-    }
     return simpleLogicTree;
   }
 

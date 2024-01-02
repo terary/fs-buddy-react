@@ -48,7 +48,7 @@ class ApiConfirmationEmailManager {
   private _initialize() {
     const fileNames = fs.readdirSync(this.#cacheDirectory);
 
-    fileNames.forEach((fileName) => {
+    fileNames.forEach((fileName: string) => {
       const formId = fileName.replace('.json', '');
       const formJson = fs
         .readFileSync(path.join(this.#cacheDirectory, fileName))

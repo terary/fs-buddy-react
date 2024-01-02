@@ -1,10 +1,11 @@
+export { Evaluator } from './classes/Evaluator';
 export { FsFieldModel } from './classes/subtrees/trees';
-
 export { TUiEvaluationObject } from './classes/Evaluator/type';
 
 export { FsLogicTreeDeep } from './classes/subtrees';
 export { FsFormModel } from './classes/subtrees';
 export { transformers } from './transformers';
+export { FieldLogicService, FormAnalyticService } from './services';
 
 export type {
   TStatusRecord,
@@ -17,6 +18,5 @@ export type {
   TFsFieldLogicJunctionJson,
 } from './classes/subtrees/types';
 export type { TSubmissionJson, TApiFormJson, TApiForm } from './type.form';
+export type { TFsFieldAny } from './type.field';
 export type { TGraphNode } from './type';
-
-export { FieldLogicService, FormAnalyticService } from './services';

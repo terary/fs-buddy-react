@@ -44,6 +44,7 @@ const logicItemEntityToApiFieldKey = (
 
 const backendResponse = <T>(backendMessage: any): Promise<T> => {
   return new Promise((resolve, reject) => {
+    // @ts-ignore - chrome is unknown
     chrome.runtime.sendMessage(backendMessage, async (apiJson) => {
       // need reject somewhere, probably? (lastError ?)
       resolve(apiJson);
@@ -258,12 +259,13 @@ class AppController {
       apiKey: this.#apiKey,
     })) as { [apiFieldKey: string]: IOffFormLogic[] };
 
-    const logicItems = logicItemJson[apiFieldKey].map((logicItem: any) =>
-      transformers.offFormLogicJsonToLogic(
-        logicItem,
-        logicEntityType,
-        this.getFormModelOrThrow()
-      )
+    const logicItems = (logicItemJson[apiFieldKey] || []).map(
+      (logicItem: any) =>
+        transformers.offFormLogicJsonToLogic(
+          logicItem,
+          logicEntityType,
+          this.getFormModelOrThrow()
+        )
     ) as TOffFormLogicEntity[];
     return logicItems;
   }
