@@ -316,6 +316,16 @@ describe('FsLogicTreeDeep', () => {
       );
       expect(agTree?.countTotalNodes()).toEqual(6);
     });
+    it('Should if both field and panel logic are used.', () => {
+      const formModel5375703 = FsFormModel.fromApiFormJson(
+        transformers.formJson(formJson5375703 as unknown as TApiFormJson)
+      );
+      const agTree = formModel5375703.aggregateOffFormLogicJson(
+        // @ts-ignore
+        webhookJson5375703.webhooks[2].logic //"Two mutually Exclusive Trees (both with circular logic)"
+      );
+      expect(agTree?.countTotalNodes()).toEqual(19);
+    });
   });
 });
 

@@ -71,6 +71,8 @@ const App: React.FC = () => {
   };
 
   const handleApiGetFormRequestClick = async () => {
+    // @ts-ignore - apiKey could be null (or undefined?)
+    AppController.getInstance().setApiKey(apiParameters.apiKey);
     apiParameters.formId &&
       AppController.getInstance().fetchFormAndSetState(
         apiParameters.formId,

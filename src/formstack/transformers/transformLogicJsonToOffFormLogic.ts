@@ -35,13 +35,6 @@ const transformLogicJsonToOffFormLogic = (
 ): TOffFormLogicEntity => {
   const entityTag = logicItemEntityToTag(entityType);
   const agTree = formModel.aggregateOffFormLogicJson(offFormLogicJson.logic);
-  console.log({
-    transformJsonToOffFormLogic: {
-      entityTag,
-      name: offFormLogicJson.name,
-      agTree,
-    },
-  });
   const pojo = agTree ? agTree.toPojoAt(undefined, false) : {};
   const graphMap = transformers.pojoToD3TableData(pojo, formModel);
 

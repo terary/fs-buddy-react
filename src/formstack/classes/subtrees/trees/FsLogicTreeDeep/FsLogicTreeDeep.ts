@@ -452,6 +452,9 @@ class FsLogicTreeDeep {
     // This is not parsing as expected
     // Look at webhook Two Conflicting Panel
 
+    // this is mostly the same for the field logic trees.  Anyway
+    // to combine the two?
+
     const field = formModel.getFieldModelOrThrow(fieldId);
     const logicTree = field.getLogicTree() || null;
     const visualTree = field.getVisibilityLogicTree();

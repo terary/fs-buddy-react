@@ -1,8 +1,12 @@
 import { AbstractExpressionTree } from 'predicate-tree-advanced-poc/dist/src';
-
 import { FsFieldModel } from './trees/FsFieldModel';
-
 import { FsFieldVisibilityLinkNode, FsFormRootNode } from './trees/nodes';
+
+import { FsLogicLeafNode, FsLogicTreeDeep } from './trees/FsLogicTreeDeep';
+import { IEValuator } from '../Evaluator/IEvaluator';
+import { keyIn } from '../../../common/functions';
+import { FsVirtualRootNode } from './trees/FsLogicTreeDeep/LogicNodes/FsVirtualRootNode';
+import { transformers } from '../../transformers';
 import type {
   TFsFieldLogicCheckLeaf,
   TFsFieldLogicJunctionJson,
@@ -11,22 +15,13 @@ import type {
   TTreeFieldNode,
 } from './types';
 
-import { FsLogicLeafNode, FsLogicTreeDeep } from './trees/FsLogicTreeDeep';
-
-import { TStatusRecord, TUiEvaluationObject } from '../Evaluator/type';
-import { TApiForm, TSubmissionJson } from '../../type.form';
-import { IEValuator } from '../Evaluator/IEvaluator';
-import { TFsFieldAny } from '../../type.field';
-import { keyIn } from '../../../common/functions';
-import { FsVirtualRootNode } from './trees/FsLogicTreeDeep/LogicNodes/FsVirtualRootNode';
-import { FsFieldLogicModel } from './trees/FsFieldLogicModel';
-import { transformers } from '../../transformers';
-
-// interface ILogicCheck {
-//   fieldId: string;
-//   condition: TFsLeafOperators;
-//   option: string;
-// }
+import type {
+  TFsFieldAny,
+  TStatusRecord,
+  TUiEvaluationObject,
+  TApiForm,
+  TSubmissionJson,
+} from '../../../formstack';
 
 class FsFormModel extends AbstractExpressionTree<
   TTreeFieldNode | FsFormRootNode
@@ -129,25 +124,11 @@ class FsFormModel extends AbstractExpressionTree<
       return null;
     }
     const firstCheck = checks.pop();
-    // if (!firstCheck) {
-    //   return null;
-    // }
-    // const fModel = this.getFieldModel(firstCheck?.fieldId || '_FIELD_ID_');
     const offFormLogicTree = this._make_new_logic_tree(
       // @ts-ignore - possible null
       firstCheck, // ? fModel as FsFieldModel,
-      // @ts-ignore, this isn't being used any more
-      //      null, //firstCheck as TFsFieldLogicCheckLeaf,
       conditional
     );
-
-    // const offFormLogicTree =
-    //   this.aggregateLogicTree(firstCheck?.fieldId || '_FIELD_ID_') ||
-    //   this._make_new_logic_tree(
-    //     fModel as FsFieldModel,
-    //     firstCheck as TFsFieldLogicCheckLeaf,
-    //     conditional
-    //   );
 
     (checks || []).forEach((check: any) => {
       FsLogicTreeDeep.offFormDeepLogic(
@@ -165,10 +146,8 @@ class FsFormModel extends AbstractExpressionTree<
 
   getAllLogicStatusMessages(): TStatusRecord[] {
     const allFieldIds = Object.keys(this._fieldIdNodeMap);
-    // const allFieldIds = ["152290546", "152290563"]; // *tmc* debug
 
     const statusMessages: TStatusRecord[] = [];
-    // does _dependantFieldIds ever get used?
 
     allFieldIds.forEach((fieldId) => {
       const agTree = this.aggregateLogicTree(fieldId);
@@ -199,16 +178,19 @@ class FsFormModel extends AbstractExpressionTree<
   getFieldIdsWithLogicError(): string[] {
     const allFieldIds = Object.keys(this._fieldIdNodeMap);
     return allFieldIds.filter((fieldId) => {
-      try {
-        const agTree = this.aggregateLogicTree(fieldId);
-        if (agTree) {
-          return agTree.getLogicErrorNodes().length > 0;
-        }
-      } catch (e) {
-        console.log({ e });
-        console.log('Found it');
+      const agTree = this.aggregateLogicTree(fieldId);
+      if (agTree) {
+        return agTree.getLogicErrorNodes().length > 0;
       }
-      // return false; // necessary?
+
+      // try {
+      //   const agTree = this.aggregateLogicTree(fieldId);
+      //   if (agTree) {
+      //     return agTree.getLogicErrorNodes().length > 0;
+      //   }
+      // } catch (e) {
+      //   console.log({ e });
+      // }
     });
   }
 
@@ -226,10 +208,6 @@ class FsFormModel extends AbstractExpressionTree<
     return Object.entries(this._fieldIdNodeMap).map(([fieldId, field]) => {
       return field.evaluateWithValues(values);
     }) as T;
-  }
-
-  x_getDependantFields(): string[] {
-    return this._dependantFieldIds.slice();
   }
 
   getFieldsBySection(section: FsFieldModel) {
@@ -277,16 +255,6 @@ class FsFormModel extends AbstractExpressionTree<
     const submissionUiDataItems: TUiEvaluationObject[] = this.getAllFieldIds()
       .map((fieldId) => {
         const evaluator = this.getEvaluatorByFieldId(fieldId);
-        if (fieldId === '156707745') {
-          console.log({
-            uiPopulateObjects: evaluator.getUiPopulateObjects(
-              mappedSubmissionData[fieldId]
-            ),
-            mappedSubmissionData: mappedSubmissionData[fieldId],
-            fieldId,
-            evaluator: evaluator,
-          });
-        }
         return evaluator.getUiPopulateObjects(mappedSubmissionData[fieldId]);
       })
       .reduce((prev: TUiEvaluationObject[], cur: TUiEvaluationObject[]) => {
