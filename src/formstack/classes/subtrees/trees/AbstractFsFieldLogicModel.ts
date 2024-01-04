@@ -1,6 +1,6 @@
-import { IExpressionTree } from "predicate-tree-advanced-poc/dist/src";
-import { AbstractFsTreeGeneric } from "./AbstractFsTreeGeneric";
-import { TFsVisibilityModes } from "../types";
+import { IExpressionTree } from 'predicate-tree-advanced-poc/dist/src';
+import { AbstractFsTreeGeneric } from './AbstractFsTreeGeneric';
+import { TFsVisibilityModes } from '../types';
 
 abstract class AbstractFsFieldLogicModel<
   T extends object
@@ -9,7 +9,6 @@ abstract class AbstractFsFieldLogicModel<
   protected _ownerFieldId!: string;
 
   get action(): TFsVisibilityModes {
-    // FS
     return this._action;
   }
 
