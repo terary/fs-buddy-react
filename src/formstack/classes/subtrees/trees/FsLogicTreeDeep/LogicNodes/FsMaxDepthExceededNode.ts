@@ -1,13 +1,13 @@
-import type { TStatusRecord } from "../../../../Evaluator/type";
-import { AbstractLogicNode } from "./AbstractLogicNode";
+import type { TStatusRecord } from '../../../../Evaluator/type';
+import { AbstractLogicNode } from './AbstractLogicNode';
 
 class FsMaxDepthExceededNode extends AbstractLogicNode {
-  protected _nodeType = "FsMaxDepthExceededNode";
+  protected _nodeType = 'FsMaxDepthExceededNode';
 
   toPojo(): object {
     return {
       nodeType: this.nodeType,
-      error: "MAX_BRANCH_DEPTH_EXCEEDED",
+      error: 'MAX_BRANCH_DEPTH_EXCEEDED',
     };
   }
 
@@ -17,15 +17,15 @@ class FsMaxDepthExceededNode extends AbstractLogicNode {
   ): TStatusRecord[] {
     return [
       {
-        severity: "logic",
-        fieldId: "UNKNOWN",
-        message: "Max Depth Exceeded in tree traversal.",
+        severity: 'logic',
+        fieldId: 'UNKNOWN',
+        message: 'Max Depth Exceeded in tree traversal.',
         relatedFieldIds: dependentChainFieldIds,
       },
       {
-        severity: "error",
-        fieldId: "UNKNOWN",
-        message: "Max Depth Exceeded in tree traversal.",
+        severity: 'error',
+        fieldId: 'UNKNOWN',
+        message: 'Max Depth Exceeded in tree traversal.',
         relatedFieldIds: dependentChainFieldIds,
       },
     ];

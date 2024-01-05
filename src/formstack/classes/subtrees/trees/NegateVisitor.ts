@@ -2,11 +2,7 @@ import {
   ITreeVisitor,
   TGenericNodeContent,
 } from 'predicate-tree-advanced-poc/dist/src';
-import {
-  TFsFieldLogicNode,
-  TFsJunctionOperators,
-  TFsLeafOperators,
-} from '../types';
+import { TFsJunctionOperators, TFsLeafOperators } from '../types';
 import { AbstractLogicNode } from './FsLogicTreeDeep/LogicNodes/AbstractLogicNode';
 
 const negatedOperators: { [operator in TFsLeafOperators]: TFsLeafOperators } = {

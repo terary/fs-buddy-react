@@ -82,11 +82,6 @@ describe('NegateVisitor', () => {
   it('should do nothing if the nodeContent is undefined/null.', () => {
     // set-up
     const visitor = new NegateVisitor();
-    const tree5375703 = FsFormModel.fromApiFormJson(
-      transformers.formJson(formJson5375703 as unknown as TApiFormJson)
-    );
-
-    const agTree153051795 = tree5375703.aggregateLogicTree('153051795'); //Conflict with show/hide, panel/field (parent panel)
 
     // pre condition
     const nodeContent = {
@@ -98,11 +93,10 @@ describe('NegateVisitor', () => {
 
     // exercise
     visitor.visit(
-      agTree153051795.rootNodeId,
+      '_THIS_DOESNT_GET_USED_FOR_THIS_VISITOR_',
       // @ts-ignore
       undefined,
-      //   nodeContent as unknown as TGenericNodeContent<AbstractLogicNode>,
-      agTree153051795.rootNodeId
+      '_THIS_DOESNT_GET_USED_FOR_THIS_VISITOR_'
     );
 
     expect(nodeContent).toStrictEqual({
