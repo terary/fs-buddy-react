@@ -1,4 +1,4 @@
-import { TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
+import { ITreeVisitor, TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
 import { FsCircularDependencyNode } from './LogicNodes/FsCircularDependencyNode';
 import { FsFieldModel } from '../FsFieldModel';
 import { AbstractLogicNode } from './LogicNodes/AbstractLogicNode';
@@ -36,6 +36,10 @@ class FsLogicTreeDeep {
 
   private static get MAX_TOTAL_NODES() {
     return FsLogicTreeDeep._MAX_TOTAL_NODES;
+  }
+
+  public getAllLeafContents(): FsLogicLeafNode[] {
+    return this._fsDeepLogicTree.getAllLeafContents();
   }
 
   public appendChildNodeWithContent(
@@ -441,6 +445,13 @@ class FsLogicTreeDeep {
       parentNodeId,
       formModel
     );
+  }
+
+  visitAllAt(visitor: ITreeVisitor<AbstractLogicNode>) {
+    // should this 'clone'?
+    // should cloning be a client code responsibility?
+    // can client code clone?
+    this._fsDeepLogicTree.visitAllAt(visitor);
   }
 
   static offFormDeepLogic(

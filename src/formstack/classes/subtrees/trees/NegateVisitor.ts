@@ -1,53 +1,31 @@
-// import { ITreeVisitor } from "../ITree";
-// import { TGenericNodeContent } from "../types";
-
 import {
   ITreeVisitor,
   TGenericNodeContent,
-} from "predicate-tree-advanced-poc/dist/src";
+} from 'predicate-tree-advanced-poc/dist/src';
 import {
   TFsFieldLogicNode,
   TFsJunctionOperators,
   TFsLeafOperators,
-} from "../types";
-import { AbstractLogicNode } from "./FsLogicTreeDeep/LogicNodes/AbstractLogicNode";
-
-// type TFsLeafOperators =
-//   // these probably need to be confirmed
-//   | "lt" // numeric operators
-//   | "gt" // numeric operators
-//   | "==" // numeric operators
-//   | "!=" // numeric operators
-//   | "dateIsEqual"
-//   | "dateIsNotEqual"
-//   | "dateAfter"
-//   | "dateBefore"
-//   | "dateIsNotBetween" // (range)
-//   | "dateIsBetween" // (range);
-//   | "equals"
-//   | "notequals"
-//   | "lessthan"
-//   | "$gte"
-//   | "greaterthan"
-//   | "$lte";
+} from '../types';
+import { AbstractLogicNode } from './FsLogicTreeDeep/LogicNodes/AbstractLogicNode';
 
 const negatedOperators: { [operator in TFsLeafOperators]: TFsLeafOperators } = {
-  lt: "$gte", // numeric operators
-  gt: "$lte", // numeric operators
-  "==": "!=", // numeric operators
-  "!=": "==", // numeric operators
-  dateIsEqual: "dateIsNotEqual",
-  dateIsNotEqual: "dateIsEqual",
-  dateAfter: "dateBefore",
-  dateBefore: "dateAfter",
-  dateIsNotBetween: "dateIsBetween", // (range)
-  dateIsBetween: "dateIsNotBetween", // (range);
-  equals: "notequals",
-  notequals: "equals",
-  lessthan: "$gte",
-  $gte: "lessthan",
-  greaterthan: "$lte",
-  $lte: "greaterthan",
+  lt: '$gte', // numeric operators
+  gt: '$lte', // numeric operators
+  '==': '!=', // numeric operators
+  '!=': '==', // numeric operators
+  dateIsEqual: 'dateIsNotEqual',
+  dateIsNotEqual: 'dateIsEqual',
+  dateAfter: 'dateBefore',
+  dateBefore: 'dateAfter',
+  dateIsNotBetween: 'dateIsBetween', // (range)
+  dateIsBetween: 'dateIsNotBetween', // (range);
+  equals: 'notequals',
+  notequals: 'equals',
+  lessthan: '$gte',
+  $gte: 'lessthan',
+  greaterthan: '$lte',
+  $lte: 'greaterthan',
 };
 
 const negateLeafOperators = (operator: TFsLeafOperators): TFsLeafOperators => {
@@ -56,7 +34,7 @@ const negateLeafOperators = (operator: TFsLeafOperators): TFsLeafOperators => {
 
 const negateJunctionOperators = (
   operator: TFsJunctionOperators
-): TFsJunctionOperators => (operator === "all" ? "any" : "all");
+): TFsJunctionOperators => (operator === 'all' ? 'any' : 'all');
 
 class NegateVisitor<T extends object>
   implements ITreeVisitor<AbstractLogicNode>
@@ -71,16 +49,16 @@ class NegateVisitor<T extends object>
     nodeContent: TGenericNodeContent<AbstractLogicNode>,
     parentId: string
   ): void {
-    if (nodeContent === null) {
+    if (nodeContent === null || nodeContent === undefined) {
       return;
     }
-    if ("conditional" in nodeContent) {
+    if ('conditional' in nodeContent) {
       nodeContent.conditional = negateJunctionOperators(
         // @ts-ignore
         nodeContent.conditional
       );
     }
-    if ("condition" in nodeContent) {
+    if ('condition' in nodeContent) {
       // @ts-ignore
       nodeContent.condition = negateLeafOperators(nodeContent.condition);
     }

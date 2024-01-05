@@ -8,7 +8,6 @@ import { testables } from './FsFieldLogicModel';
 import fifthDegreeBadCircuitFormJson from '../../../../test-dev-resources/form-json/5375703.json';
 import { TTreePojo } from 'predicate-tree-advanced-poc/dist/src';
 import {
-  TFsFieldLogicCheckLeaf,
   TFsFieldLogicJunction,
   TFsFieldLogicNode,
   TFsJunctionOperators,
